@@ -118,6 +118,21 @@ PYEOF
 is_hash() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{32}$'; }
 
 # 运行一个脚本并记录结果。用法: run_step "标签" "工作目录" 命令...
+# 从脚本输出里抽取"核对/通过了多少项"。各脚本输出格式不统一，故按优先级试几种；
+# 一种都不匹配就返回空（宁可只显示 PASS，也不要显示一个可能过期的数字）。
+extract_count() {
+  local out="$1" p
+  # 五个负向脚本的收尾措辞各不相同（"项通过" / "项被捕获" / "项符合预期" / "捕获"），
+  # 但都写成 "负向测试: N/M ..."，故按该前缀取，不依赖后半句。
+  p="$(printf '%s' "$out" | grep -oE '负向测试: *[0-9]+/[0-9]+' | tail -1 | grep -oE '[0-9]+/[0-9]+' || true)"
+  if [ -n "$p" ]; then printf '%s' "$p"; return; fi
+  p="$(printf '%s' "$out" | grep -oE '已核对(数值|项数): *[0-9]+' | tail -1 | grep -oE '[0-9]+$' || true)"
+  if [ -n "$p" ]; then printf '%s 项' "$p"; return; fi
+  p="$(printf '%s' "$out" | grep -oE '[0-9]+ 项核对' | tail -1 || true)"
+  if [ -n "$p" ]; then printf '%s' "$p"; return; fi
+  printf ''
+}
+
 run_step() {
   local label="$1"; shift
   local cwd="$1"; shift
@@ -126,7 +141,12 @@ run_step() {
   out="$(cd "$cwd" && "$@" 2>&1)"; rc=$?
   if [ $rc -eq 0 ]; then
     PASS_N=$((PASS_N + 1))
-    printf '%sPASS%s\n' "$C_OK" "$C_OFF"
+    local cnt; cnt="$(extract_count "$out")"
+    if [ -n "$cnt" ]; then
+      printf '%sPASS%s  %s\n' "$C_OK" "$C_OFF" "$cnt"
+    else
+      printf '%sPASS%s\n' "$C_OK" "$C_OFF"
+    fi
   else
     FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$label (rc=$rc)")
     printf '%sFAIL%s\n' "$C_BAD" "$C_OFF"
@@ -215,22 +235,26 @@ stage_doctor() {
 # ===========================================================================
 # 阶段 2：verify —— 8 审计 + 5 负向测试（严格串行）
 # ===========================================================================
+# 标签只写描述、不写计数：计数由 extract_count() 从各脚本的**实际输出**里读。
+# 早先标签里写死了 "（349 项）" / "注入路径缺陷 6 项"，用例一增减标签就过期，
+# 而通过/失败只由退出码判定，于是过期标签会长期无人发现（实测负向路径用例
+# 已从 6 增到 8，标签仍写 6）。
 AUDITS=(
-  "audit_table_numbers.py|表格数值（349 项）"
-  "audit_figures.py|图-表一致性 + 内容指纹（124 项）"
+  "audit_table_numbers.py|表格数值"
+  "audit_figures.py|图-表一致性 + 内容指纹"
   "audit_prose_ranges.py|正文区间与表格一致"
   "audit_theory_numerics.py|理论公式数值实例化"
-  "audit_revision_layer.py|修订层代数 + 文本自洽（52 项）"
+  "audit_revision_layer.py|修订层代数 + 文本自洽"
   "audit_decision_neutrality.py|决策中性"
   "audit_reputation_fidelity.py|声誉实现保真"
   "audit_paths.py|路径解析层"
 )
 NEGATIVES=(
-  "negative_test_tables.py|注入表格缺陷 5 项"
-  "negative_test_figures.py|注入图件缺陷 8 项"
-  "negative_test_theory.py|注入理论缺陷 3 项"
-  "negative_test_paths.py|注入路径缺陷 6 项"
-  "negative_test_revision.py|注入修订层缺陷 8 项"
+  "negative_test_tables.py|注入表格缺陷"
+  "negative_test_figures.py|注入图件缺陷"
+  "negative_test_theory.py|注入理论缺陷"
+  "negative_test_paths.py|注入路径缺陷"
+  "negative_test_revision.py|注入修订层缺陷"
 )
 
 stage_verify() {
