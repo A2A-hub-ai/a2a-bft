@@ -1,70 +1,84 @@
-# 审计体系说明（AUDIT）
+# The Audit System (AUDIT)
 
-本仓库对论文的每一个数字都做**可重算的核验**。本文档说明审计分了哪几层、
-每层查什么、如何确信审计本身不是空转。
+> Language: **English** | [简体中文](AUDIT.zh-CN.md)
 
-> **关于文中出现的项数（"349 项"、"8/8" 之类）**
-> 它们随用例增减而变，写进文档就有过期的风险——而判定只看退出码，
-> 所以过期的数字能长期不被发现（已实测发生：`reproduce.sh` 的标签曾停留在
-> "注入路径缺陷 6 项"，而脚本实际已扩到 8 项）。
-> **权威计数始终是 `./reproduce.sh verify` 的实时输出**：它由 `extract_count()`
-> 从各脚本的实际输出里读，不写死。本文档与 README 中的数字若与之不符，
-> **以实时输出为准**，并把不一致的那一处修掉。
+This repository subjects **every number in the paper to a recomputation-based
+check**. This document explains which layers the audit is divided into, what each
+layer checks, and why the audit itself is not vacuous.
 
----
-
-## 1. 为什么要做审计
-
-论文里最容易出错、也最难被发现的地方不是算法，而是**数字与它声称的来源之间
-的落差**：表格里的值是手抄的、区间是拍的、题注的样本量口径与正文不一致、
-代码里的阈值公式与论文写的不一样。这类问题在"读一遍"时通常看不见，
-因为**每个数字单独看都合理**。
-
-因此本仓库的核验原则是：**能从原始数据重新算出来的，就不要相信抄写**。
+> **About the item counts appearing in this document ("349 items", "8/8", ...)**
+> They change as cases are added or removed, so writing them into documentation
+> invites staleness — and because pass/fail is decided by exit codes alone, a
+> stale number can go unnoticed for a long time (this actually happened:
+> `reproduce.sh`'s label was stuck at "6 injected path defects" while the script
+> had already grown to 8).
+> **The authoritative count is always the live output of `./reproduce.sh verify`**:
+> it is read by `extract_count()` from each script's actual output and is never
+> hard-coded. If a number here or in the README disagrees with that live output,
+> **the live output wins**, and the disagreeing number should be fixed.
 
 ---
 
-## 2. 九层审计模型
+## 1. Why audit at all
 
-| 层 | 名称 | 查什么 |
+The easiest place in a paper to make a mistake — and the hardest place to notice
+one — is not the algorithm but **the gap between a number and the source it claims
+to come from**: table values copied by hand, ranges eyeballed, caption sample
+sizes inconsistent with the prose, threshold formulas in code differing from
+those in the paper. Such problems are usually invisible when "reading through",
+because **every individual number looks reasonable**.
+
+Hence the repository's verification principle: **anything that can be recomputed
+from the raw data must not be trusted as transcription.**
+
+---
+
+## 2. The nine-layer audit model
+
+| Layer | Name | What it checks |
 |----|------|--------|
-| L1 | 表格数值 | 论文表格中的每个数字 vs `experiments/results/` 原始数据重算结果 |
-| L2 | 公式代数 | 表格中由公式推导的列（如容错列）是否与定理代数等价 |
-| L3 | 外部真实性与机制兑现 | 引用的外部方法数据来源是否标注；声明的机制是否真的实现 |
-| L4 | 正文区间 | 摘要/正文/结论中的数值区间、百分比、样本量是否与表格一致 |
-| L5 | 方法学承诺 + 定理假设完备性 | 承诺的实验条件（种子数、任务数）是否真的执行；定理假设是否覆盖结论所需条件 |
-| L5b | **定理可证性** | 结论能否从假设推出（假设允许的行为是否足以否证结论） |
-| L6 | 来源与出处 | 数据文件 → 生成脚本 → 论文位置的链路是否闭合 |
-| L7 | 图表层 | 图的数据来源、题注披露（如 n=90）、PDF 与生成脚本的新鲜度 |
-| L8 | **承诺面与交付代码层** | 论文中"All source code / 复现性声明"所承诺的内容，交付物是否真的满足 |
-| L9 | **路径解析层** | 交付脚本里的每个路径常量（数据目录、`sys.path` 目标）是否指向真实位置 |
+| L1 | Table numbers | Every number in the paper's tables vs. recomputation from `experiments/results/` |
+| L2 | Formula algebra | Whether columns derived by formula (e.g. the fault-tolerance column) are algebraically equivalent to the theorem |
+| L3 | External fidelity and mechanism delivery | Whether cited external-method data is attributed; whether claimed mechanisms are actually implemented |
+| L4 | Prose ranges | Whether numeric ranges, percentages, and sample sizes in the abstract/prose/conclusion match the tables |
+| L5 | Methodological promises + theorem assumption completeness | Whether promised experimental conditions (seed count, task count) were actually executed; whether the theorem's assumptions cover what the conclusion needs |
+| L5b | **Theorem provability** | Whether the conclusion follows from the assumptions (whether behaviours the assumptions permit are enough to falsify it) |
+| L6 | Provenance | Whether the chain data file → generating script → paper location is closed |
+| L7 | Figure layer | Figure data sources, caption disclosure (e.g. n=90), freshness of PDFs vs. generating script |
+| L8 | **Promise surface and delivered-code layer** | Whether the deliverable actually satisfies what "All source code / reproducibility statement" promises |
+| L9 | **Path resolution layer** | Whether every path constant in the delivered scripts (data directory, `sys.path` target) points at a real location |
 
-> L5b、L8、L9 是本项目审计中最后补齐的三层：前者管"理论是否成立"，
-> L8 管"交付物是否兑现承诺"，**L9 管"交付物是否还能跑"**。
+> L5b, L8, and L9 are the last three layers added to this project's audit: L5b
+> governs "does the theory hold", L8 governs "does the deliverable keep its
+> promises", and **L9 governs "does the deliverable still run"**.
 
-### 为什么会有 L9
+### Why L9 exists
 
-2026-09-15 的目录重组把脚本搬了家。搬完之后：
+The 2026-09-15 directory reorganization moved scripts. Afterwards:
 
-- `experiments/reproduce/parse_correctness_log.py` 与 `run_pairing_mcnemar.py`
-  用 `os.path.join(HERE, "results", ...)` 定位数据目录。脚本在 `experiments/` 下时
-  HERE 正好是结果目录的父目录；搬进 `experiments/reproduce/` 后，HERE 变了，
-  路径指向**不存在的** `experiments/reproduce/results/`。这两个脚本正是论文
-  `tab:n8_scaling` 与 McNemar 配对检验的数据来源——按复现文档走到 Pipeline D 会直接报错。
-- `docs/cleanup/build_cleanup_list.py` 用 `ROOT = dirname(abspath(__file__))`
-  定位项目根，搬进 `docs/cleanup/` 后 ROOT 变成 `docs/cleanup`，
-  `add()` 命中不了任何路径，删除清单**恒为空且不报错**。
+- `experiments/reproduce/parse_correctness_log.py` and `run_pairing_mcnemar.py`
+  located their data directory via `os.path.join(HERE, "results", ...)`. While the
+  scripts sat under `experiments/`, HERE happened to be the parent of the results
+  directory; after moving into `experiments/reproduce/`, HERE changed and the path
+  pointed at a **non-existent** `experiments/reproduce/results/`. These two scripts
+  are exactly the data sources for the paper's `tab:n8_scaling` and the McNemar
+  paired test — following the reproduction guide to Pipeline D fails outright.
+- `docs/cleanup/build_cleanup_list.py` located the project root with
+  `ROOT = dirname(abspath(__file__))`; after moving into `docs/cleanup/`, ROOT
+  became `docs/cleanup`, `add()` matched nothing, and the deletion manifest was
+  **always empty and never raised an error**.
 
-当时的验收只验证了 `sys.path` 插入目标，**完全没覆盖"数据目录常量"这一类**，
-于是"全绿"掩盖了三个脚本已经跑不起来。L9 就是补上这个盲区。
+The acceptance check at the time only verified `sys.path` insertion targets and
+**did not cover the "data directory constant" class at all**, so "all green"
+concealed three scripts that could no longer run. L9 closes that blind spot.
 
 ---
 
-## 3. 审计脚本
+## 3. Audit scripts
 
-### 3.1 `audit_table_numbers.py` —— 349 项
+### 3.1 `audit_table_numbers.py` — 349 items
 
-| 函数 | 覆盖对象 |
+| Function | Coverage |
 |------|----------|
 | `check_baseline()` | `tab:baseline` |
 | `check_bft()` | `tab:bft` |
@@ -72,369 +86,453 @@
 | `check_ablation()` | `tab:ablation` |
 | `check_compare()` | `tab:hetero_compare` |
 | `check_n8()` | `tab:n8_scaling` |
-| `check_ttest()` | 配对 t 检验统计量（由原始数据重算） |
-| `check_attack_ranges()` | `tab:attacks` 的区间 = 来源行的 min/max |
-| `check_real_llm()` | `tab:real_llm`（含提交数/完成数/API 失败数守恒） |
-| `check_complexity()` | `tab:complexity` 容错列与定理等价；轮数列与实测 min–max 一致 |
-| `check_a2a_sim()` | `tab:a2a_sim_comparison` 的 Δ 算术与外部数据标注 |
-| `check_promises()` | **L8**：复现性声明中的硬件/规模承诺是否与正文、附录一致 |
+| `check_ttest()` | Paired t-test statistics (recomputed from raw data) |
+| `check_attack_ranges()` | `tab:attacks` ranges = min/max of the source rows |
+| `check_real_llm()` | `tab:real_llm` (incl. conservation of submitted / completed / API-failed counts) |
+| `check_complexity()` | `tab:complexity` fault-tolerance column equivalent to the theorem; round-count column matching measured min–max |
+| `check_a2a_sim()` | `tab:a2a_sim_comparison` Δ arithmetic and external-data attribution |
+| `check_promises()` | **L8**: whether the hardware/scale promises in the reproducibility statement match the main text and appendix |
 
-数据源：`full_bft_sweep_aggregated.json`、`multi_model_3seed_aggregated.json`、
-`correctness_50t_3s_run1_from_log.json`、`deepseek_{math,knowledge,code}_fixed_20.json`。
+Data sources: `full_bft_sweep_aggregated.json`,
+`multi_model_3seed_aggregated.json`,
+`correctness_50t_3s_run1_from_log.json`,
+`deepseek_{math,knowledge,code}_fixed_20.json`.
 
-### 3.2 `audit_figures.py` —— 124 项
+### 3.2 `audit_figures.py` — 124 items
 
-- 五张图的**存在性**与**新鲜度**（内容指纹口径：`figures/.figsource.json` 记录
-  生成脚本的逻辑指纹与各数据文件 md5；改一行注释不会误报陈旧，改数据必报警）
-- 图题注与表题注中的样本量披露（例如 n=90 必须出现）
-- 图数据点与聚合 JSON 的逐点比对
+- **Existence** and **freshness** of the five figures (content-fingerprint basis:
+  `figures/.figsource.json` records the generating script's logical fingerprint
+  and the md5 of each data file; changing a comment does not falsely report
+  staleness, changing data always does)
+- Sample-size disclosure in figure and table captions (e.g. n=90 must appear)
+- Point-by-point comparison of figure data points against the aggregate JSON
 
-覆盖全部 5 张论文图（`consensus_flow`、`architecture`、`reputation_mechanism`、
-`performance_comparison`、`attack_resistance`）。
+Covers all 5 paper figures (`consensus_flow`, `architecture`,
+`reputation_mechanism`, `performance_comparison`, `attack_resistance`).
 
 ### 3.3 `audit_theory_numerics.py`
 
-- §6 **决策一致性余量**：对所有 `n ≤ 20`、在安全边界内的配置，验证
-  `gap ≥ 2f + 0.5s` 且 `gap > 1.5f`（Byzantine 选票翻转上限）
-- §7 **可执行探针**：直接调用参考实现的 `ConsensusLayer._commit`，用 5 组
-  `(n, f, s, A, R)` 检查其决策与论文规则一致（含 `(4,0,0,A=2,R=1) → PENDING`）
-- §8 **交付代码阈值扫描**：递归扫描 `src/` 下所有 `.py`，确认不存在与论文阈值
-  规则相矛盾的写法
+- §6 **Agreement margin**: for all configurations with `n ≤ 20` inside the safety
+  boundary, verify `gap ≥ 2f + 0.5s` and `gap > 1.5f` (the Byzantine vote-flip
+  bound)
+- §7 **Executable probe**: call the reference implementation's
+  `ConsensusLayer._commit` directly and check, over 5 `(n, f, s, A, R)` cases,
+  that its decisions match the paper's rule (including
+  `(4,0,0,A=2,R=1) → PENDING`)
+- §8 **Delivered-code threshold sweep**: recursively scan every `.py` under `src/`
+  and confirm no writing contradicts the paper's threshold rule
 
 ### 3.4 `audit_prose_ranges.py`
 
-正文/摘要中的数值区间与表格的一致性，以及"表格未展示的单元格"是否被恰当地
-限定（避免"覆盖率被读成 100%"）。
+Consistency of numeric ranges in the prose/abstract against the tables, and
+whether "cells not shown in a table" are appropriately qualified (avoiding
+"coverage read as 100%").
 
-### 3.5 `audit_paths.py`（L9）—— 文件类 37 / 目录类 119 / 冒烟 160 / `sys.path` 64 / `open()` 8 / 文档命令 79
+### 3.5 `audit_paths.py` (L9) — file class 38 / dir class 121 / smoke 163 / `sys.path` 64 / `open()` 8 / doc commands 152 (as of this revision)
 
-> 这些计数随文件增删而变，**不是固定值**：脚本本身会打印当次实测值，
-> 判断标准是"各项均 > 0 且问题数为 0"，不是"数字等于某个历史值"。
-> 修改本行时请以 `audit_paths.py` 的实际输出为准。
+> These counts change as files are added or removed and are **not fixed values**:
+> the script itself prints the current measured numbers, and the criterion is
+> "every counter > 0 and problem count = 0", not "the numbers equal some historic
+> value". When editing this line, take the numbers from `audit_paths.py`'s actual
+> output.
 
-| 节 | 检查 |
+| Section | Check |
 |----|------|
-| §1 | 项目内每个路径常量的**父目录必须存在**（写文件的路径允许目标文件尚不存在，但目录必须先有） |
-| §2 | **冒烟指纹**：路径是否**由脚本自身位置推导**出 `<脚本目录>/<数据目录名>/`——代码目录下不会挂数据目录 |
-| §3 | 所有被插入 `sys.path` 的目录必须存在 |
-| §4 | 诊断：依赖 CWD 的相对路径常量、AutoDL 侧 POSIX 路径（不判失败） |
-| §5 | 读取型 `open()` 的数据文件必须真实存在（2026-09-17 新增） |
-| §6 | 文档/脚本里给出的 `python\|bash <路径>` 命令必须指向真实存在的脚本（2026-09-17 新增） |
+| §1 | The **parent directory** of every path constant inside the project must exist (a path used for writing may point at a not-yet-existing file, but its directory must already exist) |
+| §2 | **Smoke fingerprint**: whether a path is **derived from the script's own location** as `<script dir>/<data dir name>/` — a code directory never hosts a data directory |
+| §3 | Every directory inserted into `sys.path` must exist |
+| §4 | Diagnostics: CWD-dependent relative path constants, AutoDL-side POSIX paths (not judged as failures) |
+| §5 | Data files opened for **reading** via `open()` must actually exist (added 2026-09-17) |
+| §6 | `python\|bash <path>` commands given in documentation/scripts must point at scripts that actually exist (added 2026-09-17) |
 
-> **§6 的由来**：复现者不会读源码，只会照抄 `README.md` / `REPRODUCTION.md` 里的命令。
-> 第 19 轮目录重整后，实测**包内仍有 5 处文档写着旧路径**（把审计脚本写成挂在
-> `experiments/` 之下，而它已迁至 `experiments/verification/`），照抄即
-> `No such file or directory`。而 §1–§5 全部只扫描 `.py`，对此完全无感。
-> §6 覆盖 `.md / .sh / .txt`；`docs/reviews/` 作为"当时状态"的历史快照不参与判定。
+> **Where §6 came from**: a reproducer does not read source code, they copy
+> commands out of `README.md` / `REPRODUCTION.md`. After the round-19 directory
+> reorganization, **5 places in the packaged documentation still gave old paths**
+> (placing an audit script under `experiments/` when it had moved to
+> `experiments/verification/`), and copying them yields
+> `No such file or directory`. Yet §1–§5 all scan `.py` only and are completely
+> blind to this class.
+> §6 covers `.md / .sh / .txt`; `docs/reviews/` is excluded as a historical
+> snapshot of "the state at the time".
 >
-> 注意：本节的说明文字本身也不能出现**字面可执行的失效命令**——§6 会把
-> 文档中作为反面例子引用的命令一并判定为失效（实测：本节初稿即被 §6 拦下）。
-> 描述历史缺陷时请用描述性措辞，不要粘贴原始命令行。
+> Note: the explanatory text of this section itself must not contain a
+> **literally executable dead command** — §6 will flag a command quoted as a
+> counter-example as dead too (observed: this section's first draft was caught by
+> §6). When describing historical defects, use descriptive wording rather than
+> pasting the raw command line.
 
-判"由脚本自身位置推导"看的是**推导来源**而不是**恰好同名**：
-`papers/generate_figures.py` 里 `ROOT/papers/figures` 恰好等于"脚本目录/figures"，
-但它由项目根推导，属正确写法；真正的缺陷是从脚本自身目录推导。二者混淆会产生假阳性。
+Deciding "derived from the script's own location" looks at the **derivation
+source**, not at mere name coincidence: in `papers/generate_figures.py`,
+`ROOT/papers/figures` happens to equal "script dir/figures", but it is derived
+from the project root, which is correct; the real defect is deriving from the
+script's own directory. Confusing the two produces false positives.
 
-实现上有三条硬约束（都是踩坑换来的，见 `audit_paths.py` 模块 docstring）：
+The implementation carries three hard constraints (each bought with a real
+incident — see the module docstring of `audit_paths.py`):
 
-1. **绝不 `exec`。** 早期版本用 `exec` 逐条执行顶层语句来取常量值，结果把
-   `mbpp_debate_fix.py` 的实验主体也执行了，真实打出 API 请求并挂住进程。
-   现在改为纯 AST **符号求值**，只认 `os.path.*` / 字符串拼接 / f-string /
-   `Path / "x"` / `os.environ.get` 默认值这一小类表达式，求不出即 UNKNOWN。
-2. **识别"向上查找项目根"的三种写法**（`while` 里 `X = dirname(X)`、
-   `while True` 里 `if exists(_cur/marker): X = _cur; break`、
-   `def _find_root(start) → return cur` 后 `ROOT = _find_root(__file__)`）。
-   只认其中一种，另外两种会被算成"脚本目录"，一次产生 4~12 条假阳性。
-3. **防空转。** 文件类/目录类/冒烟/`sys.path` 四类计数各有独立计数器，
-   任一项为 0 即判失败。
+1. **Never `exec`.** An early version used `exec` to evaluate top-level statements
+   one by one to extract constant values, and ended up executing
+   `mbpp_debate_fix.py`'s experiment body too — issuing real API requests and
+   hanging the process. It now performs pure-AST **symbolic evaluation**,
+   recognising only `os.path.*`, string concatenation, f-strings, `Path / "x"`,
+   and `os.environ.get` defaults; anything else evaluates to UNKNOWN.
+2. **Recognise the three idioms for "search upward for the project root"**
+   (`X = dirname(X)` inside a `while`; `if exists(_cur/marker): X = _cur; break`
+   inside `while True`; `def _find_root(start) → return cur` followed by
+   `ROOT = _find_root(__file__)`). Recognising only one of them made the other two
+   count as "script directory", producing 4–12 false positives at a time.
+3. **Guard against vacuity.** The file-class / dir-class / smoke / `sys.path`
+   counters each have their own counter, and any of them being 0 fails the audit.
 
-### 3.6 `audit_reputation_fidelity.py` —— 保真度比对
+### 3.6 `audit_reputation_fidelity.py` — fidelity comparison
 
-`experiments/reproduce/reputation_ablation.py` 的 `ReputationTracker` 声称是
-"论文 Algorithm 1 的忠实实现"。**声称不能自证**，所以本审计把
-`src/a2a_bft/deepseek_worker.py:982-1002` 的罚则片段**逐行照搬**成独立的
-`released_update()`，再让两者在**同一随机投票序列**上逐轮比对 `r_i`。
+`ReputationTracker` in `experiments/reproduce/reputation_ablation.py` claims to
+be "a faithful implementation of the paper's Algorithm 1". **A claim cannot
+certify itself**, so this audit **copies line by line** the penalty fragment at
+`src/a2a_bft/deepseek_worker.py:982-1002` into an independent
+`released_update()`, then compares the two round by round over `r_i` on the
+**same random vote sequence**.
 
-| 项 | 值 |
+| Item | Value |
 |----|-----|
-| 比对步数 | 12000（300 条序列 × 40 步） |
-| 不一致步数 | 0 |
-| 升级罚触发（参考实现 / 本实现） | 5180 / 5180 |
+| Comparison steps | 12000 (300 sequences × 40 steps) |
+| Steps in disagreement | 0 |
+| Escalated-penalty triggers (reference / this implementation) | 5180 / 5180 |
 
-结论：追踪器忠实复刻了发布实现，**包括** suspect 计数达阈值时那一次额外的
-`max(0.3, r - 0.2)`。这直接把论文里一处内部矛盾变成了可裁决的问题：
-§4.3 说参考实现 "escalates penalties for persistent misbehaviour"，而附录说
-suspect 计数器 "warnings only; penalties are fixed per tier"。
-**代码支持前者**，实测的 `escalated` 计数是唯一权威口径。
+Conclusion: the tracker faithfully replicates the released implementation,
+**including** that extra `max(0.3, r - 0.2)` when the suspect counter reaches its
+threshold. This turns an internal contradiction in the paper into a decidable
+question: §4.3 says the reference implementation "escalates penalties for
+persistent misbehaviour", while the appendix says the suspect counter is
+"warnings only; penalties are fixed per tier". **The code supports the former**,
+and the measured `escalated` count is the only authoritative figure.
 
-> 这个审计也暴露过自己的一个 bug：`self.suspect` 最初只被声明和读取、
-> 从未自增，导致 `0 >= 3` 恒假、升级罚永不触发——即"忠实实现"里悄悄少了
-> 一整条罚则。**保真度必须用独立实现对照，不能靠读代码确认。**
+> This audit also exposed a bug in itself: `self.suspect` was initially declared
+> and read but never incremented, so `0 >= 3` was always false and the escalated
+> penalty never fired — i.e. the "faithful implementation" was quietly missing an
+> entire penalty rule. **Fidelity must be established against an independent
+> implementation, never by reading the code.**
 
-#### 3.6.1 投票字母表必须包含 ABSTAIN（2026-09-17 修正）
+#### 3.6.1 The vote alphabet must include ABSTAIN (corrected 2026-09-17)
 
-上面那张表的升级罚触发数一度是 `7123 / 7123`。改为 **`5180 / 5180`** 不是实现
-变了，而是**随机投票字母表**变了：原审计只掷 `accept` / `reject` 两种票，而线上
-真实票流（`reputation_vote_stream.json`，2{,}461 票）里有 **148 票是 ABSTAIN**
-（`ABSTAIN/False` 104 + `ABSTAIN/True` 44）。加入弃权后，"奖励分支"会在更多轮被
-重置，升级计数器随之后移，绝对次数下降但两边**仍然逐轮一致**。
+The escalated-trigger count in the table above was once `7123 / 7123`. Changing
+it to **`5180 / 5180`** was not an implementation change but a **change in the
+random vote alphabet**: the original audit drew only `accept` / `reject`, whereas
+the real online vote stream (`reputation_vote_stream.json`, 2{,}461 votes)
+contains **148 ABSTAIN votes** (`ABSTAIN/False` 104 + `ABSTAIN/True` 44). With
+abstentions included, the "reward branch" resets on more rounds, the escalation
+counter shifts later, and the absolute count drops while the two sides remain
+**round-by-round identical**.
 
-同一轮修正还改掉了一处**只在弃权上暴露的语义陷阱**：`reputation_ablation.py`
-原先用
+The same correction fixed a **semantic trap that only surfaces on abstentions**:
+`reputation_ablation.py` previously used
 
 ```python
-ok = (v == 'accept') == c        # 错
+ok = (v == 'accept') == c        # wrong
 ```
 
-而发布实现（`deepseek_worker.py:975-980`）用的是析取：
+while the released implementation (`deepseek_worker.py:975-980`) uses a
+disjunction:
 
 ```python
-ok = ((v == 'accept') and c) or ((v == 'reject') and (not c))   # 对
+ok = ((v == 'accept') and c) or ((v == 'reject') and (not c))   # correct
 ```
 
-两者在 `accept` / `reject` 上完全等价，**只在 ABSTAIN 上分歧**：当 `c = False`
-（提案错误）时，`(v == 'accept') == c` 会把 **ABSTAIN 判成"投对了"**，从而可能
-拿到 `+0.1` 奖励。论文 Algorithm 1 的原文正是这个错写法。已同时修正代码、论文
-Algorithm 1 与 §4.4 的说明，并按修正后的语义**重测了整张声誉表**（正文
-"$1{,}186$ of $1{,}305$"，原为 $1{,}217$ of $1{,}305$）。
+The two are exactly equivalent on `accept` / `reject` and **diverge only on
+ABSTAIN**: when `c = False` (a wrong proposal), `(v == 'accept') == c` counts
+**ABSTAIN as "voted correctly"**, potentially earning a `+0.1` reward. The
+paper's Algorithm 1 originally had exactly this wrong form. The code, the paper's
+Algorithm 1, and the explanation in §4.4 were all corrected, and the entire
+reputation table was **re-measured** under the corrected semantics (main text now
+says "$1{,}186$ of $1{,}305$", previously $1{,}217$ of $1{,}305$).
 
-> 教训与 3.6 相同但更尖锐：保真度审计不仅要对照**罚则**，还要对照**投票字母表
-> 与真值定义**。只覆盖两种票的审计，对"弃权算不算投对"这个问题是盲的。
+> The lesson is the same as §3.6 but sharper: a fidelity audit must compare not
+> only the **penalty rules** but also the **vote alphabet and ground-truth
+> definition**. An audit covering only two vote values is blind to the question
+> "does abstention count as voting correctly".
 
-### 3.7 `verify_mbpp_subboundary.py` —— 越界错误提交的离线复现
+### 3.7 `verify_mbpp_subboundary.py` — offline reproduction of the out-of-bound wrong commit
 
-论文报告：在执行验证域（MBPP）内，**越界配置**（$n{=}5, f{=}2$）出现
-$5.6$--$9.6\%$ 的错误提交，而边界内一律 $0.0\%$。这组数字曾被质疑"在代码域
-数学上不可能"（执行验证器会拦住任何错误代码）。为了把"可能/不可能"从断言
-变成可复现的事实，本脚本**不调用任何 LLM**，在本地重建两条路径：
+The paper reports that in the execution-verification domain (MBPP), the
+**out-of-bound configurations** ($n{=}5, f{=}2$) produce $5.6$–$9.6\%$ wrong
+commits, while in-bound configurations are uniformly $0.0\%$. These numbers were
+once challenged as "mathematically impossible in the code domain" (an execution
+verifier should block any wrong code). To turn "possible/impossible" from an
+assertion into a reproducible fact, this script **calls no LLM at all** and
+rebuilds both paths locally:
 
-- `A2ABFT`（严格语义）：拜占庭验证者按代码域规则投票；
-- `A2ABFSybil`（复刻 `full_bft_sweep.py` 的 Sybil 层）：拜占庭验证者以
-  75% / 25% 投 REJECT / ACCEPT。
+- `A2ABFT` (strict semantics): Byzantine validators vote by the code-domain rules;
+- `A2ABFSybil` (replicating the Sybil layer of `full_bft_sweep.py`): Byzantine
+  validators vote REJECT / ACCEPT with 75% / 25% probability.
 
-两条路径都让"提案"以 `P_MODEL = 0.70` 返回数据集标准解、否则返回被篡改的解，
-从而测出：
+Both paths make the "proposal" return the dataset's reference solution with
+`P_MODEL = 0.70` and a tampered solution otherwise, measuring:
 
-| 路径 | n=5, f=2 错误提交 | n=6, f=2 错误提交 |
+| Path | n=5, f=2 wrong commits | n=6, f=2 wrong commits |
 |------|------------------|------------------|
-| A2ABFT（严格） | 0.3% | 0.3% |
-| A2ABFSybil（扫描口径） | 3.8% | 0.3% |
+| A2ABFT (strict) | 0.3% | 0.3% |
+| A2ABFSybil (sweep definition) | 3.8% | 0.3% |
 
-（同一次运行里 `A2ABFSybil` 在 `random` 攻击下为 0.7%，即该效应需要拜占庭方
-**定向**投票才会出现，不是随机噪声。）
+(In the same run `A2ABFSybil` gives 0.7% under a `random` attack, i.e. the effect
+requires **targeted** Byzantine voting and is not random noise.)
 
-结论：机制不是"代码执行被绕过"，而是**多模型交叉验证下少数拜占庭 ACCEPT 票
-叠加诚实方的 REJECT/弃权**，在阈值塌缩到 $\theta_{accept} \leq 1$ 时凑够
-$\phi \geq \theta_{accept}$。代数量化见论文 Property 4 的条件
-$7f + 3s + 3 \geq 3n$（软故障弃权，即定理 5.1 的最坏情况口径；若软故障与诚实者
-一起投 REJECT 则退化为 $7f + 2s + 3 \geq 3n$）。$n{=}5$ 时为 $17 \geq 15$ 可越界，
-$n{=}6$ 时为 $17 \geq 18$ 不可能，与上表一致。
+Conclusion: the mechanism is not "code execution being bypassed" but **a few
+Byzantine ACCEPT votes under multi-model cross-validation, added to honest
+REJECT/abstain votes**, reaching $\phi \geq \theta_{accept}$ once the threshold
+collapses to $\theta_{accept} \leq 1$. For the algebra see the paper's Property 4
+condition $7f + 3s + 3 \geq 3n$ (soft faults abstaining, i.e. the worst-case
+definition of Theorem 5.1; if soft faults vote REJECT together with the honest
+ones it degrades to $7f + 2s + 3 \geq 3n$). For $n{=}5$ this is $17 \geq 15$
+(out-of-bound possible), for $n{=}6$ it is $17 \geq 18$ (impossible), matching
+the table above.
 
-> 第 13 轮修正：论文原先只给了 $7f + 2s + 3 \geq 3n$ 而**未声明软故障的投票行为**。
-> 该式隐含"软故障随诚实者一起 REJECT"，与定理 5.1 的 worst-case abstention 假设
-> 不一致；在 $s>0$ 时它会把 238 个边界外配置误判为"不可能"（例如 $n{=}5,f{=}1,s{=}2$）。
-> 论文实验网格的 7 个配置在两种口径下判定相同，故所有已报告结论不变。
+> Round-13 correction: the paper originally gave only $7f + 2s + 3 \geq 3n$
+> **without stating the soft faults' voting behaviour**. That form implicitly
+> assumes "soft faults REJECT together with the honest ones", which is
+> inconsistent with Theorem 5.1's worst-case abstention assumption; for $s>0$ it
+> misclassifies 238 out-of-bound configurations as "impossible" (e.g.
+> $n{=}5,f{=}1,s{=}2$). The 7 configurations in the paper's experimental grid are
+> judged identically under both definitions, so no reported conclusion changes.
 
 ---
 
-### 3.8 `audit_revision_layer.py` —— 修订层（52 项）
+### 3.8 `audit_revision_layer.py` — revision layer (52 items)
 
-**为什么单独一层**：2026-09-17 的 PAT 分诊给论文注入了 45 处新文本与 42 条压缩。
-这批文本诞生于 9 页上限的压力下、由 6 个脚本分轮完成，其中两处代数条件
-（附录 A.2 的软故障假阳性闭式、Property 4 的越界条件）是**全新的数学命题**——
-它们没有对应的数据文件，因此 L1/L4/L6/L7 **对它天然免疫**，只有 L2 能发现错误。
+**Why a separate layer**: the 2026-09-17 PAT triage injected 45 new passages and
+42 compressions into the paper. That batch of text was born under the pressure of
+the 9-page limit and produced by 6 scripts over several rounds; two of its
+algebraic conditions (the closed form for soft-fault false positives in
+Appendix A.2, and Property 4's out-of-bound condition) are **entirely new
+mathematical propositions** — they have no corresponding data file, so L1/L4/L6/L7
+are **naturally immune** to them and only L2 can find errors.
 
-脚本分三部分：
+The script has three parts:
 
-| 部分 | 内容 | 核对项 |
+| Part | Content | Items |
 |------|------|--------|
-| **A** | L2 代数验算：用 `Fraction` 精确算术重推每条新式，并穷举 $n\le30$、$f\le11$、$s\le11$、$p\in\{0,0.05,\dots,1\}$ 验证"论文闭式"与"从 $\phi$ 定义直接判定"严格等价 | 18 |
-| **B** | 修订文本自洽性：越界机制的多副本一致性、软故障口径、记号 $V/\hat V_i/V_i$、旧值残留、`\label`↔`\ref`、域映射、`\small`、硬声明 | 22 |
-| **C** | 压缩回归：用 `ast` 解析修订期 5 个压缩脚本，取出其"关键数字必须保留"断言里的 **95 个**关键词，核对当前 `.tex` 仍包含全部 | 2 |
+| **A** | L2 algebra: rederive every new formula in exact `Fraction` arithmetic, and exhaustively verify over $n\le30$, $f\le11$, $s\le11$, $p\in\{0,0.05,\dots,1\}$ that "the paper's closed form" and "deciding directly from the $\phi$ definition" are strictly equivalent | 18 |
+| **B** | Revised-text self-consistency: multi-replica consistency of the out-of-bound mechanism, the soft-fault definition, the notation $V/\hat V_i/V_i$, stale values, `\label`↔`\ref`, domain mapping, `\small`, hard claims | 22 |
+| **C** | Compression regression: parse the 5 compression scripts from the revision period with `ast`, extract the **95** keywords from their "these key numbers must be preserved" assertions, and check that the current `.tex` still contains all of them | 2 |
 
-**A 部分的关键设计**：早期的实现把"越界条件"的扫描范围放在**边界之内**
-（$3f+s+1 \le n$），而越界讨论的场景恰恰发生在**边界之外**——范围写错会让检查
-扫不到真正的反例。修正后扫描外边界，才暴露出 238 个被旧式漏判的配置。
+**Key design of part A**: the early implementation scanned for the "out-of-bound
+condition" **inside** the boundary ($3f+s+1 \le n$), whereas the out-of-bound
+discussion happens precisely **outside** it — a wrong range means the check never
+reaches the real counterexamples. Fixing the range to scan outside exposed 238
+configurations the old form had missed.
 
-**B 部分的关键设计**：用**负向先行断言**区分 `n{-}1{-}f{-}s$ honest`（软故障弃权，
-正确）与 `n{-}1{-}f$ honest`（软故障被计成诚实者，与定理假设冲突）。用 `\b` 词边界
-写这条检查会同时匹配到前者，产生假阳性。
+**Key design of part B**: a **negative lookahead** distinguishes
+`n{-}1{-}f{-}s$ honest` (soft faults abstain, correct) from `n{-}1{-}f$ honest`
+(soft faults counted as honest, conflicting with the theorem's assumption). Using
+`\b` word boundaries for this check also matches the former, producing false
+positives.
 
-**C 部分的关键设计**：压缩脚本里的关键词断言只在**运行时**验证过一次；本检查把它们
-提取出来做**回归**核对——后续任何补丁若把压缩当时刻意保住的信息弄丢，这里会报警。
+**Key design of part C**: the keyword assertions in the compression scripts were
+verified only once, at run time; this check extracts them and turns them into a
+**regression test** — if any later patch loses information that was deliberately
+preserved during compression, this raises the alarm.
 
-配套负向测试：`negative_test_revision.py`（8/8）。
+Companion negative test: `negative_test_revision.py` (8/8).
 
 ---
 
-### 3.9 `audit_decision_neutrality.py` —— 决策中性（9 项）
+### 3.9 `audit_decision_neutrality.py` — decision neutrality (9 items)
 
-**为什么单独一层**：论文 §6.6 与附录 A.7 曾声称声誉追踪器的决策中性是
-"verified rather than merely asserted"。但当时依据的校验写在
-`reputation_ablation.py` 里，形如：
+**Why a separate layer**: §6.6 of the paper and Appendix A.7 once claimed that
+the reputation tracker's decision neutrality was "verified rather than merely
+asserted". But the check it relied on lived in `reputation_ablation.py` and looked
+like this:
 
 ```python
-stats['decisions'].append((key, rec['task_idx'], rec['decision']))   # 值 == rec['decision']
+stats['decisions'].append((key, rec['task_idx'], rec['decision']))   # value == rec['decision']
 by_dec  = {(k, t): d for k, t, d in stats['decisions']}
-rec_dec = {..., r['decision'] for r in records}                      # 值 == rec['decision']
+rec_dec = {..., r['decision'] for r in records}                      # value == rec['decision']
 consistent = all(by_dec.get(k) == v for k, v in rec_dec.items())
 ```
 
-**两侧同源，恒为 True** —— 与 `c_source`、`persistence` 全然无关。这条"验证"
-没有任何分辨力，据此写的 `verified` 缺乏支撑。**这是本项目第三次栽在同一类
-陷阱上：检查了 0 条（或恒真）却输出"通过"。**
+**Both sides come from the same source and it is always True** — entirely
+independent of `c_source` and `persistence`. That "verification" has zero
+resolving power, and the `verified` written on its basis is unsupported. **This is
+the third time this project has fallen into the same class of trap: checking 0
+items (or checking something always true) while printing "pass".**
 
-脚本改为可证伪的三层检验（并把恒真校验本身当作被审计对象）：
+The script replaces it with a falsifiable three-tier test (and puts the
+always-true check itself on the audit's own chopping block):
 
-| 项 | 内容 | 结果 |
+| Item | Content | Result |
 |----|------|------|
-| **D1** | 从原始票重算 $\phi = \lvert\text{ACCEPT}\rvert - 0.5\lvert\text{REJECT}\rvert$，与线上记录的 $\phi$ 逐轮比对。若计票曾按声誉加权（如 `consensus_unified._compute_vote_score` 的 `score += effective_weight * reputation`），重算值必然偏离记录值 | 457/457 轮吻合 |
-| **D2a/D2b** | 用记录的 $\phi/\theta$ 复现协议状态机（confirm / view change / pending），与线上的 primary 推进序列、最终 decision、轮数逐项比对 | 120/120 条一致 |
-| **D3** | 变异测试：注入三种反事实权重（REJECT 加权 0.5、拜占庭者 0.3、软故障者 0.3） | $\phi$ 分别改变 421/288/189 轮，决策翻转 5/2/2 条 |
-| **D4a–c** | 静态可达性：决策段不得含声誉/权重标识；`_get_reputation_weights` 零调用点；`self._reputation` 的读取点仅为日志与死代码 | 全部通过 |
-| **D5** | 把旧校验本身复现一遍，确认它在决策被**全部篡改**后仍判一致 | 确认恒真 |
-| **D6** | D2b 自身的变异测试：篡改一条决策必须被判为不符 | 通过 |
+| **D1** | Recompute $\phi = \lvert\text{ACCEPT}\rvert - 0.5\lvert\text{REJECT}\rvert$ from the raw votes and compare it round by round against the recorded $\phi$. If votes had ever been weighed by reputation (e.g. `score += effective_weight * reputation` as in `consensus_unified._compute_vote_score`), the recomputed value would necessarily diverge from the record | 457/457 rounds match |
+| **D2a/D2b** | Replay the protocol state machine (confirm / view change / pending) using the recorded $\phi/\theta$ and compare against the online primary advance sequence, final decision, and round count | 120/120 records match |
+| **D3** | Mutation test: inject three counterfactual weightings (REJECT weighted 0.5, Byzantine 0.3, soft-fault 0.3) | $\phi$ changes in 421/288/189 rounds, flipping 5/2/2 decisions |
+| **D4a–c** | Static reachability: the decision section must not contain reputation/weight identifiers; `_get_reputation_weights` has zero call sites; the reads of `self._reputation` are only logging and dead code | all pass |
+| **D5** | Reproduce the old check itself and confirm it still reports "consistent" after the decisions are **entirely** tampered with | confirmed always-true |
+| **D6** | Mutation test of D2b itself: tampering with one decision must be reported as a mismatch | passes |
 
-**D3 是本脚本的核心**：没有它，D1/D2 仍可能只是"恰好通过"；有了它才证明
-"**若声誉真的进入计票，这套检查会失败**"。
+**D3 is the core of this script**: without it, D1/D2 might still merely "happen to
+pass"; with it, the claim "**if reputation really did enter vote counting, this
+check would fail**" is proven.
 
-#### 3.9.1 一个必须区分的口径：1,305 还是 1,459
+#### 3.9.1 A definition that must be kept distinct: 1,305 or 1,459
 
-论文的 `$1{,}186$ of $1{,}305$` 限定在**四个受攻击细胞**，全六个细胞的合计是
-`1,316 of 1,459`。两者都真，但混用会看起来像数字错误：
+The paper's `$1{,}186$ of $1{,}305$` is restricted to the **four attacked cells**;
+across all six cells the total is `1,316 of 1,459`. Both are true, but mixing them
+makes it look like a numeric error:
 
-| 范围 | 激进罚 | 误罚 | 任务级 |
+| Scope | Escalated penalties | Mispenalties | Task level |
 |------|-------:|-----:|--------|
-| 四受攻击细胞（$f>0$） | 1,305 | 1,186 | 各 20/20 均有误罚 |
-| 两无拜占庭细胞（$f=0$） | 154 | 130 | 误罚 8/20 与 9/20（触发任务 10 与 9） |
-| **全六细胞** | **1,459** | **1,316** | 97/120 |
+| Four attacked cells ($f>0$) | 1,305 | 1,186 | 20/20 each with mispenalties |
+| Two non-Byzantine cells ($f=0$) | 154 | 130 | 8/20 and 9/20 mispenalized (10 and 9 triggering tasks) |
+| **All six cells** | **1,459** | **1,316** | 97/120 |
 
-摘要与贡献原先写 "its $1{,}305$"，未标注范围；已补为 "in the four attacked cells"。
-
----
-
-## 4. 负向测试：证明审计不是空转
-
-> **审计的可信度来自它抓得住注入的缺陷。** 一个"全绿"的审计若从未捕获过任何
-> 东西，它与"根本没有检查"无法区分。
-
-### `negative_test_tables.py` —— 5/5
-
-| 用例 | 注入的缺陷 |
-|------|-----------|
-| 负向1 | 容错列差一：`≤` 改成 `<`（等价于把定理加强 1） |
-| 负向2 | 轮数列与实测矛盾 |
-| 负向3 | Δ 算术错误 |
-| 负向4 | BFT 值与 JSON 不符 |
-| 负向5 | A800 表述缺 GPU 数量 |
-
-### `negative_test_figures.py` —— 8/8
-
-| 用例 | 注入的缺陷 |
-|------|-----------|
-| 负向1 | 图题注缺 n=90 披露 |
-| 负向2 | 表区间被篡改 |
-| 负向3 | 扫描单元缺失 |
-| 负向4 | 性能表值被篡改 |
-| 负向5 | 表题注缺 n=90 披露 |
-| 负向6 | 示意图 PDF 缺失 |
-
-### `negative_test_theory.py` —— 3/3
-
-| 用例 | 注入的缺陷 |
-|------|-----------|
-| 负向5 | `distributed_worker.py` 阈值回归为多数式 |
-| 负向6 | `langgraph_integration.py` 阈值回归为多数式 |
-| 负向7 | 参考实现重新引入 f=0 阈值特例 |
-
-负向 7 尤其关键：它把历史上真实存在过的缺陷重新注入，探针报出
-`code=ACCEPT paper-rule=PENDING`，证明 §7 的可执行探针**真的在比对代码与论文**，
-而不是只检查文件是否存在。
-
-### `negative_test_paths.py` —— 8/8
-
-| 用例 | 注入的缺陷 |
-|------|-----------|
-| 负向1 | `parse_correctness_log.py` 恢复为 `HERE/results`（真实发生过的迁移破坏） |
-| 负向2 | `run_pairing_mcnemar.py` 同上；该脚本是 McNemar 配对检验的数据来源 |
-| 负向3 | `build_cleanup_list.py` 结果目录改由脚本自身位置推导 → 上一级目录不存在 |
-| 负向4 | `sys.path` 插入目标被打错 |
-| 负向5 | 防空转：干净状态下各类检查计数必须全部 > 0 且问题数为 0 |
-| 负向6 | §5 读取型 `open()` 指向已被清理的数据文件 |
-| 负向7 | §6 文档命令路径失效（`.md` 侧）——把已修好的旧路径写回去 |
-| 负向8 | §6 文档命令路径失效（`.sh` 侧） |
-
-> **负向7 当场又抓到一次同类缺陷**：`_doc_command_paths()` 起初沿用了
-> `SKIP_DIRS` 做目录剪枝，而该集合含 `datasets`——于是
-> `experiments/datasets/DATASET_README.md` 根本没进入扫描范围，
-> 注入缺陷也报不出问题，§6 的"0 问题"实为"0 扫描"。
-> 这与 §5 当年因同一个坑产生假阳性是同一个根因（见 `_repo_basenames()` 注释），
-> 因此 §6 改为只剪枝点目录与 `__pycache__`。
-| 负向5 | 防空转：干净状态四类计数必须全部 > 0 且问题数为 0 |
-
-负向 1/2 同时也是对 L9 §2 的验证：注入后审计报
-`[smoke] …:RESULTS 数据目录挂在脚本自身目录下 …（由脚本自身位置推导（HERE）…）`。
-
-注入/还原全程走**字节**（`shutil.copy2` + `bytes.replace`）。若用文本读写往返，
-CRLF 会被规范化成 LF，还原后文件已非逐字节相同——在 git 里就是一片假 diff。
-
-### `negative_test_revision.py` —— 8/8
-
-| 用例 | 注入的缺陷 |
-|------|-----------|
-| 负向1 | §6.3 越界机制措辞回退为"共谋者推动篡改提案" |
-| 负向2 | 越界条件回退为旧的 `7f + 2s + 3` |
-| 负向3 | Property 4 把软故障重新计入诚实者（`n{-}1{-}f$ honest`） |
-| 负向4 | §4.2 恢复"误差随 $m$ 指数下降"的过强声称 |
-| 负向5 | 判定函数记号回退为 `V_i(\pi)` |
-| 负向6 | 旧值残留（`1{,}186` → `1{,}217`） |
-| 负向7 | Definition 3.1 丢失 `s ≤ f` 条件 |
-| 负向8 | 压缩期保留关键词丢失（`4{,}320` 全量替换） |
-
-负向用例支持第三个元素指定**替换次数**（缺省 1，`0` 表示全部替换）。负向 8 必须
-用全量替换：`4{,}320` 在论文中出现**两次**，只替换一处时检查集里仍能找到它，用例会
-假性通过（实测 MISSED 过一次）。
+The abstract and contributions originally said "its $1{,}305$" without stating
+the scope; this was amended to "in the four attacked cells".
 
 ---
 
-## 5. 三条硬性规则
+## 4. Negative tests: proving the audits are not vacuous
 
-审计与负向测试的编写遵循以下规则，违反其中任何一条都会让结论失去意义：
+> **An audit's credibility comes from its ability to catch injected defects.** An
+> "all green" audit that has never caught anything is indistinguishable from no
+> audit at all.
 
-1. **失败细节必须与成功细节不同。** 若某个检查在通过时输出 `'clean'`、
-   在失败时也输出 `'clean'`，负向测试就无法区分"捕获"与"空转"。
-2. **每一项新检查都必须配一个负向用例。** 没有对应的篡改测试，就无法证明它生效。
-3. **检查次数为 0 必须判失败。** 若某个检查因为"没找到对象"而静默跳过，
-   它看起来是绿的，实际什么都没查。必须统计实际执行次数并在为 0 时报错。
-4. **负向用例的替换必须让目标串彻底消失。** 若目标串在论文中出现多次，只替换
-   第一处会让检查仍然找得到它，用例假性通过——替换次数是负向用例的一部分。
-5. **禁止同源比较。** 若校验的两侧取自同一字段（例如把 `rec['decision']` 与它
-   自己比），它恒真、没有分辨力，且**看起来永远是绿的**。校验必须独立重算，并经
-   变异测试证明"注入缺陷后它会失败"。这一条的实例见 §3.9。
+### `negative_test_tables.py` — 5/5
 
-> 第 3 条来自一次真实教训：曾有一个位置无关性检查用 AST 只遍历模块顶层语句，
-> 而 `sys.path.insert` 被包在 `for` 循环里，于是**检查了 0 条路径却输出"通过"**。
-> 修复后该检查会先统计实际求值的路径数。
+| Case | Injected defect |
+|------|-----------|
+| 1 | Fault-tolerance column off by one: `≤` changed to `<` (equivalent to strengthening the theorem by 1) |
+| 2 | Round-count column contradicting the measurement |
+| 3 | Δ arithmetic error |
+| 4 | BFT value inconsistent with the JSON |
+| 5 | A800 wording missing the GPU count |
+
+### `negative_test_figures.py` — 8/8
+
+| Case | Injected defect |
+|------|-----------|
+| 1 | Figure caption missing the n=90 disclosure |
+| 2 | Table range tampered with |
+| 3 | Sweep cell missing |
+| 4 | Performance table value tampered with |
+| 5 | Table caption missing the n=90 disclosure |
+| 6 | Schematic PDF missing |
+| 7 | Data content changed but the figure not regenerated (must trigger the freshness alarm) |
+| 8 (inverse) | Only a comment appended to the generator — must **not** trigger a staleness alarm |
+
+> Case 8 is the inverse control, and it is the failure mode of an mtime-based
+> baseline: appending one comment used to produce staleness warnings for three
+> figures. It must stay green under all circumstances, otherwise the guard gets
+> ignored as noise.
+
+### `negative_test_theory.py` — 3/3
+
+| Case | Injected defect |
+|------|-----------|
+| 5 | `distributed_worker.py` threshold regressed to a majority rule |
+| 6 | `langgraph_integration.py` threshold regressed to a majority rule |
+| 7 | Reference implementation re-introduces the f=0 threshold special case |
+
+Case 7 is especially important: it re-injects a defect that really existed
+historically, and the probe reports `code=ACCEPT paper-rule=PENDING`, proving that
+§7's executable probe **really does compare code against the paper** rather than
+merely checking that files exist.
+
+### `negative_test_paths.py` — 8/8
+
+| Case | Injected defect |
+|------|-----------|
+| 1 | `parse_correctness_log.py` reverted to `HERE/results` (a migration break that really happened) |
+| 2 | `run_pairing_mcnemar.py` likewise; this script is the data source for the McNemar paired test |
+| 3 | `build_cleanup_list.py` result directory derived from the script's own location → the parent directory does not exist |
+| 4 | A `sys.path` insertion target misspelled |
+| 5 | Anti-vacuity: on a clean repository every check counter must be > 0 and the problem count 0 |
+| 6 | §5 read-type `open()` pointing at a cleaned-up data file |
+| 7 | §6 dead documentation command path (`.md` side) — writing the already-fixed old path back |
+| 8 | §6 dead documentation command path (`.sh` side) |
+
+> **Case 7 immediately caught another instance of the same defect**:
+> `_doc_command_paths()` initially reused `SKIP_DIRS` for directory pruning, and
+> that set contains `datasets` — so `experiments/datasets/DATASET_README.md` never
+> entered the scan range at all, an injected defect produced no complaint, and
+> §6's "0 problems" really meant "0 scanned". This shares a root cause with §5's
+> earlier false positives from the same trap (see the comment on
+> `_repo_basenames()`), so §6 now prunes only dot-directories and `__pycache__`.
+
+Cases 1/2 also validate L9 §2: after injection the audit reports
+`[smoke] …:RESULTS 数据目录挂在脚本自身目录下 …（由脚本自身位置推导（HERE）…）`.
+
+Injection/restoration operates on **bytes** throughout (`shutil.copy2` +
+`bytes.replace`). A text-mode round trip would normalize CRLF to LF, leaving the
+restored file no longer byte-identical — which in git shows up as a spurious diff.
+
+### `negative_test_revision.py` — 8/8
+
+| Case | Injected defect |
+|------|-----------|
+| 1 | §6.3 out-of-bound mechanism wording reverted to "colluders push a tampered proposal" |
+| 2 | Out-of-bound condition reverted to the old `7f + 2s + 3` |
+| 3 | Property 4 counts soft faults as honest again (`n{-}1{-}f$ honest`) |
+| 4 | §4.2 restored the over-strong claim "error decays exponentially in $m$" |
+| 5 | Decision-function notation reverted to `V_i(\pi)` |
+| 6 | Stale value retained (`1{,}186` → `1{,}217`) |
+| 7 | Definition 3.1 loses the `s ≤ f` condition |
+| 8 | A keyword preserved during compression is lost (`4{,}320` replaced everywhere) |
+
+Negative cases accept a third element specifying the **number of replacements**
+(default 1, `0` meaning replace all). Case 8 must use replace-all: `4{,}320`
+appears **twice** in the paper, and replacing only one occurrence leaves it
+findable in the check set, so the case would falsely pass (this was observed once
+as MISSED).
+
+---
+
+## 5. Five hard rules
+
+The audits and negative tests follow the rules below; violating any one of them
+makes the conclusions meaningless:
+
+1. **Failure details must differ from success details.** If a check prints
+   `'clean'` on success and also `'clean'` on failure, negative tests cannot
+   distinguish "caught" from "vacuous".
+2. **Every new check must ship with a negative case.** Without a corresponding
+   tampering test there is no proof it works.
+3. **A check count of 0 must fail.** If a check silently skips because it "found
+   no objects", it looks green while having checked nothing. The actual number of
+   evaluations must be counted and an error raised when it is 0.
+4. **A negative case's replacement must make the target string disappear
+   entirely.** If the target string occurs several times in the paper, replacing
+   only the first occurrence leaves it findable by the check and the case falsely
+   passes — the replacement count is part of the negative case.
+5. **Same-source comparison is forbidden.** If both sides of a check come from the
+   same field (e.g. comparing `rec['decision']` against itself), it is always true,
+   has no resolving power, and **looks green forever**. A check must recompute
+   independently and must be proven by a mutation test to "fail once a defect is
+   injected". See §3.9 for an instance.
+
+> Rule 3 came from a real incident: a location-independence check used an AST that
+> walked only module-level statements, while `sys.path.insert` sat inside a `for`
+> loop, so it **checked 0 paths and printed "pass"**. After the fix, the check
+> first counts the paths it actually evaluated.
 >
-> 同一条规则在 L9 又救了一次：L9 初版对每个文件执行了全部顶层语句，把
-> `mbpp_debate_fix.py` 的实验主体一并跑了起来（真实 API 请求）。可见"审计脚本本身
-> 也是代码"，它的副作用与盲区必须和被测对象一样被审查。
+> The same rule paid off again at L9: L9's first version executed all top-level
+> statements of every file and thereby ran `mbpp_debate_fix.py`'s experiment body
+> (real API requests). Evidently **audit scripts are code too**, and their side
+> effects and blind spots must be reviewed just like the objects they test.
 
 ---
 
-## 6. 运行
+## 6. Running the audit
 
-**一键（推荐）**：
+**One command (recommended)**:
 
 ```bash
-./reproduce.sh verify     # = 下列 13 条命令，串行执行并给出总判定
+./reproduce.sh verify     # = the 13 commands below, executed serially with an overall verdict
 ```
 
-`./reproduce.sh` 是唯一入口（`Makefile` 为其薄封装），完整用法见 `README.md` §3.0。
-输出 `REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`，退出码 0 / 0 / 1；
-"未验证"不等于"通过"。
+`./reproduce.sh` is the single entry point (`Makefile` is a thin wrapper); full
+usage is in `README.md` §3.0. It prints
+`REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED` with exit codes
+0 / 0 / 1; "not verified" is not "passed".
 
-**逐条**：
+**One by one**:
 
 ```bash
 python experiments/verification/audit_table_numbers.py
@@ -442,49 +540,61 @@ python experiments/verification/audit_figures.py
 python experiments/verification/audit_theory_numerics.py
 python experiments/verification/audit_prose_ranges.py
 python experiments/verification/audit_paths.py            # L9
-python experiments/verification/audit_revision_layer.py   # 第 13 轮：修订层
-python experiments/verification/audit_decision_neutrality.py  # 决策中性（零 LLM）
+python experiments/verification/audit_revision_layer.py   # round 13: revision layer
+python experiments/verification/audit_decision_neutrality.py  # decision neutrality (zero LLM)
+python experiments/verification/audit_reputation_fidelity.py  # reputation fidelity
 
 python experiments/verification/negative_test_tables.py
 python experiments/verification/negative_test_figures.py
 python experiments/verification/negative_test_theory.py
 python experiments/verification/negative_test_paths.py    # L9
-python experiments/verification/negative_test_revision.py # 第 13 轮
+python experiments/verification/negative_test_revision.py # round 13
 ```
 
-> ⚠️ **必须串行**。负向测试会临时改写 `papers/iclr2027_main.tex` 再逐字节还原；
-> 与审计并行时审计会读到注入态而报假警（实测：`audit_table_numbers` 报出
-> `[tab:a2a_sim] 99.9±5.8 vs 数据 56.7±5.8`），两个负向脚本同时备份/还原
-> 还会互相覆盖、留下"半注入"的论文文件。`reproduce.sh` 用锁文件 + 严格串行
-> + 收尾哈希比对三重防护。
+> ⚠️ **These must run serially.** The negative tests temporarily rewrite
+> `papers/iclr2027_main.tex` and restore it byte-for-byte; running them in
+> parallel with the audits makes the audits read the injected state and raise
+> false alarms (observed: `audit_table_numbers` reporting
+> `[tab:a2a_sim] 99.9±5.8 vs data 56.7±5.8`), and two negative scripts
+> backing up/restoring at once overwrite each other, leaving a half-injected paper
+> file. `reproduce.sh` guards against this with a lock file + strict
+> serialization + an end-of-run hash comparison.
 >
-> `audit_figures.py` 与 `negative_test_figures.py` 需要 `matplotlib`
-> （前者在导入期加载 `papers/generate_figures.py`）；其余脚本仅依赖标准库。
-> 缺依赖时这两项判**失败**而非跳过——"未验证"不等于"通过"。
+> `audit_figures.py` and `negative_test_figures.py` need `matplotlib` (the former
+> loads `papers/generate_figures.py` at import time); the remaining scripts depend
+> only on the standard library. When the dependency is missing these two are
+> judged **failed**, not skipped — "not verified" is not "passed".
 >
-> `audit_revision_layer.py` 会**解析**（不执行）`docs/revisions/2026-09-17/`
-> 下的 5 个压缩脚本以提取关键词断言。该目录的脚本依赖当时的行号，
-> **已执行完毕，勿重跑**。
+> `audit_revision_layer.py` **parses** (does not execute) the 5 compression
+> scripts under `docs/revisions/2026-09-17/` to extract their keyword assertions.
+> Those scripts depend on the line numbers of their time;
+> **they have already been applied — do not rerun them.**
 
-所有脚本通过向上查找 `.a2a_project_root` 定位项目根，**与自身所在目录无关**，
-可从任意工作目录、任意深度调用（已通过"复制到 5 层深目录"实测）。
+Every script locates the project root by searching upward for
+`.a2a_project_root`, **independent of its own directory**, and can be invoked from
+any working directory at any depth (verified by copying the project to a
+5-level-deep directory).
 
 ---
 
-## 7. 历史审计报告
+## 7. Historical audit reports
 
-逐轮的审计报告保存在 `docs/reviews/`（第 19 轮目录重整时从 `papers/` 迁出——
-投稿目录只保留投稿相关文件），`docs/audit/` 存放数据来源类总账：
+Round-by-round audit reports are kept in `docs/reviews/` (moved out of `papers/`
+during the round-19 reorganization, since the submission directory keeps only
+submission-relevant files), and `docs/audit/` holds the data-source ledgers:
 
-| 报告 | 主题 |
+| Report | Topic |
 |------|------|
-| `REVIEW_2026-09-15_round5_numeric_audit.md` | 数值审计 |
-| `REVIEW_2026-09-15_round6_theory_spec_audit.md` | 理论规格 |
-| `REVIEW_2026-09-15_round7_reference_contribution_audit.md` | 文献与贡献 |
-| `REVIEW_2026-09-15_round8_scale_stats_audit.md` | 规模与统计 |
-| `REVIEW_2026-09-15_round10_figure_layer_audit.md` | 图表层（L7） |
-| `REVIEW_2026-09-15_round11_algorithm_layer_audit.md` | 算法层（伪代码 vs 实现） |
-| `REVIEW_2026-09-15_round12_theory_code_layer_audit.md` | 定理可证性（L5b）+ 交付代码（L8） |
-| `REVIEW_2026-09-17_round13_revision_layer_audit.md` | **修订层（L2 代数 + 新文本自洽性）** |
-| `PAT_TRIAGE_2026-09-17.md` | ICLR PAT 反馈逐条分诊（26 条：22 成立 / 4 误报） |
-| `DATA_SOURCE_AUDIT.md` | 数据来源逐轮审计总账 |
+| `REVIEW_2026-09-15_round5_numeric_audit.md` | Numeric audit |
+| `REVIEW_2026-09-15_round6_theory_spec_audit.md` | Theory specification |
+| `REVIEW_2026-09-15_round7_reference_contribution_audit.md` | Related work and contributions |
+| `REVIEW_2026-09-15_round8_scale_stats_audit.md` | Scale and statistics |
+| `REVIEW_2026-09-15_round10_figure_layer_audit.md` | Figure layer (L7) |
+| `REVIEW_2026-09-15_round11_algorithm_layer_audit.md` | Algorithm layer (pseudocode vs. implementation) |
+| `REVIEW_2026-09-15_round12_theory_code_layer_audit.md` | Theorem provability (L5b) + delivered code (L8) |
+| `REVIEW_2026-09-17_round13_revision_layer_audit.md` | **Revision layer (L2 algebra + new-text consistency)** |
+| `PAT_TRIAGE_2026-09-17.md` | Item-by-item triage of ICLR PAT feedback (26 items: 22 upheld / 4 false alarms) |
+| `DATA_SOURCE_AUDIT.md` | Round-by-round data-source ledger |
+
+> The `REVIEW_*` reports are internal drafting records and are **not part of this
+> anonymous release**; `docs/audit/` ships the data-source ledgers.

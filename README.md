@@ -2,176 +2,203 @@
 
 **Byzantine Fault-Tolerant Consensus for Agent-to-Agent Protocols**
 
-A2A-BFT 为 Agent-to-Agent (A2A) 协议补上共识层：在异构多模型部署下，让一组
-LLM 智能体对同一任务达成**语义共识**，并抵御拜占庭节点（投毒、串谋、策略性拒绝）
-与软故障节点。
+> Language: **English** | [简体中文](README.zh-CN.md)
 
-投稿 ICLR 2027。论文源文件：`papers/iclr2027_main.tex`。
+A2A-BFT adds a consensus layer to Agent-to-Agent (A2A) protocols: under
+heterogeneous multi-model deployment, a group of LLM agents reaches
+**semantic consensus** on the same task while tolerating Byzantine participants
+(prompt poisoning, collusion, strategic refusal) and soft-fault participants.
+
+Submitted to ICLR 2027. Paper source: `papers/iclr2027_main.tex`.
 
 ---
 
-## 1. 核心思想
+## 1. Core idea
 
-三阶段语义共识：**Propose → Validate → Commit**
+Three-phase semantic consensus: **Propose → Validate → Commit**
 
-| 机制 | 内容 |
+| Mechanism | Definition |
 |------|------|
-| 容错模型 | `n ≥ 3f + s + 1`（f = 拜占庭数，s = 软故障数） |
-| 投票计分 | `φ(π) = \|ACCEPT\| − 0.5·\|REJECT\|`（计数式，非加权式） |
-| 动态阈值 | `θ_accept = n − 1 − 2f − s`，`θ_reject = −(n − 1 − f)·0.5` |
-| 决策 | `φ ≥ θ_accept` → ACCEPT；`φ ≤ θ_reject` → REJECT；否则 PENDING（下一轮换视图） |
-| 声誉追踪 | `reject_ratio ≥ 70%` 触发惩罚 `−0.25/轮` |
+| Fault model | `n ≥ 3f + s + 1` (f = Byzantine, s = soft-fault) |
+| Vote score | `φ(π) = \|ACCEPT\| − 0.5·\|REJECT\|` (counting, not weighted) |
+| Dynamic thresholds | `θ_accept = n − 1 − 2f − s`, `θ_reject = −(n − 1 − f)·0.5` |
+| Decision | `φ ≥ θ_accept` → ACCEPT; `φ ≤ θ_reject` → REJECT; otherwise PENDING (next round, view change) |
+| Reputation | `reject_ratio ≥ 70%` triggers a penalty of `−0.25` per round |
 
-**决策一致性定理（Theorem 5.1）**：阈值间隙
-`gap = θ_accept − θ_reject = 1.5(n−1) − 2.5f − s`，
-在安全边界上 `gap = 2f + 0.5s`；而拜占庭节点通过选票翻转至多改变一个副本的 φ 达
-`1.5f`。因 `gap > 1.5f`，诚实副本**不可能**得出相反的终态决策（只可能出现
-ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation）的吸收器。
+**Agreement theorem (Theorem 5.1)**: the threshold gap
+`gap = θ_accept − θ_reject = 1.5(n−1) − 2.5f − s`
+equals `gap = 2f + 0.5s` on the safety boundary. Byzantine participants can shift
+a single replica's φ by at most `1.5f` through vote flipping. Since `gap > 1.5f`,
+two honest replicas **cannot** reach opposite terminal decisions (the only
+possible divergence is ACCEPT versus PENDING). This gap is precisely the
+absorber for equivocation.
 
 ---
 
-## 2. 目录结构
+## 2. Repository layout
 
 ```
 .
-├── papers/                     论文（只放投稿相关文件）
-│   ├── iclr2027_main.tex       ★ 论文源文件
-│   ├── references.bib          参考文献
-│   ├── SUBMISSION_CHECKLIST.md ★ 提交清单 + ICLR 2027 合规核对
-│   ├── generate_figures.py     5 张论文图件的生成脚本
-│   ├── figures/                图件（PDF）+ .figsource.json 内容指纹
-│   ├── iclr2027_conference.*   官方样式文件（与 media.iclr.cc 逐字节一致）
-│   └── iclr-2027-style-files/  官方样式包原件（含下载 zip）
+├── papers/                     Paper (submission-relevant files only)
+│   ├── iclr2027_main.tex       ★ Paper source
+│   ├── references.bib          Bibliography
+│   ├── generate_figures.py     Generator for the 5 paper figures
+│   ├── figures/                Figures (PDF) + .figsource.json content fingerprints
+│   ├── iclr2027_conference.*   Official style files (byte-identical to media.iclr.cc)
+│   └── iclr-2027-style-files/  Original official style package (incl. download zip)
 │
-├── experiments/                实验：代码 + 数据 + 结果
-│   ├── src/                    ★ 核心库（纯标准库，导出 33 个符号）
-│   │   ├── a2a_bft/            deepseek_worker.py 共识引擎 / baselines.py 基线
-│   │   ├── a2a_bft/legacy/     早期实现存档
+├── experiments/                Experiments: code + data + results
+│   ├── src/                    ★ Core library (standard library only, 33 exported symbols)
+│   │   ├── a2a_bft/            deepseek_worker.py consensus engine / baselines.py baselines
+│   │   ├── a2a_bft/legacy/     Archived early implementation
 │   │   └── block_a2a_integration/
-│   ├── reproduce/              ★ 论文数据的生成脚本（表格/图表的唯一来源）
-│   ├── env/                    ★ 环境搭建与 vLLM 部署（含 env.sh 自定位变量）
-│   ├── verification/           ★ 审计与负向测试（数值/图表/理论/路径/修订层）
-│   ├── results/                实验结果（论文所有数字的来源）
-│   ├── datasets/               基准数据集（GSM8K / MBPP / MMLU）
-│   └── legacy/                 历史实验脚本存档
+│   ├── reproduce/              ★ Scripts generating the paper data (sole source of tables/figures)
+│   ├── env/                    ★ Environment setup and vLLM deployment (env.sh self-locating vars)
+│   ├── verification/           ★ Audits and negative tests (numbers/figures/theory/paths/revisions)
+│   ├── results/                Experiment results (source of every number in the paper)
+│   ├── datasets/               Benchmark datasets (GSM8K / MBPP / MMLU)
+│   └── legacy/                 Archived historical experiment scripts
 │
 ├── docs/
-│   ├── REPRODUCTION.md         ★ 表/图 → 脚本 → 命令 → 产物
-│   ├── AUDIT.md                ★ 审计总账
-│   ├── audit/                  数据来源审计、PAT 分诊
-│   ├── reviews/                历史评审报告（R1–R18，内部材料）
-│   ├── revisions/              修订期补丁脚本存档
-│   └── cleanup/                清理清单与打包脚本
+│   ├── REPRODUCTION.md         ★ Table/figure → script → command → artifact
+│   ├── AUDIT.md                ★ Audit ledger
+│   ├── audit/                  Data-source audit, PAT triage
+│   ├── revisions/              Archived revision-period patch scripts
+│   └── cleanup/                Cleanup lists and packaging scripts
 │
-├── reproduce.sh                ★ 一键复现入口（唯一入口，见 §3.0）
-├── Makefile                    reproduce.sh 的薄封装（make verify / make doctor）
-├── .a2a_project_root           项目根标记（**勿删**，脚本靠它定位）
+├── reproduce.sh                ★ One-command reproduction entry point (see §3.0)
+├── Makefile                    Thin wrapper around reproduce.sh (make verify / make doctor)
+├── .a2a_project_root           Project-root marker (**do not delete**; scripts rely on it)
 └── requirements.txt
 ```
 
-> **可移植性**：仓库内**没有任何硬编码的机器路径**。Python 脚本通过向上查找
-> `.a2a_project_root` 标记文件定位项目根；shell 脚本通过 `experiments/env/env.sh`
-> 自定位。换机器、换目录、换用户名都不需要改代码。
+> **Portability**: there is **no hard-coded machine path** anywhere in the
+> repository. Python scripts locate the project root by searching upward for the
+> `.a2a_project_root` marker; shell scripts self-locate through
+> `experiments/env/env.sh`. Changing machine, directory, or username requires no
+> code edits.
 
 ---
 
-## 3. 快速开始
+## 3. Getting started
 
-### 3.0 一键复现（推荐入口）
+### 3.0 One-command reproduction (recommended entry point)
 
-仓库根目录的 `reproduce.sh` 是**唯一入口**，不需要读文档挑命令、也不需要 `cd`：
+`reproduce.sh` at the repository root is the **single entry point** — no need to
+read documentation to pick commands, and no need to `cd`:
 
 ```bash
-./reproduce.sh              # 默认 = verify：8 个审计 + 5 组负向测试（纯 CPU，无需 GPU）
-./reproduce.sh doctor       # 先跑这个：告诉你本机能复现到哪一步、缺什么
-./reproduce.sh figures      # 从 experiments/results/ 重新出图并复查图-表一致性
+./reproduce.sh              # default = verify: 8 audits + 5 negative-test groups (CPU only)
+./reproduce.sh doctor       # run this first: how far this machine can reproduce, and what is missing
+./reproduce.sh figures      # regenerate figures from experiments/results/ and recheck figure-table consistency
 ./reproduce.sh all          # doctor + datasets + figures + verify
 ```
 
-| 阶段 | 需要 GPU | 说明 |
+| Stage | Needs GPU | Notes |
 |------|----------|------|
-| `doctor` | 否 | 环境体检：解释器、依赖、数据/结果/图件计数、GPU 数量 |
-| `verify` | 否 | 8 审计 + 5 组负向测试；输出 `REPRODUCE_OK` / `REPRODUCE_FAILED` |
-| `figures` | 否（需 matplotlib） | 重新生成 5 张图件 + 内容指纹复查 |
-| `datasets` | 否 | 下载 GSM8K / MBPP / MMLU 并校验条数 |
-| `install` | 否 | `pip install -r requirements.txt` |
-| `full` | **是**（2×80GB） | 全部实验；前置条件不满足时**直接中止，不隐式开跑** |
+| `doctor` | No | Environment check: interpreter, dependencies, data/result/figure counts, GPU count |
+| `verify` | No (needs matplotlib) | 8 audits + 5 negative-test groups; prints `REPRODUCE_OK` / `REPRODUCE_FAILED` |
+| `figures` | No (needs matplotlib) | Regenerate the 5 figures + recheck content fingerprints |
+| `datasets` | No | Download GSM8K / MBPP / MMLU and verify record counts |
+| `install` | No | `pip install -r requirements.txt` |
+| `full` | **Yes** (2×80GB) | All experiments; **aborts outright** when prerequisites are unmet — it never silently starts |
 
-判定语义（重要）：审计脚本会打印 `REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`，
-退出码为 0 / 0 / 1。**"未验证"不等于"通过"**——若某层因缺依赖跑不了，默认判失败；
-只有显式 `A2A_ALLOW_SKIP_FIGURES=1` 才降级为 `SKIP`，且会写进最终结论（`REPRODUCE_OK_PARTIAL`）。
+`verify` needs matplotlib because the figure-layer negative tests regenerate
+figures in order to prove the freshness check is not vacuous. Install it via
+`pip install -r requirements.txt` (or `./reproduce.sh install`).
 
-> ⚠️ **不要并行执行本脚本**。负向测试会临时改写 `papers/iclr2027_main.tex` 再逐字节还原
-> （靠注入已知缺陷来证明审计真的能捕获）。并行时审计会读到注入态而报假警，
-> 两个负向脚本同时备份/还原还会互相覆盖。脚本已用锁文件 + 严格串行 + 收尾哈希比对防护。
+Verdict semantics (important): audit scripts print
+`REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED` with exit codes
+0 / 0 / 1. **"Not verified" is not "passed"** — if a layer cannot run because a
+dependency is missing, the verdict defaults to failure. Only an explicit
+`A2A_ALLOW_SKIP_FIGURES=1` downgrades that layer to `SKIP`, and it is recorded in
+the final verdict (`REPRODUCE_OK_PARTIAL`).
 
-### 3.1 安装依赖
+> ⚠️ **Do not run this script in parallel.** The negative tests temporarily
+> rewrite `papers/iclr2027_main.tex` and then restore it byte-for-byte (they
+> inject known defects to prove the audits really do catch them). Under
+> parallelism the audits read the injected state and raise false alarms, and two
+> negative scripts backing up/restoring concurrently overwrite each other. The
+> script guards against this with a lock file, strict serialization, and an
+> end-of-run hash comparison.
+
+### 3.1 Install dependencies
 
 ```bash
 python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-核心库 `experiments/src/a2a_bft/` **只依赖标准库**，因此"协议逻辑本身"无需任何 GPU
-或第三方包即可导入与单测；上表依赖仅用于真实 LLM 推理与绘图。
+The core library `experiments/src/a2a_bft/` **depends only on the standard
+library**, so "the protocol logic itself" can be imported and unit-tested with no
+GPU and no third-party package. The dependencies above are only needed for real
+LLM inference and plotting.
 
-### 3.2 下载数据与模型
+### 3.2 Download data and models
 
 ```bash
 python experiments/env/download_datasets.py          # GSM8K / MBPP / MMLU
 A2A_MODEL_DIR=/path/to/models python experiments/env/download_models.py
 ```
 
-### 3.3 启动 4 个异构 vLLM 实例（需 2×80GB GPU）
+### 3.3 Launch 4 heterogeneous vLLM instances (2×80GB GPU required)
 
 ```bash
-export A2A_MODEL_DIR=/path/to/models        # 默认 /autodl-fs/data/models
-bash experiments/env/start_vllm_seq.sh      # 逐个启动并等待健康检查
+export A2A_MODEL_DIR=/path/to/models        # default /autodl-fs/data/models
+bash experiments/env/start_vllm_seq.sh      # start one by one, waiting on health checks
 ```
 
-| GPU | 模型 | 端口 | served-model-name | gpu-memory-utilization |
+| GPU | Model | Port | served-model-name | gpu-memory-utilization |
 |-----|------|------|-------------------|------------------------|
 | 0 | Llama-3.1-8B-Instruct | 8000 | `llama` | 0.30 |
 | 0 | InternLM3-8B-Instruct | 8001 | `internlm` | 0.30 |
 | 1 | DeepSeek-V2-Lite-Chat | 8002 | `deepseek` | 0.50 |
 | 1 | Qwen2.5-7B-Instruct | 8003 | `qwen` | 0.28 |
 
-**为什么必须是 2 张卡**：四个模型 FP16 权重合计约 78 GB，单张 80GB 卡还要留出
-KV cache 与激活，实际装不下；脚本中还有个保护性断言要求 `device_count() >= 2`。
-瓶颈是**总权重大小**，不是单实例的 `gpu-memory-utilization`。
+**Why two GPUs are mandatory**: the four models total roughly 78 GB in FP16
+weights, and a single 80GB card must additionally leave room for KV cache and
+activations — it does not fit. The script also carries a protective assertion
+requiring `device_count() >= 2`. The bottleneck is **total weight size**, not a
+single instance's `gpu-memory-utilization`.
 
-### 3.4 跑一个最小冒烟测试
+### 3.4 Run a minimal smoke test
 
 ```bash
-A2A_VERBOSE=1 bash -c 'source experiments/env/env.sh'   # 看解析出的路径
-python experiments/env/smoke_code.py                   # 少量任务的连通性验证
+A2A_VERBOSE=1 bash -c 'source experiments/env/env.sh'   # print the resolved paths
+python experiments/env/smoke_code.py                   # connectivity check on a few tasks
 ```
 
-完整的数据生成流水线见 **[docs/REPRODUCTION.md](docs/REPRODUCTION.md)**。
+The full data-generation pipeline is documented in
+**[docs/REPRODUCTION.md](docs/REPRODUCTION.md)**.
 
 ---
 
-## 4. 可复现性与审计
+## 4. Reproducibility and auditing
 
-本仓库的论文数字是**可被独立重算**的，而不是"看起来对"。`experiments/verification/`
-下有两套东西：
+Every number in this repository can be **independently recomputed** rather than
+merely "looking right". `experiments/verification/` contains two kinds of tools:
 
-- **审计脚本（8 个）**：把论文正文/表格/图里的每个数字，与 `experiments/results/`
-  里的原始数据重新算一遍；另含路径解析层、修订层与决策中性等专项检查。
-- **负向测试（5 个）**：主动向仓库注入已知缺陷，确认审计**真的能捕获**（32/32 全部捕获）。
-  > 各项的具体条数以 `./reproduce.sh verify` 的**实时输出**为准（该输出由脚本实际产出，不写死）；
-  > 本行与文档中的数字若与之不符，以实时输出为准。
-  没有这一步，审计的"全绿"无法与"根本没检查"区分。
+- **Audit scripts (8)**: recompute every number in the paper's prose, tables, and
+  figures from the raw data in `experiments/results/`. They also cover the path
+  resolution layer, the revision layer, and decision neutrality.
+- **Negative tests (5)**: actively inject known defects into the repository to
+  confirm the audits **really do catch them** (32/32 caught).
+  > For the exact item counts per script, rely on the **live output** of
+  > `./reproduce.sh verify` (that output is produced by the scripts themselves and
+  > is never hard-coded). If a number stated here or in any document disagrees
+  > with the live output, the live output is authoritative.
+  Without this step, an "all green" audit cannot be distinguished from an audit
+  that simply checks nothing.
 
 ```bash
-python experiments/verification/audit_table_numbers.py     # 349 项：表格数值
-python experiments/verification/audit_figures.py           # 124 项：图表 + 题注披露 + 内容指纹新鲜度
-python experiments/verification/audit_prose_ranges.py      # 正文区间与表格一致性
-python experiments/verification/audit_theory_numerics.py   # 理论公式数值实例化 + 实现一致性
-python experiments/verification/audit_revision_layer.py    # 52 项：修订层代数 + 文本自洽
+python experiments/verification/audit_table_numbers.py     # 349 items: table numbers
+python experiments/verification/audit_figures.py           # 124 items: figures + caption disclosure + fingerprint freshness
+python experiments/verification/audit_prose_ranges.py      # prose ranges vs. tables
+python experiments/verification/audit_theory_numerics.py   # theory formulas instantiated numerically + implementation consistency
+python experiments/verification/audit_revision_layer.py    # 52 items: revision-layer algebra + textual self-consistency
 python experiments/verification/audit_decision_neutrality.py
 python experiments/verification/audit_reputation_fidelity.py
-python experiments/verification/audit_paths.py             # 路径解析层（含读取型 open 存在性、文档命令路径 §6）
+python experiments/verification/audit_paths.py             # path resolution layer (incl. read-open existence, §6 document command paths)
 
 python experiments/verification/negative_test_tables.py    # 5/5
 python experiments/verification/negative_test_figures.py   # 8/8
@@ -180,40 +207,50 @@ python experiments/verification/negative_test_paths.py     # 8/8
 python experiments/verification/negative_test_revision.py  # 8/8
 ```
 
-> 上面 13 条命令等价于 `./reproduce.sh verify`（一条命令、串行、带总判定）。
+> The 13 commands above are equivalent to `./reproduce.sh verify` (one command,
+> serial, with an overall verdict).
 
-> 路径层检查来自一次真实教训：目录重组后，有脚本因为把数据目录写成
-> "脚本自身位置/results"，搬家后指向了不存在的目录——**而当时的验收只看了
-> `sys.path`，于是"全绿"掩盖了它已经跑不起来**。移动或重命名任何脚本后，
-> 请先跑 `audit_paths.py` + `negative_test_paths.py`。
+> The path layer exists because of a real incident: after a directory
+> reorganization, a script computed its data directory as
+> "the script's own location/results" and therefore pointed at a non-existent
+> directory once moved — **and the acceptance check at the time only inspected
+> `sys.path`, so "all green" concealed the fact that it could no longer run**.
+> After moving or renaming any script, run `audit_paths.py` and
+> `negative_test_paths.py` first.
 
-详见 **[docs/AUDIT.md](docs/AUDIT.md)** 与 **[papers/SUBMISSION_CHECKLIST.md](papers/SUBMISSION_CHECKLIST.md)**。
+See **[docs/AUDIT.md](docs/AUDIT.md)** for details.
+
+> Note: the submission-compliance checklist (`SUBMISSION_CHECKLIST.md`) contains
+> submission-identifying information. It is **double-blind material** and is not
+> released in this anonymous repository, hence it is not linked here.
 
 ---
 
-## 5. 实验规模
+## 5. Experiment scale
 
-| 实验 | 配置 | 规模 | 数据文件 |
+| Experiment | Configuration | Scale | Data file |
 |------|------|------|----------|
-| 容错扫描（主） | 3 数据集 × 10 配置 × 5 种子 × 50 任务 | 7,750 次共识 | `full_bft_sweep_aggregated.json` |
-| 消融 + 基线对比 | 2 领域 × 多方法 × 3 种子 × 30 任务 | 4,320 | `multi_model_3seed_aggregated.json` |
-| 多领域验证（真实 API） | 18 配置 × 40 任务 | 770 | `deepseek_{math,knowledge,code}_fixed_20.json` |
+| Fault-tolerance sweep (main) | 3 datasets × 10 configs × 5 seeds × 50 tasks | 7,750 consensus runs | `full_bft_sweep_aggregated.json` |
+| Ablations + baseline comparison | 2 domains × multiple methods × 3 seeds × 30 tasks | 4,320 | `multi_model_3seed_aggregated.json` |
+| Multi-domain validation (real API) | 18 configs × 40 tasks | 770 | `deepseek_{math,knowledge,code}_fixed_20.json` |
 
-**所有数字均来自真实 LLM 推理，无模拟 worker。** 采样种子：容错扫描
-`{42,43,44,45,46}`；消融与基线 `{42,43,44}`。同一配置跨种子复用同一任务集，以支持配对比较。
-
----
-
-## 6. 硬件与软件环境
-
-- **GPU**：2 × NVIDIA A800-SXM4-80GB（512GB 主机内存）
-- **软件**：CUDA 12.8、PyTorch 2.8.0、vLLM 0.11.0、transformers 4.56.2、Python 3.13
-- **解码**：temperature 0，max_tokens 512
-- **模型**：Llama-3.1-8B-Instruct、DeepSeek-V2-Lite-Chat、InternLM3-8B-Instruct、Qwen2.5-7B-Instruct
+**Every number comes from real LLM inference; there are no simulated workers.**
+Sampling seeds: fault-tolerance sweep `{42,43,44,45,46}`; ablations and baselines
+`{42,43,44}`. The same configuration reuses an identical task set across seeds to
+support paired comparisons.
 
 ---
 
-## 7. 文献
+## 6. Hardware and software environment
+
+- **GPU**: 2 × NVIDIA A800-SXM4-80GB (512GB host memory)
+- **Software**: CUDA 12.8, PyTorch 2.8.0, vLLM 0.11.0, transformers 4.56.2, Python 3.13
+- **Decoding**: temperature 0, max_tokens 512
+- **Models**: Llama-3.1-8B-Instruct, DeepSeek-V2-Lite-Chat, InternLM3-8B-Instruct, Qwen2.5-7B-Instruct
+
+---
+
+## 7. Citation
 
 ```bibtex
 @inproceedings{a2abft2027,

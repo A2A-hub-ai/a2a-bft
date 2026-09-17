@@ -104,7 +104,7 @@ rep(
 rep(
     r"writing $\hat{V}$ for the validator's check",
     r"writing $\hat{V}_i$ for validator $i$'s check",
-    1, "R13-5c §4.2 \hat V 下标")
+    1, r"R13-5c §4.2 \hat V 下标")
 
 # ---------------------------------------------------------------------------
 

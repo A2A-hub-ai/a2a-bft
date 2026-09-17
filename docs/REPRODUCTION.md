@@ -1,26 +1,32 @@
-# 复现指南（Reproduction Guide）
+# Reproduction Guide
 
-> **一键入口（推荐）**：本文档是「表/图 → 脚本 → 命令 → 产物」的完整对照表，
-> 适合需要精确控制单条命令时查阅。日常复现建议直接用仓库根的 `reproduce.sh`：
+> Language: **English** | [简体中文](REPRODUCTION.zh-CN.md)
+
+> **One-command entry point (recommended)**: this document is the complete
+> table/figure → script → command → artifact mapping, for when you need precise
+> control over individual commands. For everyday reproduction use
+> `reproduce.sh` at the repository root:
 >
 > ```bash
-> ./reproduce.sh doctor     # 先体检：本机能复现到哪一步
-> ./reproduce.sh verify     # 8 审计 + 5 组负向测试（纯 CPU，约 1 分钟）
+> ./reproduce.sh doctor     # check first: how far this machine can reproduce
+> ./reproduce.sh verify     # 8 audits + 5 negative-test groups (CPU only, about 1 minute)
 > ./reproduce.sh all        # datasets + figures + verify
 > ```
 >
-> 判定语义：`REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`，
-> 退出码 0 / 0 / 1。"未验证"不等于"通过"。
+> Verdict semantics: `REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`,
+> with exit codes 0 / 0 / 1. "Not verified" is not "passed".
 
-本文档给出**论文中每一个表格与图表的数据来源、生成脚本、运行命令与预期产物**。
-所有路径相对仓库根目录；所有命令可在仓库根直接执行（脚本自定位，无需 `cd`）。
+This document gives the **data source, generating script, run command, and
+expected artifact for every table and figure in the paper**. All paths are
+relative to the repository root; all commands can be run directly from the
+repository root (scripts self-locate, no `cd` needed).
 
 ---
 
-## 0. 流水线总览
+## 0. Pipeline overview
 
 ```
-                    start_vllm_seq.sh  (2×A800，4 个 vLLM 实例)
+                    start_vllm_seq.sh  (2×A800, 4 vLLM instances)
                               │
         ┌─────────────────────┼──────────────────────┬────────────────────┐
         │                     │                      │                    │
@@ -39,323 +45,375 @@
                      ▼
             papers/generate_figures.py
                      ▼
-            papers/figures/*.pdf  （LaTeX 直接 \includegraphics）
+            papers/figures/*.pdf  (included directly by LaTeX via \includegraphics)
 ```
 
-**数据目录约定**：所有中间与最终结果都落在 `experiments/results/`。
-可用环境变量 `A2A_RESULTS_DIR` / `A2A_DATASET_DIR` 覆盖。
+**Results directory convention**: all intermediate and final results land in
+`experiments/results/`. Override with the environment variables
+`A2A_RESULTS_DIR` / `A2A_DATASET_DIR`.
 
 ---
 
-## 1. 环境准备
+## 1. Environment setup
 
 ```bash
 pip install -r requirements.txt
 
-export A2A_MODEL_DIR=/path/to/models        # 默认 /autodl-fs/data/models
-export A2A_PY=$(which python)               # 默认 /root/miniconda3/bin/python
+export A2A_MODEL_DIR=/path/to/models        # default /autodl-fs/data/models
+export A2A_PY=$(which python)               # default /root/miniconda3/bin/python
 
-A2A_VERBOSE=1 bash -c 'source experiments/env/env.sh'   # 打印解析结果，确认路径
+A2A_VERBOSE=1 bash -c 'source experiments/env/env.sh'   # print the resolved paths and confirm them
 ```
 
-### 1.1 数据集
+### 1.1 Datasets
 
 ```bash
 python experiments/env/download_datasets.py
 ```
 
-预期产物（`experiments/datasets/`）：
+Expected artifacts (in `experiments/datasets/`):
 
-| 文件 | 条数 | 论文使用 | 说明 |
+| File | Records | Used in paper | Notes |
 |------|------|----------|------|
-| `gsm8k_test.json` | 1,319 | ✅ | GSM8K test split，答案含 `####` 终结标记 |
-| `mbpp_test.json` | 500 | ✅ | MBPP，每题含非空 `code` 与 `test_list` |
+| `gsm8k_test.json` | 1,319 | ✅ | GSM8K test split; answers carry the `####` terminator |
+| `mbpp_test.json` | 500 | ✅ | MBPP; each item has a non-empty `code` and `test_list` |
 | `mmlu_3subjects.json` | 312 | ✅ | abstract_algebra 100 + college_mathematics 100 + machine_learning 112 |
-| `humaneval_full.json` | 164 | ❌ | 可加载但未进入论文数据链 |
+| `humaneval_full.json` | 164 | ❌ | Loadable, but never enters the paper's data chain |
 
-> `mmlu_4subjects.json`（312 条、与 `mmlu_3subjects.json` **字节完全相同**、文件名误导、
-> 无任何脚本引用）已于 **2026-09-17 清理中删除**；同一轮次还修掉了它污染的
-> `dataset_summary.json`（旧 `total_tasks: 2607` 把该副本与未使用的 HumanEval
-> 一并计入；论文实际使用量为 **2,131**）。详见 `docs/audit/DATA_SOURCE_AUDIT.md` §十四。
+> `mmlu_4subjects.json` (312 records, **byte-identical** to
+> `mmlu_3subjects.json`, misleadingly named, referenced by no script) was
+> **deleted during the 2026-09-17 cleanup**. The same pass also fixed the
+> `dataset_summary.json` it had polluted (the old `total_tasks: 2607` counted
+> that duplicate together with the unused HumanEval; the paper's actual usage is
+> **2,131**). See `docs/audit/DATA_SOURCE_AUDIT.md` §14.
 
-> `dataset_summary.json` 已由脚本自动生成并记录上述警告，无需手工维护。
+> `dataset_summary.json` is generated automatically by the scripts and records
+> the warnings above; it needs no manual maintenance.
 
-### 1.2 模型权重
+### 1.2 Model weights
 
-四个模型（FP16 合计约 78 GB）：
+Four models (about 78 GB total in FP16):
 
 ```
 Llama-3.1-8B-Instruct  DeepSeek-V2-Lite-Chat  InternLM3-8B-Instruct  Qwen2.5-7B-Instruct
 ```
 
-### 1.3 启动 vLLM（2 张 80GB 卡）
+### 1.3 Launch vLLM (2 × 80GB GPUs)
 
 ```bash
-bash experiments/env/start_vllm_seq.sh      # 推荐：逐个启动 + 健康检查
-# 或 bash experiments/env/start_vllm.sh     # 并行启动，更快但可能争抢显存
+bash experiments/env/start_vllm_seq.sh      # recommended: start one by one + health checks
+# or bash experiments/env/start_vllm.sh     # start in parallel, faster but may contend for VRAM
 ```
 
-| GPU | 模型 | 端口 | name | util |
+| GPU | Model | Port | name | util |
 |-----|------|------|------|------|
 | 0 | Llama-3.1-8B-Instruct | 8000 | `llama` | 0.30 |
 | 0 | InternLM3-8B-Instruct | 8001 | `internlm` | 0.30 |
 | 1 | DeepSeek-V2-Lite-Chat | 8002 | `deepseek` | 0.50 |
 | 1 | Qwen2.5-7B-Instruct | 8003 | `qwen` | 0.28 |
 
-全部就绪时脚本打印 `ALL_4_VLLM_READY`。**必须 2 张卡**：单卡 80GB 装不下 78 GB 权重
-加 KV cache；`multi_model_vllm.py` 中有 `device_count() < 2` 的保护性断言。
+When everything is ready the script prints `ALL_4_VLLM_READY`. **Two GPUs are
+mandatory**: a single 80GB card cannot hold 78 GB of weights plus KV cache;
+`multi_model_vllm.py` carries a protective `device_count() < 2` assertion.
 
-冒烟测试：
+Smoke tests:
 
 ```bash
-python experiments/env/probe.py        # 与四个实例各通一次，检查返回是否符合预期
-python experiments/env/quick_test.py   # 快速连通性
-python experiments/env/smoke_code.py   # 代码任务的少量端到端
+python experiments/env/probe.py        # one round-trip per instance, checking the response shape
+python experiments/env/quick_test.py   # quick connectivity
+python experiments/env/smoke_code.py   # a few end-to-end code tasks
 ```
 
 ---
 
-## 2. 表格 → 数据来源 → 命令
+## 2. Tables → data source → commands
 
-### Pipeline A — 容错扫描（主实验）
+### Pipeline A — fault-tolerance sweep (main experiment)
 
-覆盖 `tab:baseline`、`tab:bft`、`tab:mmlu_sweep`、`tab:attacks`（+ `tab:performance`、
-`tab:complexity` 的实测轮数/调用数/时延列）。
+Covers `tab:baseline`, `tab:bft`, `tab:mmlu_sweep`, `tab:attacks` (plus the
+measured rounds / calls / latency columns of `tab:performance` and
+`tab:complexity`).
 
-| 步骤 | 命令 | 产物 |
+| Step | Command | Artifact |
 |------|------|------|
 | 1 | `python experiments/reproduce/full_bft_sweep.py gsm8k` | `results/full_bft_sweep_gsm8k.json` |
 | 1 | `python experiments/reproduce/full_bft_sweep.py mbpp` | `results/full_bft_sweep_mbpp.json` |
 | 1 | `python experiments/reproduce/full_bft_sweep.py mmlu` | `results/full_bft_sweep_mmlu.json` |
 | 2 | `python experiments/reproduce/aggregate_full_sweep.py` | `results/full_bft_sweep_aggregated.json` |
 
-规模：**5 个种子 × 50 任务 = 250 任务/单元**，种子 `{42,43,44,45,46}`，
-合计 7,750 次共识任务。
+Scale: **5 seeds × 50 tasks = 250 tasks per cell**, seeds `{42,43,44,45,46}`,
+7,750 consensus tasks in total.
 
-后台批量执行（等价于依次跑三个数据集）：
+Batch execution in the background (equivalent to running the three datasets in
+sequence):
 
 ```bash
 bash experiments/env/run_sweeps.sh
 ```
 
-校验：
+Verification:
 
 ```bash
-python experiments/verification/audit_table_numbers.py   # 其中 tab:baseline/bft/mmlu/attacks 段
+python experiments/verification/audit_table_numbers.py   # the tab:baseline/bft/mmlu/attacks sections
 ```
 
-### Pipeline B — 消融与基线对比
+### Pipeline B — ablations and baseline comparison
 
-覆盖 `tab:ablation`、`tab:hetero_compare`。
+Covers `tab:ablation`, `tab:hetero_compare`.
 
-| 步骤 | 命令 | 产物 |
+| Step | Command | Artifact |
 |------|------|------|
 | 1 | `python experiments/reproduce/multi_model_compare_ablation_v2.py` | `results/multi_model_compare_ablation_v2.json` (GSM8K, seed 42) |
 | 1 | `python experiments/reproduce/multi_model_compare_ablation_v3.py` | `results/multi_model_compare_ablation_v3.json` (MBPP, seed 42) |
 | 1 | `python experiments/reproduce/multi_model_multiseed.py` | `results/multi_model_multiseed.json` (seeds 43, 44) |
-| 1 | `python experiments/reproduce/mbpp_debate_fix.py` | `results/mbpp_debate_fix.json` (LLM-Debate 代码修正式生成) |
+| 1 | `python experiments/reproduce/mbpp_debate_fix.py` | `results/mbpp_debate_fix.json` (LLM-Debate code-repair generation) |
 | 2 | `python experiments/reproduce/merge_3seed.py` | `results/multi_model_3seed_aggregated.json` |
 
-规模：**3 个种子 × 30 任务 = 90 任务/单元**，种子 `{42,43,44}`。
+Scale: **3 seeds × 30 tasks = 90 tasks per cell**, seeds `{42,43,44}`.
 
-> **注意**：`mbpp_debate_fix.py` 必须跑完再执行 `merge_3seed.py` —— 后者用它的结果
-> 替换 `multi_model_compare_ablation_v3.json` 中的 LLM-Debate 行（修复其代码任务上
-> 不合理的生成预算）。
+> **Note**: `mbpp_debate_fix.py` must finish before `merge_3seed.py` runs — the
+> latter uses its output to replace the LLM-Debate row in
+> `multi_model_compare_ablation_v3.json` (fixing that row's unreasonable
+> generation budget on code tasks).
 
-> `merge_final.py` 是更早的"两领域合并"版本，产出
-> `multi_model_compare_ablation_final.json`；最终表格用的是 `merge_3seed.py`。
-> 二者已于 **2026-09-17 一并删除**（`_final.json` 零读取方，`merge_final.py` 的
-> 产出物无消费者）。现行链路只有 `merge_3seed.py`。
+> `merge_final.py` is an earlier "two-domain merge" variant producing
+> `multi_model_compare_ablation_final.json`; the final tables use
+> `merge_3seed.py`. Both were **deleted on 2026-09-17** (`_final.json` had zero
+> readers, and `merge_final.py`'s output had no consumer). The live chain is only
+> `merge_3seed.py`.
 
-### Pipeline C — 多领域验证（真实 DeepSeek API）
+### Pipeline C — multi-domain validation (real DeepSeek API)
 
-覆盖 `tab:real_llm`。
+Covers `tab:real_llm`.
 
 ```bash
-export DEEPSEEK_API_KEY=sk-...        # 必须；脚本不再内置密钥
+export DEEPSEEK_API_KEY=sk-...        # required; the scripts no longer embed a key
 python experiments/reproduce/large_scale_experiment.py
 ```
 
-产物：`results/deepseek_{math,knowledge,code}_fixed_20.json`
+Artifacts: `results/deepseek_{math,knowledge,code}_fixed_20.json`
 
-| 领域 | 数据集 | 任务/配置 |
+| Domain | Dataset | Tasks per config |
 |------|--------|-----------|
 | math | GSM8K | 40 |
 | knowledge | MMLU | 40 |
 | code | MBPP | 40 |
 
-18 配置 × 40 任务 = 720 次真实 API 任务。报告：`results/large_scale_experiment_report.md`。
+18 configs × 40 tasks = 720 real-API tasks. Report:
+`results/large_scale_experiment_report.md`.
 
-> 该流水线**不使用 vLLM**，只需要 API key 与网络。
+> This pipeline **does not use vLLM**; it only needs an API key and network access.
 
-### Pipeline D — n=8 对抗边界与配对检验
+### Pipeline D — n=8 adversarial boundary and paired testing
 
-覆盖 `tab:n8_scaling`、`tab:a2a_sim_comparison` 的 Δ 与 McNemar 配对检验。
+Covers `tab:n8_scaling` and the Δ and McNemar paired test of
+`tab:a2a_sim_comparison`.
 
-| 步骤 | 命令 | 产物 |
+| Step | Command | Artifact |
 |------|------|------|
-| 1 | （原始运行日志） | `results/correctness_50x3_log.txt` |
+| 1 | (raw run log) | `results/correctness_50x3_log.txt` |
 | 2 | `python experiments/reproduce/parse_correctness_log.py` | `results/correctness_50t_3s_run1_from_log.json` |
 | 3 | `python experiments/reproduce/run_pairing_mcnemar.py` | `results/run_pairing_mcnemar.json` |
 
-`run_pairing_mcnemar.py` 对两次 n=8 运行做**逐任务配对**比较（同一任务抽样），
-输出配对 McNemar 检验结果。
+`run_pairing_mcnemar.py` performs a **task-by-task paired** comparison of the two
+n=8 runs (same task sampling) and outputs paired McNemar test results.
 
-### Pipeline E — 成本基准（可选，非论文数据链）
+### Pipeline E — cost benchmark (optional, not on the paper's data chain)
 
 ```bash
 python experiments/reproduce/performance_test.py
-# → results/performance_test_results.json
+# -> results/performance_test_results.json
 ```
 
-`tab:performance` / `tab:complexity` 中的**实测轮数、调用数、时延**来自
-Pipeline A 的聚合结果（`aggregate_full_sweep.py` 的 `avg_rounds` / `avg_calls` /
-`avg_time` 指标），而非本脚本。本脚本是独立的成本基准，其输出**不在论文数据链上**。
+The **measured rounds, call counts, and latencies** in `tab:performance` /
+`tab:complexity` come from Pipeline A's aggregates (the `avg_rounds` /
+`avg_calls` / `avg_time` metrics produced by `aggregate_full_sweep.py`), not from
+this script. This script is a standalone cost benchmark whose output is **not on
+the paper's data chain**.
 
-### Pipeline F — 声誉追踪器测量性消融
+### Pipeline F — reputation tracker measurement ablation
 
-支撑 `fig:reputation`（由"示意"改为"实测"）与 `tab:rep_ablation`。
+Supports `fig:reputation` (changed from "illustrative" to "measured") and
+`tab:rep_ablation`.
 
 ```bash
-# 阶段 1（线上，需 4 个 vLLM 实例就绪）：跑协议并完整记录每一轮每一张票
+# Stage 1 (online, requires all 4 vLLM instances ready): run the protocol and log every vote in every round
 python experiments/reproduce/reputation_ablation.py --tasks 20
 
-# 阶段 2（离线，纯 CPU，零 LLM 调用）：从缓存投票流重放
+# Stage 2 (offline, CPU only, zero LLM calls): replay from the cached vote stream
 python experiments/reproduce/reputation_ablation.py --replay-only
 ```
 
-| 步骤 | 命令 | 产物 |
+| Step | Command | Artifact |
 |------|------|------|
-| 1 | `python experiments/reproduce/reputation_ablation.py --tasks 20` | `results/reputation_vote_stream.json`（投票流）+ `results/reputation_ablation.json`（四档结果） |
-| 2 | `python experiments/reproduce/reputation_ablation.py --replay-only` | 同上，可无限次复现 |
-| 3 | `python experiments/reproduce/render_reputation_report.py` | `results/reputation_ablation_report.md`（含任务级列：误罚任务 / 触发任务） |
-| 4 | `python experiments/verification/audit_reputation_fidelity.py` | 保真度比对：`FIDELITY_OK`，升级罚 5180 / 5180 |
-| 5 | `python experiments/verification/verify_mbpp_subboundary.py` | `results/mbpp_subboundary_verification.json`（离线复现越界错误提交，零 LLM 调用） |
+| 1 | `python experiments/reproduce/reputation_ablation.py --tasks 20` | `results/reputation_vote_stream.json` (vote stream) + `results/reputation_ablation.json` (four-variant results) |
+| 2 | `python experiments/reproduce/reputation_ablation.py --replay-only` | Same, reproducible any number of times |
+| 3 | `python experiments/reproduce/render_reputation_report.py` | `results/reputation_ablation_report.md` (incl. task-level columns: mispenalized tasks / triggered tasks) |
+| 4 | `python experiments/verification/audit_reputation_fidelity.py` | Fidelity comparison: `FIDELITY_OK`, escalated penalties 5180 / 5180 |
+| 5 | `python experiments/verification/verify_mbpp_subboundary.py` | `results/mbpp_subboundary_verification.json` (offline reproduction of the out-of-bound wrong commit, zero LLM calls) |
 
-> **重放口径（2026-09-17 修正）**：`ok` 谓词必须写成析取
-> `(v == 'accept' and c) or (v == 'reject' and not c)`，与 `deepseek_worker.py:975-980`
-> 一致。写成 `(v == 'accept') == c` 会把"对错误提案弃权"算成投对，只在 ABSTAIN 上分歧。
-> 修正后正文数字由 $1{,}217$ of $1{,}305$ 变为 **$1{,}186$ of $1{,}305$**；
-> 四档重放决策序列与线上记录仍逐字段一致。详见 `docs/AUDIT.md` §3.6.1。
+> **Replay definition (corrected 2026-09-17)**: the `ok` predicate must be
+> written as a disjunction
+> `(v == 'accept' and c) or (v == 'reject' and not c)`,
+> matching `deepseek_worker.py:975-980`. Writing `(v == 'accept') == c` counts
+> "abstaining on a wrong proposal" as voting correctly; the two disagree only on
+> ABSTAIN. After the fix, the main-text figure changes from $1{,}217$ of
+> $1{,}305$ to **$1{,}186$ of $1{,}305$**; the four-variant replay decision
+> sequences remain field-by-field identical to the online record. See
+> `docs/AUDIT.md` §3.6.1.
 
-**为什么不是"开/关声誉比接受率"**：论文 §4.3 与附录声明声誉分数**不进入计票规则**
-（式 `commit` 聚合的是原始票数），因此声誉**不可能**改变任何 commit 决策——做那个对比
-在数学上是恒等式，属定理推论而非实验发现。脚本改为测量**追踪器本身报告了什么**：
+**Why not "reputation on/off vs. acceptance rate"**: §4.3 of the paper and the
+appendix state that reputation scores **do not enter the vote-counting rule**
+(the `commit` formula aggregates raw vote counts), so reputation **cannot**
+change any commit decision — that comparison is a mathematical identity, a
+corollary of the theorem rather than an experimental finding. The script instead
+measures **what the tracker itself reports**:
 
-| 编号 | 测量对象 |
+| ID | What is measured |
 |------|----------|
-| M1 | 决策指标（与论文 `tab:ablation` 对应单元对照，确认协议路径未变） |
-| M2 | 四档罚则的触发分布（按"验证者真值 × 该票客观上是否正确"切分） |
-| M3 | 拜占庭识别性能：把"触发激进罚（ρ≥0.7，−0.25）"当作检测器，算 P/R/F1 |
-| M4 | **误罚率**：激进罚落在"诚实验证者且该票客观上正确"上的比例 |
-| M5 | `c` 的来源对比：算法 1 要求 c = 提案是否真的正确；发布实现用
-`_estimate_correctness`（格式检查）。用 oracle c 与 released c 各重放一次量化差距 |
+| M1 | Decision metrics (cross-checked against the corresponding `tab:ablation` cells to confirm the protocol path is unchanged) |
+| M2 | Trigger distribution of the four penalty variants (split by "verifier ground truth × whether that vote was objectively correct") |
+| M3 | Byzantine detection performance: treat "triggered the aggressive penalty (ρ≥0.7, −0.25)" as a detector and compute P/R/F1 |
+| M4 | **Mispenalty rate**: the share of aggressive penalties landing on "an honest verifier whose vote was objectively correct" |
+| M5 | Source of `c`: Algorithm 1 requires c = whether the proposal is actually correct; the released implementation uses `_estimate_correctness` (format check). Replay once with oracle c and once with released c to quantify the gap |
 
-四档重放 = `{oracle, released} × {persistent, fresh}`。每次重放都会断言
-**重放出的决策序列与线上记录逐字段一致**（`decision_consistent` 必须为 True）——
-这既是正确性校验，也是"决策不受声誉影响"这一论断的**可验证证据**。
+Four-variant replay = `{oracle, released} × {persistent, fresh}`. Every replay
+asserts that **the replayed decision sequence is field-by-field identical to the
+online record** (`decision_consistent` must be True) — this is both a correctness
+check and **verifiable evidence** for the claim that decisions are unaffected by
+reputation.
 
-脚本支持 `-h` 查看用法；线上阶段开跑前会做端点预检，避免空跑。
+The script supports `-h` for usage; the online stage performs an endpoint
+pre-check before starting, to avoid a wasted run.
 
 ---
 
-## 3. 图表 → 生成方式
+## 3. Figures → how they are generated
 
 ```bash
 python papers/generate_figures.py
 ```
 
-产物写入 `papers/figures/`（PDF 供 LaTeX 使用，PNG 供预览；PNG 被 `.gitignore` 忽略）。
+Artifacts are written to `papers/figures/` (PDF for LaTeX, PNG for preview; PNG
+is ignored by `.gitignore`).
 
-| 论文图表 | 文件 | 数据来源 |
+| Paper figure | File | Data source |
 |----------|------|----------|
 | `fig:attack_resistance` | `attack_resistance.pdf` | `results/full_bft_sweep_aggregated.json` |
-| `fig:performance_comparison` | `performance_comparison.pdf` | 同上 + `multi_model_3seed_aggregated.json` |
-| `fig:architecture` | `architecture.pdf` | 纯代码绘制（示意图） |
-| `fig:consensus_flow` | `consensus_flow.pdf` | 纯代码绘制（协议流程） |
-| `fig:reputation` | `reputation_mechanism.pdf` | 纯代码绘制（声誉规则） |
+| `fig:performance_comparison` | `performance_comparison.pdf` | same, plus `multi_model_3seed_aggregated.json` |
+| `fig:architecture` | `architecture.pdf` | drawn purely in code (schematic) |
+| `fig:consensus_flow` | `consensus_flow.pdf` | drawn purely in code (protocol flow) |
+| `fig:reputation` | `reputation_mechanism.pdf` | drawn purely in code (reputation rule) |
 
-> 论文实际 `\includegraphics` 的图只有 5 张：`consensus_flow` / `architecture` /
-> `performance_comparison` / `reputation_mechanism` / `attack_resistance`。
-> 早期产物 `acceptance_rates.*`、`fault_tolerance_surface.*`（后者还是用
-> `honest_ratio * 95` 合成出来的"接受率"，与真机测量无关）以及一批
-> `correctness_*.png` / `n8_scaling_results.png` 已于 **2026-09-17 删除**，
-> 对应的绘图函数（`load_experiment_data` / `plot_acceptance_rates` /
-> `plot_fault_tolerance_surface`）同步从 `papers/generate_figures.py` 移除。
-> 移除后重出图件与移除前**逐像素一致**（5/5，最大通道差 0），确认删除是惰性的。
+> The paper actually `\includegraphics` only 5 figures: `consensus_flow` /
+> `architecture` / `performance_comparison` / `reputation_mechanism` /
+> `attack_resistance`. The earlier artifacts `acceptance_rates.*` and
+> `fault_tolerance_surface.*` (the latter was an "acceptance rate" synthesized as
+> `honest_ratio * 95`, unrelated to the real-machine measurements) plus a batch of
+> `correctness_*.png` / `n8_scaling_results.png` were **deleted on 2026-09-17**,
+> and the corresponding plotting functions (`load_experiment_data` /
+> `plot_acceptance_rates` / `plot_fault_tolerance_surface`) were removed from
+> `papers/generate_figures.py` at the same time. After removal the regenerated
+> figures were **pixel-identical** to before (5/5, maximum channel difference 0),
+> confirming the deletion was inert.
 
-> 三张示意图完全由代码生成，与协议实现中使用的阈值规则**同源**；若改动了
-> `experiments/src/a2a_bft/deepseek_worker.py` 的阈值公式，必须重跑本脚本并复核这三张图。
+> The three schematics are generated entirely in code and are **same-sourced** as
+> the threshold rules used in the protocol implementation; if you change the
+> threshold formulas in `experiments/src/a2a_bft/deepseek_worker.py`, you must
+> rerun this script and recheck those three figures.
 
 ---
 
-## 4. 编译论文
+## 4. Compiling the paper
 
 ```bash
 cd papers
 pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdflatex iclr2027_main
 ```
 
-> **唯一提交文件**：**官方提交文件是 `papers/iclr2027_main.tex`**
-> （使用官方 ICLR 2027 样式 `iclr2027_conference.sty`，与 `media.iclr.cc` 的官方包逐字节一致）。
-> 早期草稿分叉 `papers/iclr2026_main.tex`（使用已损坏的 `arxiv.sty`）已在 2026-09-15
-> 整理中删除，仓库内**不再有**任何 iclr2026 源文件，不存在再编辑错文件的风险。
+> **The single submission file**: **the official submission file is
+> `papers/iclr2027_main.tex`** (using the official ICLR 2027 style
+> `iclr2027_conference.sty`, byte-identical to the official package from
+> `media.iclr.cc`). The earlier draft fork `papers/iclr2026_main.tex` (which used
+> a broken `arxiv.sty`) was deleted in the 2026-09-15 reorganization; the
+> repository contains **no** iclr2026 source files any more, so there is no risk
+> of editing the wrong file.
 
 ---
 
-## 5. 一键验收
+## 5. Full acceptance run
 
 ```bash
-# 1) 审计
-python experiments/verification/audit_table_numbers.py      # 期望：348 项，0 问题
-python experiments/verification/audit_figures.py            # 期望：123 项，0 问题
-python experiments/verification/audit_theory_numerics.py    # 期望：全部 OK
-python experiments/verification/audit_prose_ranges.py       # 期望：无数值不一致
-python experiments/verification/audit_paths.py              # 期望：0 问题，四类计数均 > 0
-python experiments/verification/audit_revision_layer.py     # 期望：52 项，0 问题
+# 1) Audits
+python experiments/verification/audit_table_numbers.py      # 349 items, 0 problems
+python experiments/verification/audit_figures.py            # 124 items, 0 problems
+python experiments/verification/audit_theory_numerics.py    # all OK
+python experiments/verification/audit_prose_ranges.py       # no numeric inconsistency
+python experiments/verification/audit_paths.py              # 0 problems, all four counters > 0
+python experiments/verification/audit_revision_layer.py     # 52 items, 0 problems
 
-# 1b) 保真度与离线复现（零 LLM 调用）
-python experiments/verification/audit_reputation_fidelity.py  # 期望：FIDELITY_OK，5180/5180
-python experiments/verification/verify_mbpp_subboundary.py    # 期望：MBPP_SUBBOUNDARY_DONE
-python experiments/verification/audit_decision_neutrality.py  # 期望：DECISION_NEUTRALITY_OK，9 项
-                                                              # （从原始票重算 phi + 复现决策 + 变异测试）
+# 1b) Fidelity and offline reproduction (zero LLM calls)
+python experiments/verification/audit_reputation_fidelity.py  # FIDELITY_OK, 5180/5180
+python experiments/verification/verify_mbpp_subboundary.py    # MBPP_SUBBOUNDARY_DONE
+python experiments/verification/audit_decision_neutrality.py  # DECISION_NEUTRALITY_OK, 9 items
+                                                              # (recompute phi from raw votes + replay decisions + mutation test)
 
-# 2) 审计自身有效性（注入缺陷，必须被捕获）
-python experiments/verification/negative_test_tables.py     # 期望：5/5
-python experiments/verification/negative_test_figures.py    # 期望：6/6
-python experiments/verification/negative_test_theory.py     # 期望：3/3
-python experiments/verification/negative_test_paths.py      # 期望：5/5
-python experiments/verification/negative_test_revision.py   # 期望：8/8
+# 2) Audit effectiveness (inject defects; they must be caught)
+python experiments/verification/negative_test_tables.py     # 5/5
+python experiments/verification/negative_test_figures.py    # 8/8
+python experiments/verification/negative_test_theory.py     # 3/3
+python experiments/verification/negative_test_paths.py      # 8/8
+python experiments/verification/negative_test_revision.py   # 8/8
 ```
 
-若负向测试**未全部捕获**，说明审计失效，其"全绿"结论不可信——此时不要采信第 1 步。
+If the negative tests do **not all catch** their injected defects, the audits are
+ineffective and their "all green" result cannot be trusted — in that case do not
+rely on step 1.
 
-> **`audit_paths.py` 为什么必须在这里**：它检查的是"交付脚本里的路径还指不指得对"。
-> 目录重组后曾有 3 个脚本因为数据目录/项目根由**脚本自身位置**推导而静默失效
-> （其中 2 个是 `tab:n8_scaling` 与 McNemar 的数据来源），而当时的验收只看了
-> `sys.path`，所以"全绿"。移动、重命名任何脚本之后，请务必先跑这一项。
-> 详见 [`AUDIT.md` §2/§3.5](AUDIT.md)。
+> **Item counts change as cases are added or removed.** The counts above
+> correspond to the current test suite; the authoritative source is the **live
+> output** of `./reproduce.sh verify`, which reads the numbers from each script's
+> actual stdout. If a number here disagrees with the live output, the live output
+> wins. (Hard-coded expectations in this document had already drifted once:
+> it said 348 / 123 items and 6/6 / 5/5 negative cases while the live output said
+> 349 / 124 and 8/8 / 8/8.)
+
+> **Why `audit_paths.py` must be in this list**: it checks whether the paths in
+> the delivered scripts still resolve. After the directory reorganization, three
+> scripts had silently broken because their data directory / project root was
+> derived from **the script's own location** (two of them being the data sources
+> for `tab:n8_scaling` and the McNemar test), while the acceptance check at the
+> time only inspected `sys.path`, so it reported "all green". After moving or
+> renaming any script, always run this check first.
+> See [`AUDIT.md` §2/§3.5](AUDIT.md).
 
 ---
 
-## 6. 常见问题
+## 6. FAQ
 
-**Q：只有 1 张 GPU，能跑吗？**
-不能完整跑。四个模型 FP16 合计约 78 GB，单张 80GB 卡放不下（还要留 KV cache）。
-可以降级：只部署 2 个模型做小规模连通性验证，但论文数据无法复现。
+**Q: I only have 1 GPU. Can I run this?**
+Not fully. The four models total about 78 GB in FP16 and do not fit on a single
+80GB card (which must also hold KV cache). You can degrade gracefully: deploy
+only 2 models for small-scale connectivity checks, but the paper's data cannot be
+reproduced that way.
 
-**Q：`import openai` 失败会影响审计吗？**
-不会。`openai` 是函数内惰性导入（`deepseek_worker.py:112`、`multi_model_vllm.py:231`），
-协议库、审计脚本与负向测试都不需要它。
+**Q: Does a failing `import openai` affect the audits?**
+No. `openai` is imported lazily inside functions (`deepseek_worker.py:112`,
+`multi_model_vllm.py:231`), and the protocol library, audit scripts, and negative
+tests do not need it.
 
-**Q：脚本移动位置后 import 失败？**
-不应发生。所有 Python 脚本向上查找 `.a2a_project_root` 标记文件定位项目根，
-shell 脚本通过 `experiments/env/env.sh` 自定位。若真的失败，先确认
-`.a2a_project_root` 未被删除。
+**Q: Imports fail after moving the scripts?**
+That should not happen. Every Python script locates the project root by searching
+upward for the `.a2a_project_root` marker, and shell scripts self-locate through
+`experiments/env/env.sh`. If it does fail, first check that `.a2a_project_root`
+has not been deleted.
 
-**Q：结果文件在哪里？**
-全部在 `experiments/results/`。2026-09-15 之前散落在 `experiments/` 顶层的模拟期
-结果曾归入 `experiments/results/archive_simulation_era/`，该目录已于 **2026-09-17
-连同其余模拟期/被取代产物一并删除**（35 项 / 1.75 MB），备份在
-`A2A_cleanup_backup_20260917.tar.gz`，清单在
-`docs/cleanup/cleanup_manifest_20260917.txt`。当前目录内**不含任何模拟数据**。
+**Q: Where are the result files?**
+All under `experiments/results/`. Simulation-era results that were scattered at
+the top level of `experiments/` before 2026-09-15 were moved into
+`experiments/results/archive_simulation_era/`, and that directory was **deleted on
+2026-09-17** together with the remaining simulation-era and superseded artifacts
+(35 entries / 1.75 MB). The backup and manifest are kept in the full working copy
+(`A2A_cleanup_backup_20260917.tar.gz`,
+`docs/cleanup/cleanup_manifest_20260917.txt`) and are not part of this anonymous
+release. The current directory contains **no simulated data**.

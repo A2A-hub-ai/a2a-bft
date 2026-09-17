@@ -1,48 +1,48 @@
 #!/usr/bin/env bash
 # ============================================================================
-# A2A-BFT 一键复现入口（Single Entry Point）
+# A2A-BFT one-command reproduction entry point
 #
-# 设计目标：把「读文档 → 逐个脚本挑命令 → 手工比对输出」压缩成一条命令。
+# Design goal: collapse "read the docs -> pick scripts one by one -> diff outputs by hand"
 #
-#   ./reproduce.sh            # 默认 = verify（无需 GPU，一键可跑）
-#   ./reproduce.sh verify     # 8 审计 + 5 负向测试（纯 CPU）
-#   ./reproduce.sh doctor     # 环境体检：明确告诉你能跑到哪一步、缺什么
-#   ./reproduce.sh figures    # 从 results/ 重新出图并复查图-表一致性
-#   ./reproduce.sh datasets   # 下载 GSM8K / MBPP / MMLU 并校验条数
+#   ./reproduce.sh            # default = verify (no GPU needed)
+#   ./reproduce.sh verify     # 8 audits + 5 negative-test groups (CPU only)
+#   ./reproduce.sh doctor     # environment check: how far you can get, and what is missing
+#   ./reproduce.sh figures    # regenerate figures from results/ and recheck consistency
+#   ./reproduce.sh datasets   # download GSM8K / MBPP / MMLU and verify record counts
 #   ./reproduce.sh install    # pip install -r requirements.txt
 #   ./reproduce.sh all        # doctor + datasets + figures + verify
-#   ./reproduce.sh full        # 全部实验（需 2×80GB GPU + 78GB 权重 + API key）
+#   ./reproduce.sh full        # all experiments (needs 2x80GB GPU + 78GB weights + API key)
 #   ./reproduce.sh help
 #
-# 可移植性：脚本自定位（靠 .a2a_project_root），不依赖调用时所在目录；
-#           Linux 与 Windows(Git Bash) 均可运行，解释器可用 A2A_PY 覆盖。
+# Portability: the script self-locates via .a2a_project_root and ignores the caller's cwd;
+#           runs on Linux and Windows (Git Bash); override the interpreter with A2A_PY.
 #
-# ⚠️ 并发禁令（2026-09-17 实测教训）
-#    verify 阶段的负向测试会**临时改写** papers/iclr2027_main.tex 再还原
-#    （通过注入已知缺陷来证明审计真的能捕获，而非形同虚设）。因此审计与负向
-#    测试**必须串行**，绝不能 `&` 或 `xargs -P` 并行：
-#      · 并行时 audit_table_numbers 读到注入态，报出假告警
-#        "[tab:a2a_sim] GSM8K 基线 99.9±5.8 vs 数据 56.7±5.8"；
-#      · 两个负向脚本同时备份/还原还会互相覆盖，留下"半注入"的论文文件。
-#    本脚本用「锁文件 + 严格串行 + 收尾哈希比对」三重防护。
+# ⚠️ DO NOT RUN IN PARALLEL (measured lesson, 2026-09-17)
+#    The verify-stage negative tests TEMPORARILY REWRITE papers/iclr2027_main.tex and then
+#    restore it (they inject known defects to prove the audits really catch them, rather than
+#    merely existing). Audits and negative tests MUST therefore be serial - never `&` or
+#    `xargs -P`: concurrently, audit_table_numbers reads the injected state and raises the
+#    false alarm "[tab:a2a_sim] GSM8K baseline 99.9±5.8 vs data 56.7±5.8", and two negative
+#    scripts backing up/restoring at once overwrite each other, leaving a half-injected paper.
+#    This script guards against that with a lock file + strict serialization + an end-of-run hash check.
 # ============================================================================
 set -uo pipefail
 
 # ---------------------------------------------------------------------------
-# 0. 自定位：项目根由本脚本位置确定，并向上校验根标记文件
+# 0. Self-location: the project root is derived from this script's location and verified upward
 # ---------------------------------------------------------------------------
 A2A_ROOT="${A2A_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 if [ ! -f "$A2A_ROOT/.a2a_project_root" ]; then
-  echo "[reproduce] 未找到项目根标记 .a2a_project_root（当前: $A2A_ROOT）" >&2
-  echo "[reproduce] 请从仓库根目录运行，或显式设置 A2A_ROOT=/path/to/repo" >&2
+  echo "[reproduce] project-root marker .a2a_project_root not found (current: $A2A_ROOT)" >&2
+  echo "[reproduce] run it from the repository root, or set A2A_ROOT=/path/to/repo explicitly" >&2
   exit 2
 fi
 
-# 传给 Python 解释器的路径一律用「相对项目根」的形式：
-#   Git Bash/MSYS 下 A2A_ROOT 是 /d/... 形态，而解释器若是原生 Windows
-#   python.exe，MSYS 的参数路径转换会把它错拼成 D:\d\...（实测报错形如
-#   "can't open file 'D:\d\<仓库名>\experiments\verification\audit_paths.py'"）。
-#   相对路径没有这个歧义；run_step 已先 cd 到项目根，因此相对路径总是对的。
+# Paths handed to the Python interpreter are ALWAYS project-root-relative:
+#   under Git Bash/MSYS, A2A_ROOT has the form /d/..., and if the interpreter is a native
+#   Windows python.exe, MSYS argument-path conversion mangles it into D:\d\... (observed as
+#   "can't open file 'D:\d\<repo>\experiments\verification\audit_paths.py'").
+#   Relative paths carry no such ambiguity; run_step cds to the project root first, so they always resolve.
 REL_VERIFICATION="experiments/verification"
 REL_REPRODUCE="experiments/reproduce"
 REL_ENVDIR="experiments/env"
@@ -56,7 +56,7 @@ TEX="$PAPERS/iclr2027_main.tex"
 LOCK="$A2A_ROOT/.a2a_repro.lock"
 
 # ---------------------------------------------------------------------------
-# 1. 解释器探测（A2A_PY 优先；否则 python3 / python）
+# 1. Interpreter detection (A2A_PY first; otherwise python3 / python)
 # ---------------------------------------------------------------------------
 PY="${A2A_PY:-}"
 if [ -z "$PY" ] || [ ! -x "$PY" ]; then
@@ -66,15 +66,15 @@ if [ -z "$PY" ] || [ ! -x "$PY" ]; then
   done
 fi
 if [ -z "$PY" ]; then
-  echo "[reproduce] 找不到 Python 解释器；请设置 A2A_PY=/path/to/python" >&2
+  echo "[reproduce] no Python interpreter found; set A2A_PY=/path/to/python" >&2
   exit 2
 fi
 
-# Windows/Git Bash：把 MSYS 形态（/c/...）规范成 C:/... 形态。
-# 原因：A2A_PY 会被导出给 Python 脚本，而负向测试内部要用 subprocess 再拉起
-# 子进程 —— subprocess 走的是 Windows CreateProcess，认不出 /c/... 这类 MSYS
-# 路径，直接 FileNotFoundError(WinError 2)。C:/... 形态对 bash 与 Windows 两侧都有效。
-# （2026-09-17 实测：5 个负向测试中 4 个因此失败，只有用 sys.executable 的那个正常。）
+# Windows/Git Bash: normalize the MSYS form (/c/...) into the C:/... form.
+# Why: A2A_PY is exported to the Python scripts, and the negative tests spawn further
+# subprocesses - subprocess goes through Windows CreateProcess, which does not recognise
+# MSYS paths like /c/... and raises FileNotFoundError(WinError 2). The C:/... form works on both.
+# (Measured 2026-09-17: 4 of the 5 negative tests failed for this reason; only the one using
 if command -v cygpath >/dev/null 2>&1; then
   _pynorm="$(cygpath -m "$PY" 2>/dev/null || true)"
   [ -n "$_pynorm" ] && PY="$_pynorm"
@@ -82,7 +82,7 @@ fi
 export A2A_PY="$PY"
 
 # ---------------------------------------------------------------------------
-# 2. 小工具
+# 2. Small helpers
 # ---------------------------------------------------------------------------
 C_OK=$'\033[32m'; C_BAD=$'\033[31m'; C_WARN=$'\033[33m'; C_DIM=$'\033[2m'; C_OFF=$'\033[0m'
 if [ ! -t 1 ]; then C_OK=""; C_BAD=""; C_WARN=""; C_DIM=""; C_OFF=""; fi
@@ -92,13 +92,13 @@ FAILED_ITEMS=(); SKIPPED_ITEMS=()
 
 hr() { printf '%s\n' "------------------------------------------------------------------------"; }
 
-# 逐字节哈希（用 Python 实现，避免依赖 md5sum/sha1sum 在 Git Bash 上的差异）
+# Byte-exact hashing (done in Python to avoid md5sum/sha1sum differences under Git Bash)
 #
-# ⚠️ 路径必须以「相对项目根」的形式作为**参数**传给 Python：
-#    MSYS 会把 /d/... 形态的参数错拼成 D:\d\...，open() 直接失败。
-#    早期版本因此恒返回 "MISSING"——而 MISSING 与 MISSING 相等，
-#    于是"负向测试已逐字节还原"的判定变成了一次**假通过**。
-#    这里同时把失败显式写成 ERROR:...，让"读不到"不可能伪装成"读一致"。
+# ⚠️ The path MUST be passed to Python as an ARGUMENT in project-root-relative form:
+#    MSYS mangles /d/... style arguments into D:\d\..., so open() fails outright.
+#    An earlier version therefore always returned "MISSING" - and MISSING == MISSING,
+#    which silently turned "the negative tests restored the file byte-for-byte" into a FALSE PASS.
+#    Failures are now written explicitly as ERROR:... so "unreadable" can never pass as "identical".
 file_hash() {
   (
     cd "$A2A_ROOT" || exit 1
@@ -114,22 +114,22 @@ PYEOF
   )
 }
 
-# 32 位十六进制 = 有效摘要；其余（MISSING/ERROR:.../空）一律视为"无法验证"
+# 32 hex digits = valid digest; anything else (MISSING / ERROR:... / empty) means "cannot verify"
 is_hash() { printf '%s' "$1" | grep -Eq '^[0-9a-f]{32}$'; }
 
-# 运行一个脚本并记录结果。用法: run_step "标签" "工作目录" 命令...
-# 从脚本输出里抽取"核对/通过了多少项"。各脚本输出格式不统一，故按优先级试几种；
-# 一种都不匹配就返回空（宁可只显示 PASS，也不要显示一个可能过期的数字）。
+# Run one script and record the result. Usage: run_step "label" "workdir" command...
+# Extract "how many items were checked/passed" from the script output. Formats differ between
+# scripts, so several patterns are tried in priority order; if none match, return empty (better to
 extract_count() {
   local out="$1" p
-  # 五个负向脚本的收尾措辞各不相同（"项通过" / "项被捕获" / "项符合预期" / "捕获"），
-  # 但都写成 "负向测试: N/M ..."，故按该前缀取，不依赖后半句。
+  # The five negative scripts close with different wordings ("items passed" / "items caught" /
+  # "items as expected" / "caught"), but all print "负向测试: N/M ...", so key on that prefix only.
   p="$(printf '%s' "$out" | grep -oE '负向测试: *[0-9]+/[0-9]+' | tail -1 | grep -oE '[0-9]+/[0-9]+' || true)"
   if [ -n "$p" ]; then printf '%s' "$p"; return; fi
   p="$(printf '%s' "$out" | grep -oE '已核对(数值|项数): *[0-9]+' | tail -1 | grep -oE '[0-9]+$' || true)"
-  if [ -n "$p" ]; then printf '%s 项' "$p"; return; fi
-  p="$(printf '%s' "$out" | grep -oE '[0-9]+ 项核对' | tail -1 || true)"
-  if [ -n "$p" ]; then printf '%s' "$p"; return; fi
+  if [ -n "$p" ]; then printf '%s items' "$p"; return; fi
+  p="$(printf '%s' "$out" | grep -oE '[0-9]+ 项核对' | tail -1 | grep -oE '^[0-9]+' || true)"
+  if [ -n "$p" ]; then printf '%s items' "$p"; return; fi
   printf ''
 }
 
@@ -155,7 +155,7 @@ run_step() {
   fi
 }
 
-# 上一段的最后一行摘要（用于把关键数字带出来）
+# Last summary line of the block above (used to surface the key numbers)
 tail_summary() {
   printf '%s' "$1" | grep -E "问题数|负向测试|项|OK|PASS" | tail -1
 }
@@ -163,13 +163,13 @@ tail_summary() {
 require_py_module() { "$PY" -c "import $1" >/dev/null 2>&1; }
 
 # ---------------------------------------------------------------------------
-# 3. 锁：同一时刻只允许一个复现流程（负向测试会改写仓库文件）
+# 3. Lock: only one reproduction run at a time (the negative tests rewrite repository files)
 # ---------------------------------------------------------------------------
 acquire_lock() {
   if [ -e "$LOCK" ]; then
-    echo "${C_BAD}[reproduce] 已有另一个复现流程在运行（$LOCK）${C_OFF}" >&2
-    echo "[reproduce] 负向测试会临时改写论文源文件，并发执行会互相破坏。" >&2
-    echo "[reproduce] 若确认无进程在跑，删掉该锁文件后重试。" >&2
+    echo "${C_BAD}[reproduce] another reproduction run is already active ($LOCK)${C_OFF}" >&2
+    echo "[reproduce] the negative tests temporarily rewrite the paper source; concurrent runs corrupt each other." >&2
+    echo "[reproduce] if you are sure nothing is running, delete the lock file and retry." >&2
     exit 3
   fi
   mkdir -p "$LOCK"
@@ -177,220 +177,220 @@ acquire_lock() {
 }
 
 # ===========================================================================
-# 阶段 1：doctor —— 环境体检
+# Stage 1: doctor - environment check
 # ===========================================================================
 stage_doctor() {
-  hr; echo "环境体检 (doctor)"; hr
-  echo "  项目根        : $A2A_ROOT"
-  echo "  解释器        : $PY"
-  "$PY" -c 'import sys; print("  Python 版本   :", sys.version.split()[0])'
+  hr; echo "Environment check (doctor)"; hr
+  echo "  project root  : $A2A_ROOT"
+  echo "  interpreter   : $PY"
+  "$PY" -c 'import sys; print("  Python version:", sys.version.split()[0])'
 
   local pyok
   pyok="$("$PY" -c 'import sys; print(1 if sys.version_info>=(3,10) else 0)')"
   if [ "$pyok" = "1" ]; then
     printf '  %-42s%sOK%s\n' "Python >= 3.10" "$C_OK" "$C_OFF"
   else
-    printf '  %-42s%s需 >= 3.10%s\n' "Python >= 3.10" "$C_BAD" "$C_OFF"
+    printf '  %-42s%sneeds >= 3.10%s\n' "Python >= 3.10" "$C_BAD" "$C_OFF"
   fi
 
   echo
-  echo "  依赖（核心协议库仅需标准库；下表仅影响推理与绘图）:"
+  echo "  dependencies (core protocol library needs stdlib only; the rest affect inference/plotting):"
   local m
   for m in numpy scipy matplotlib datasets openai torch vllm transformers; do
     printf '    %-14s' "$m"
-    if require_py_module "$m"; then printf '%s已安装%s\n' "$C_OK" "$C_OFF"
-    else printf '%s缺失%s\n' "$C_DIM" "$C_OFF"; fi
+    if require_py_module "$m"; then printf '%sinstalled%s\n' "$C_OK" "$C_OFF"
+    else printf '%smissing%s\n' "$C_DIM" "$C_OFF"; fi
   done
 
   echo
-  echo "  数据与结果:"
+  echo "  data and results:"
   local d
-  for d in "experiments/datasets:数据集" "experiments/results:实验结果" \
-           "papers/figures:论文图件" "experiments/src:核心库"; do
+  for d in "experiments/datasets:datasets" "experiments/results:results" \
+           "papers/figures:paper figures" "experiments/src:core library"; do
     local p="${d%%:*}"; local n="${d##*:}"
     local cnt
     cnt="$(find "$A2A_ROOT/$p" -type f ! -name "*.pyc" 2>/dev/null | grep -vc "__pycache__" || echo 0)"
-    printf '    %-24s %s 个文件\n' "$n" "$cnt"
+    printf '    %-24s %s files\n' "$n" "$cnt"
   done
 
   echo
-  echo "  硬件（仅 full 阶段需要）:"
+  echo "  hardware (needed only by the full stage):"
   if command -v nvidia-smi >/dev/null 2>&1; then
     local ngpu
     ngpu="$(nvidia-smi -L 2>/dev/null | grep -c '^GPU')"
-    printf '    GPU 数量      : %s' "$ngpu"
-    if [ "$ngpu" -ge 2 ]; then printf '  %s(满足 2 卡要求)%s\n' "$C_OK" "$C_OFF"
-    else printf '  %s(full 阶段需 2 张 80GB 卡)%s\n' "$C_WARN" "$C_OFF"; fi
+    printf '    GPU count     : %s' "$ngpu"
+    if [ "$ngpu" -ge 2 ]; then printf '  %s(meets the 2-GPU requirement)%s\n' "$C_OK" "$C_OFF"
+    else printf '  %s(full stage needs 2x 80GB GPUs)%s\n' "$C_WARN" "$C_OFF"; fi
     nvidia-smi --query-gpu=index,name,memory.total --format=csv,noheader 2>/dev/null | sed 's/^/      /'
   else
-    printf '    GPU           : %s未检测到 nvidia-smi（不影响 verify）%s\n' "$C_DIM" "$C_OFF"
+    printf '    GPU           : %sno nvidia-smi detected (does not affect verify)%s\n' "$C_DIM" "$C_OFF"
   fi
 
   echo
   hr
-  echo "结论：verify / figures / datasets 可在本机运行；full 需 2×80GB GPU。"
+  echo "Verdict: verify / figures / datasets can run on this machine; full needs 2x80GB GPUs."
   hr
 }
 
 # ===========================================================================
-# 阶段 2：verify —— 8 审计 + 5 负向测试（严格串行）
+# Stage 2: verify - 8 audits + 5 negative-test groups (strictly serial)
 # ===========================================================================
-# 标签只写描述、不写计数：计数由 extract_count() 从各脚本的**实际输出**里读。
-# 早先标签里写死了 "（349 项）" / "注入路径缺陷 6 项"，用例一增减标签就过期，
-# 而通过/失败只由退出码判定，于是过期标签会长期无人发现（实测负向路径用例
-# 已从 6 增到 8，标签仍写 6）。
+# Labels carry descriptions only, never counts: extract_count() reads counts from each script's
+# ACTUAL output. Earlier labels hard-coded "(349 items)" / "6 injected path defects"; whenever
+# cases were added or removed the label went stale, and because pass/fail is decided solely by
+# exit codes a stale label stayed unnoticed for a long time (the negative path cases grew from 6 to 8
 AUDITS=(
-  "audit_table_numbers.py|表格数值"
-  "audit_figures.py|图-表一致性 + 内容指纹"
-  "audit_prose_ranges.py|正文区间与表格一致"
-  "audit_theory_numerics.py|理论公式数值实例化"
-  "audit_revision_layer.py|修订层代数 + 文本自洽"
-  "audit_decision_neutrality.py|决策中性"
-  "audit_reputation_fidelity.py|声誉实现保真"
-  "audit_paths.py|路径解析层"
+  "audit_table_numbers.py|table numbers"
+  "audit_figures.py|figure-table consistency + fingerprints"
+  "audit_prose_ranges.py|prose ranges vs. tables"
+  "audit_theory_numerics.py|theory formulas instantiated numerically"
+  "audit_revision_layer.py|revision-layer algebra + text consistency"
+  "audit_decision_neutrality.py|decision neutrality"
+  "audit_reputation_fidelity.py|reputation fidelity"
+  "audit_paths.py|path resolution layer"
 )
 NEGATIVES=(
-  "negative_test_tables.py|注入表格缺陷"
-  "negative_test_figures.py|注入图件缺陷"
-  "negative_test_theory.py|注入理论缺陷"
-  "negative_test_paths.py|注入路径缺陷"
-  "negative_test_revision.py|注入修订层缺陷"
+  "negative_test_tables.py|inject table defect"
+  "negative_test_figures.py|inject figure defect"
+  "negative_test_theory.py|inject theory defect"
+  "negative_test_paths.py|inject path defect"
+  "negative_test_revision.py|inject revision-layer defect"
 )
 
 stage_verify() {
   acquire_lock
-  hr; echo "审计 + 负向测试 (verify) —— 纯 CPU，无需 GPU"; hr
+  hr; echo "Audits + negative tests (verify) - CPU only, no GPU required"; hr
 
   if [ -f "$TEX" ]; then
     local h0; h0="$(file_hash "$TEX")"
-    echo "论文源文件指纹（执行前）: $h0"
+    echo "paper source fingerprint (before): $h0"
   else
-    echo "${C_BAD}缺少 $TEX${C_OFF}" >&2
+    echo "${C_BAD}missing $TEX${C_OFF}" >&2
   fi
   echo
 
-  echo "[1/2] 审计脚本（顺序执行，共 ${#AUDITS[@]} 个）"
+  echo "[1/2] audit scripts (run serially, ${#AUDITS[@]} total)"
   local item script label
   for item in "${AUDITS[@]}"; do
     script="${item%%|*}"; label="${item##*|}"
     if [ ! -f "$VERIFICATION/$script" ]; then
       printf '  %-42s%sMISSING%s\n' "$script" "$C_BAD" "$C_OFF"
-      FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$script 不存在")
+      FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$script not found")
       continue
     fi
-    # audit_figures.py 在导入期就加载 papers/generate_figures.py（需要 matplotlib）。
-    # 缺依赖时它不是"通过"，而是"这一层根本没被验证"——两种结果必须区分开，
-    # 所以默认判失败；只有显式设置 A2A_ALLOW_SKIP_FIGURES=1 才降级为 SKIP，
-    # 且 SKIP 不计入 PASS，会被写进最终结论。
+    # audit_figures.py loads papers/generate_figures.py at import time (needs matplotlib).
+    # With the dependency missing this is not a "pass" but "this layer was never verified" -
+    # the two must stay distinct, so the default verdict is FAILURE; only an explicit
+    # A2A_ALLOW_SKIP_FIGURES=1 downgrades it to SKIP, which never counts as PASS and is recorded in the verdict.
     if [ "$script" = "audit_figures.py" ] && ! require_py_module matplotlib; then
       if [ "${A2A_ALLOW_SKIP_FIGURES:-0}" = "1" ]; then
-        printf '  %-42s%sSKIP%s (缺 matplotlib)\n' "$label" "$C_WARN" "$C_OFF"
-        SKIP_N=$((SKIP_N + 1)); SKIPPED_ITEMS+=("$label —— 图件层未被验证")
+        printf '  %-42s%sSKIP%s (matplotlib missing)\n' "$label" "$C_WARN" "$C_OFF"
+        SKIP_N=$((SKIP_N + 1)); SKIPPED_ITEMS+=("$label -- figure layer NOT verified")
         continue
       fi
       printf '  %-42s%sFAIL%s\n' "$label" "$C_BAD" "$C_OFF"
-      printf '      | 缺少 matplotlib，图件层无法验证（这不是通过）。\n'
-      printf '      | 修复: %s -m pip install "matplotlib>=3.7.0"   或   ./reproduce.sh install\n' "$PY"
-      printf '      | 明确放弃该层: A2A_ALLOW_SKIP_FIGURES=1 ./reproduce.sh verify\n'
-      FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$label 缺 matplotlib")
+      printf '      | matplotlib missing; the figure layer cannot be verified (this is NOT a pass).\n'
+      printf '      | fix:   %s -m pip install "matplotlib>=3.7.0"   or   ./reproduce.sh install\n' "$PY"
+      printf '      | give up on that layer explicitly: A2A_ALLOW_SKIP_FIGURES=1 ./reproduce.sh verify\n'
+      FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$label missing matplotlib")
       continue
     fi
     run_step "$label" "$A2A_ROOT" "$PY" "$REL_VERIFICATION/$script"
   done
 
   echo
-  echo "[2/2] 负向测试（顺序执行，共 ${#NEGATIVES[@]} 个）"
-  echo "${C_DIM}  注：这些用例会临时改写 papers/iclr2027_main.tex 再还原，故不可并行。${C_OFF}"
+  echo "[2/2] negative tests (run serially, ${#NEGATIVES[@]} total)"
+  echo "${C_DIM}  note: these cases temporarily rewrite papers/iclr2027_main.tex and restore it, so they cannot run in parallel.${C_OFF}"
   for item in "${NEGATIVES[@]}"; do
     script="${item%%|*}"; label="${item##*|}"
     if [ ! -f "$VERIFICATION/$script" ]; then
       printf '  %-42s%sMISSING%s\n' "$script" "$C_BAD" "$C_OFF"
-      FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$script 不存在")
+      FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$script not found")
       continue
     fi
     run_step "$label" "$A2A_ROOT" "$PY" "$REL_VERIFICATION/$script"
   done
 
-  # ---- 收尾后置条件：负向测试必须把论文源文件逐字节还原 ----
+  # ---- end-of-run postcondition: the negative tests must restore the paper source byte-for-byte ----
   echo
   if [ -f "$TEX" ]; then
     local h0v="${h0:-}" h1
     h1="$(file_hash "$TEX")"
-    printf '论文源文件指纹（执行后）: %s  ' "$h1"
+    printf 'paper source fingerprint (after):  %s  ' "$h1"
     if ! is_hash "$h0v" || ! is_hash "$h1"; then
-      # 摘要无效（读不到/被错拼）= 约束未被验证，绝不算通过
-      printf '%s无法验证 ❌%s\n' "$C_BAD" "$C_OFF"
-      echo "  执行前: ${h0v:-<空>}"
-      echo "  执行后: $h1"
-      echo "  说明: 未取到有效摘要，无法证明负向测试已还原论文源文件。"
+      # An invalid digest (unreadable / mangled) = the constraint was never verified, so it must never count as a pass
+      printf '%sCANNOT VERIFY ❌%s\n' "$C_BAD" "$C_OFF"
+      echo "  before: ${h0v:-<empty>}"
+      echo "  after:  $h1"
+      echo "  note:   no valid digest was obtained, so it cannot be proven that the negative tests restored it."
       FAIL_N=$((FAIL_N + 1))
-      FAILED_ITEMS+=("无法验证 papers/iclr2027_main.tex 是否已还原")
+      FAILED_ITEMS+=("cannot verify whether papers/iclr2027_main.tex was restored")
     elif [ "$h1" = "$h0v" ]; then
-      printf '%s还原成功%s\n' "$C_OK" "$C_OFF"
+      printf '%srestored OK%s\n' "$C_OK" "$C_OFF"
     else
-      printf '%s未还原 ❌%s\n' "$C_BAD" "$C_OFF"
-      echo "  执行前 $h0v"
-      echo "  执行后 $h1"
+      printf '%sNOT RESTORED ❌%s\n' "$C_BAD" "$C_OFF"
+      echo "  before $h0v"
+      echo "  after  $h1"
       FAIL_N=$((FAIL_N + 1))
-      FAILED_ITEMS+=("负向测试未还原 papers/iclr2027_main.tex")
+      FAILED_ITEMS+=("the negative tests did not restore papers/iclr2027_main.tex")
     fi
   else
-    printf '%s缺少 %s，无法设置还原后置条件 ❌%s\n' "$C_BAD" "$TEX" "$C_OFF"
+    printf '%smissing %s; the restore postcondition cannot be established ❌%s\n' "$C_BAD" "$TEX" "$C_OFF"
     FAIL_N=$((FAIL_N + 1))
-    FAILED_ITEMS+=("缺少论文源文件，还原后置条件无法建立")
+    FAILED_ITEMS+=("paper source missing; the restore postcondition cannot be established")
   fi
 
   echo; hr
-  printf '审计+负向：%s%d 通过%s / %s%d 失败%s' \
+  printf 'audits+negative: %s%d passed%s / %s%d failed%s' \
     "$C_OK" "$PASS_N" "$C_OFF" "$C_BAD" "$FAIL_N" "$C_OFF"
   if [ "$SKIP_N" -gt 0 ]; then
-    printf ' / %s%d 跳过%s' "$C_WARN" "$SKIP_N" "$C_OFF"
+    printf ' / %s%d skipped%s' "$C_WARN" "$SKIP_N" "$C_OFF"
   fi
   printf '\n'
   if [ "$FAIL_N" -gt 0 ]; then
-    echo "失败项："
+    echo "failed items:"
     local f; for f in "${FAILED_ITEMS[@]}"; do echo "  - $f"; done
     echo "REPRODUCE_FAILED"
     hr
     return 1
   fi
   if [ "$SKIP_N" -gt 0 ]; then
-    echo "${C_WARN}注意：以下检查层【未被验证】，结论不是全绿：${C_OFF}"
+    echo "${C_WARN}warning: the following check layers [were NOT verified]; the verdict is not all-green:${C_OFF}"
     local s; for s in "${SKIPPED_ITEMS[@]}"; do echo "  ! $s"; done
     echo "REPRODUCE_OK_PARTIAL"
     hr
     return 0
   fi
-  echo "全部通过：论文中的每个数字都可被独立重算，且审计本身已被证明有效。"
+  echo "All passed: every number in the paper is independently recomputable, and the audits are proven effective."
   echo "REPRODUCE_OK"
   hr
   return 0
 }
 
 # ===========================================================================
-# 阶段 3：figures —— 重新出图 + 复查
+# Stage 3: figures - regenerate and recheck
 # ===========================================================================
 stage_figures() {
   acquire_lock
-  hr; echo "重出论文图件 (figures)"; hr
+  hr; echo "Regenerate paper figures (figures)"; hr
   if ! require_py_module matplotlib; then
-    echo "${C_BAD}缺少 matplotlib，无法出图。${C_OFF}"
-    echo "请先执行: $PY -m pip install 'matplotlib>=3.7.0'   （或 ./reproduce.sh install）"
+    echo "${C_BAD}matplotlib missing; cannot generate figures.${C_OFF}"
+    echo "run this first: $PY -m pip install 'matplotlib>=3.7.0'   (or ./reproduce.sh install)"
     return 1
   fi
-  run_step "重新生成 5 张图件" "$A2A_ROOT" "$PY" "$REL_PAPERS/generate_figures.py"
-  run_step "图-表一致性复查" "$A2A_ROOT" "$PY" "$REL_VERIFICATION/audit_figures.py"
+  run_step "regenerate the 5 figures" "$A2A_ROOT" "$PY" "$REL_PAPERS/generate_figures.py"
+  run_step "figure-table consistency recheck" "$A2A_ROOT" "$PY" "$REL_VERIFICATION/audit_figures.py"
   echo
   if [ "$FAIL_N" -gt 0 ]; then echo "REPRODUCE_FAILED"; return 1; fi
-  echo "图件已从 experiments/results/ 重新生成并通过一致性复查。"
+  echo "Figures were regenerated from experiments/results/ and passed the consistency recheck."
   echo "REPRODUCE_OK"
 }
 
 # ===========================================================================
-# 阶段 4：datasets
+# Stage 4: datasets
 # ===========================================================================
 stage_datasets() {
-  hr; echo "下载数据集 (datasets)"; hr
+  hr; echo "Download datasets (datasets)"; hr
   run_step "GSM8K / MBPP / MMLU" "$A2A_ROOT" "$PY" "$REL_ENVDIR/download_datasets.py"
   echo
   if [ "$FAIL_N" -gt 0 ]; then echo "REPRODUCE_FAILED"; return 1; fi
@@ -398,11 +398,11 @@ stage_datasets() {
 }
 
 # ===========================================================================
-# 阶段 5：install
+# Stage 5: install
 # ===========================================================================
 stage_install() {
-  hr; echo "安装依赖 (install)"; hr
-  echo "解释器: $PY"
+  hr; echo "Install dependencies (install)"; hr
+  echo "interpreter: $PY"
   "$PY" -m pip install -r "$A2A_ROOT/requirements.txt"
   local rc=$?
   echo
@@ -411,75 +411,75 @@ stage_install() {
 }
 
 # ===========================================================================
-# 阶段 6：full —— 全部实验（需 GPU，永不隐式触发）
+# Stage 6: full - all experiments (needs GPU; never triggered implicitly)
 # ===========================================================================
 stage_full() {
-  hr; echo "全部实验 (full) —— 前置条件检查"; hr
+  hr; echo "All experiments (full) - prerequisite check"; hr
   local ok=1
 
   local ngpu=0
   if command -v nvidia-smi >/dev/null 2>&1; then
     ngpu="$(nvidia-smi -L 2>/dev/null | grep -c '^GPU')"
   fi
-  printf '  %-40s' "GPU 数量 >= 2"
+  printf '  %-40s' "GPU count >= 2"
   if [ "$ngpu" -ge 2 ]; then printf '%sOK (%s)%s\n' "$C_OK" "$ngpu" "$C_OFF"
-  else printf '%s不满足 (%s)%s\n' "$C_BAD" "$ngpu" "$C_OFF"; ok=0; fi
+  else printf '%sNOT met (%s)%s\n' "$C_BAD" "$ngpu" "$C_OFF"; ok=0; fi
 
-  printf '  %-40s' "模型权重目录 A2A_MODEL_DIR"
+  printf '  %-40s' "model weight dir A2A_MODEL_DIR"
   if [ -n "${A2A_MODEL_DIR:-}" ] && [ -d "${A2A_MODEL_DIR:-/nonexistent}" ]; then
     printf '%sOK%s\n' "$C_OK" "$C_OFF"
   else
-    printf '%s未设置或不存在：%s%s\n' "$C_BAD" "${A2A_MODEL_DIR:-<空>}" "$C_OFF"; ok=0
+    printf '%snot set or does not exist: %s%s\n' "$C_BAD" "${A2A_MODEL_DIR:-<empty>}" "$C_OFF"; ok=0
   fi
 
   printf '  %-40s' "DEEPSEEK_API_KEY（Pipeline C）"
-  if [ -n "${DEEPSEEK_API_KEY:-}" ]; then printf '%s已设置%s\n' "$C_OK" "$C_OFF"
-  else printf '%s未设置%s\n' "$C_WARN" "$C_OFF"; fi
+  if [ -n "${DEEPSEEK_API_KEY:-}" ]; then printf '%sset%s\n' "$C_OK" "$C_OFF"
+  else printf '%snot set%s\n' "$C_WARN" "$C_OFF"; fi
 
-  printf '  %-40s' "依赖 numpy / scipy / matplotlib"
+  printf '  %-40s' "dependencies numpy / scipy / matplotlib"
   if require_py_module numpy && require_py_module scipy && require_py_module matplotlib; then
     printf '%sOK%s\n' "$C_OK" "$C_OFF"
-  else printf '%s缺失%s\n' "$C_BAD" "$C_OFF"; ok=0; fi
+  else printf '%smissing%s\n' "$C_BAD" "$C_OFF"; ok=0; fi
 
   echo
   if [ "$ok" -ne 1 ]; then
-    echo "${C_BAD}前置条件不满足，已中止（未执行任何实验）。${C_OFF}"
+    echo "${C_BAD}prerequisites unmet; aborted (no experiment was executed).${C_OFF}"
     echo "REPRODUCE_FAILED"
     return 1
   fi
 
-  hr; echo "启动 4 个异构 vLLM 实例（2×80GB，逐个启动 + 健康检查）"; hr
-  bash "$ENVDIR/start_vllm_seq.sh" || { echo "vLLM 启动失败"; echo "REPRODUCE_FAILED"; return 1; }
-  run_step "连通性探测" "$A2A_ROOT" "$PY" "$REL_ENVDIR/probe.py" || true
+  hr; echo "Start the 4 heterogeneous vLLM instances (2x80GB, one by one + health checks)"; hr
+  bash "$ENVDIR/start_vllm_seq.sh" || { echo "vLLM failed to start"; echo "REPRODUCE_FAILED"; return 1; }
+  run_step "connectivity probe" "$A2A_ROOT" "$PY" "$REL_ENVDIR/probe.py" || true
 
-  hr; echo "Pipeline A：容错扫描（主实验）"; hr
+  hr; echo "Pipeline A: fault-tolerance sweep (main experiment)"; hr
   local n
   for n in gsm8k mbpp mmlu; do
     run_step "full_bft_sweep.py $n" "$A2A_ROOT" "$PY" "$REL_REPRODUCE/full_bft_sweep.py" "$n"
   done
   run_step "aggregate_full_sweep.py" "$A2A_ROOT" "$PY" "$REL_REPRODUCE/aggregate_full_sweep.py"
 
-  hr; echo "Pipeline B：消融 + 基线对比"; hr
-  echo "${C_DIM}  该流水线的完整命令见 docs/REPRODUCTION.md §3（含多方法/多种子组合）。${C_OFF}"
+  hr; echo "Pipeline B: ablations + baseline comparison"; hr
+  echo "${C_DIM}  full commands for this pipeline: docs/REPRODUCTION.md section 3 (multi-method / multi-seed combos).${C_OFF}"
 
-  hr; echo "Pipeline C：真实 API 多领域验证（需 DEEPSEEK_API_KEY）"; hr
-  echo "${C_DIM}  该流水线的完整命令见 docs/REPRODUCTION.md §4（含成本与限流说明）。${C_OFF}"
+  hr; echo "Pipeline C: real-API multi-domain validation (needs DEEPSEEK_API_KEY)"; hr
+  echo "${C_DIM}  full commands for this pipeline: docs/REPRODUCTION.md section 4 (cost and rate-limit notes).${C_OFF}"
 
-  hr; echo "重出图件并复查"; hr
+  hr; echo "Regenerate figures and recheck"; hr
   run_step "generate_figures.py" "$A2A_ROOT" "$PY" "$REL_PAPERS/generate_figures.py"
   run_step "audit_figures.py" "$A2A_ROOT" "$PY" "$REL_VERIFICATION/audit_figures.py"
 
   echo; hr
   if [ "$FAIL_N" -gt 0 ]; then
-    printf '%s%d 项失败%s\n' "$C_BAD" "$FAIL_N" "$C_OFF"
+    printf '%s%d items failed%s\n' "$C_BAD" "$FAIL_N" "$C_OFF"
     echo "REPRODUCE_FAILED"; return 1
   fi
-  echo "实验完成。建议随后执行 ./reproduce.sh verify 做全量数字复核。"
+  echo "Experiments finished. Run ./reproduce.sh verify afterwards for a full numeric recheck."
   echo "REPRODUCE_OK"
 }
 
 # ===========================================================================
-# 阶段 7：all
+# Stage 7: all
 # ===========================================================================
 stage_all() {
   stage_doctor || return 1
@@ -494,13 +494,13 @@ stage_all() {
 }
 
 usage() {
-  # 打印文件头部的注释块（从第 2 行起，遇到第一行非注释即停），
-  # 这样帮助文本与脚本头部的用法说明永远只有一份、不会各写各的。
+  # Print the header comment block (from line 2 up to the first non-comment line),
+  # so the help text and the header usage notes exist in exactly one place and cannot drift apart.
   awk 'NR>1 { if ($0 ~ /^#/) { sub(/^# ?/, ""); print } else exit }' "${BASH_SOURCE[0]}"
 }
 
 # ---------------------------------------------------------------------------
-# 入口
+# Entry point
 # ---------------------------------------------------------------------------
 case "${1:-verify}" in
   verify)   stage_verify ;;
@@ -512,8 +512,8 @@ case "${1:-verify}" in
   all)      stage_all ;;
   help|-h|--help) usage ;;
   *)
-    echo "未知阶段: $1" >&2
-    echo "可用: verify | doctor | figures | datasets | install | full | all | help" >&2
+    echo "unknown stage: $1" >&2
+    echo "available: verify | doctor | figures | datasets | install | full | all | help" >&2
     exit 2
     ;;
 esac

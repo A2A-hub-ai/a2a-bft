@@ -1,20 +1,20 @@
-# 统一行尾：避免 Windows 上编辑后把 CRLF 带进仓库，
-# 导致 Linux 复现时 bash 报 `syntax error near unexpected token '$'\r''`。
+# Normalize line endings: keep CRLF out of the repository when editing on Windows,
+# which otherwise makes bash fail on Linux with `syntax error near unexpected token '$'\r''`.
 * text=auto eol=lf
 
-# shell 脚本必须是 LF，否则在 Linux 上无法执行
+# Shell scripts must be LF or they cannot execute on Linux
 *.sh            text eol=lf
 *.bash          text eol=lf
 
-# Python 同理（CRLF 虽能跑，但 shebang 与部分工具会出问题）
+# Same for Python (CRLF runs, but the shebang and some tools break)
 *.py            text eol=lf
 
-# Windows 批处理必须是 CRLF
+# Windows batch files must be CRLF
 *.bat           text eol=crlf
 *.cmd           text eol=crlf
 *.ps1           text eol=crlf
 
-# 二进制资源不做行尾转换
+# Binary assets are never line-ending converted
 *.png           binary
 *.jpg           binary
 *.jpeg          binary
