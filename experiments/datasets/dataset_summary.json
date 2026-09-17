@@ -1,0 +1,18 @@
+{
+  "paper_used_datasets": [
+    "gsm8k",
+    "mbpp",
+    "mmlu"
+  ],
+  "paper_total_tasks": 2131,
+  "all_datasets_total_tasks": 2295,
+  "datasets": {
+    "gsm8k": 1319,
+    "mmlu": 312,
+    "mbpp": 500,
+    "humaneval": 164
+  },
+  "unused": {
+    "humaneval": 164
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "note": "paired per-task comparison of the two n=8 runs (identical task sampling)",
+  "results": [
+    {
+      "scenario": [
+        8,
+        2,
+        1,
+        "collusion"
+      ],
+      "run1_consensus_pct": 98.0,
+      "run2_consensus_pct": 100.0,
+      "n_reject_to_accept": 3,
+      "n_accept_to_reject": 0,
+      "mcnemar_exact_p": 0.25,
+      "n_tasks": 150
+    },
+    {
+      "scenario": [
+        8,
+        2,
+        1,
+        "strategic_reject"
+      ],
+      "run1_consensus_pct": 98.0,
+      "run2_consensus_pct": 100.0,
+      "n_reject_to_accept": 3,
+      "n_accept_to_reject": 0,
+      "mcnemar_exact_p": 0.25,
+      "n_tasks": 150
+    },
+    {
+      "scenario": [
+        8,
+        0,
+        0,
+        "none"
+      ],
+      "run1_consensus_pct": 100.0,
+      "run2_consensus_pct": 100.0,
+      "n_reject_to_accept": 0,
+      "n_accept_to_reject": 0,
+      "mcnemar_exact_p": 1.0,
+      "n_tasks": 150
+    }
+  ]
+}

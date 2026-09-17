@@ -1,0 +1,169 @@
+==============================================================================
+A2A-BFT 全量真机扫描 dataset=mbpp (seeds [42, 43, 44, 45, 46], 50 tasks x 10 configs)
+时间: 2026-09-14 10:51:03
+==============================================================================
+
+# seed=42  mbpp(code)  n=4,f=0,s=0,attack=baseline
+  决策= 68.0% 正确= 68.0% 错误提交=  0.0% 轮数=2.72 调用=2.7 耗时/题=13s
+
+# seed=42  mbpp(code)  n=6,f=0,s=0,attack=baseline
+  决策= 68.0% 正确= 68.0% 错误提交=  0.0% 轮数=2.72 调用=2.7 耗时/题=17s
+
+# seed=42  mbpp(code)  n=4,f=1,s=0,attack=random
+  决策= 68.0% 正确= 68.0% 错误提交=  0.0% 轮数=2.74 调用=2.7 耗时/题=13s
+
+# seed=42  mbpp(code)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=3.56 调用=3.6 耗时/题=15s
+
+# seed=42  mbpp(code)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 68.0% 正确= 68.0% 错误提交=  0.0% 轮数=2.74 调用=2.7 耗时/题=12s
+
+# seed=42  mbpp(code)  n=5,f=1,s=1,attack=random
+  决策= 68.0% 正确= 68.0% 错误提交=  0.0% 轮数=2.74 调用=2.7 耗时/题=14s
+
+# seed=42  mbpp(code)  n=5,f=2,s=0,attack=random
+  决策= 74.0% 正确= 70.0% 错误提交=  4.0% 轮数=2.58 调用=2.6 耗时/题=13s
+
+# seed=42  mbpp(code)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 74.0% 正确= 64.0% 错误提交= 10.0% 轮数=4.40 调用=4.4 耗时/题=19s
+
+# seed=42  mbpp(code)  n=5,f=2,s=0,attack=collusion
+  决策= 72.0% 正确= 66.0% 错误提交=  6.0% 轮数=4.40 调用=4.4 耗时/题=19s
+
+# seed=42  mbpp(code)  n=6,f=2,s=0,attack=collusion
+  决策= 64.0% 正确= 64.0% 错误提交=  0.0% 轮数=4.68 调用=4.7 耗时/题=20s
+
+# seed=43  mbpp(code)  n=4,f=0,s=0,attack=baseline
+  决策= 74.0% 正确= 74.0% 错误提交=  0.0% 轮数=2.54 调用=2.5 耗时/题=13s
+
+# seed=43  mbpp(code)  n=6,f=0,s=0,attack=baseline
+  决策= 74.0% 正确= 74.0% 错误提交=  0.0% 轮数=2.54 调用=2.5 耗时/题=17s
+
+# seed=43  mbpp(code)  n=4,f=1,s=0,attack=random
+  决策= 74.0% 正确= 74.0% 错误提交=  0.0% 轮数=2.56 调用=2.6 耗时/题=13s
+
+# seed=43  mbpp(code)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 72.0% 正确= 72.0% 错误提交=  0.0% 轮数=3.34 调用=3.3 耗时/题=16s
+
+# seed=43  mbpp(code)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 74.0% 正确= 74.0% 错误提交=  0.0% 轮数=2.58 调用=2.6 耗时/题=13s
+
+# seed=43  mbpp(code)  n=5,f=1,s=1,attack=random
+  决策= 74.0% 正确= 74.0% 错误提交=  0.0% 轮数=2.62 调用=2.6 耗时/题=16s
+
+# seed=43  mbpp(code)  n=5,f=2,s=0,attack=random
+  决策= 78.0% 正确= 74.0% 错误提交=  4.0% 轮数=2.54 调用=2.5 耗时/题=14s
+
+# seed=43  mbpp(code)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 76.0% 正确= 64.0% 错误提交= 12.0% 轮数=4.64 调用=4.6 耗时/题=21s
+
+# seed=43  mbpp(code)  n=5,f=2,s=0,attack=collusion
+  决策= 74.0% 正确= 66.0% 错误提交=  8.0% 轮数=4.50 调用=4.5 耗时/题=21s
+
+# seed=43  mbpp(code)  n=6,f=2,s=0,attack=collusion
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=4.80 调用=4.8 耗时/题=22s
+
+# seed=44  mbpp(code)  n=4,f=0,s=0,attack=baseline
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=2.94 调用=2.9 耗时/题=12s
+
+# seed=44  mbpp(code)  n=6,f=0,s=0,attack=baseline
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=2.94 调用=2.9 耗时/题=16s
+
+# seed=44  mbpp(code)  n=4,f=1,s=0,attack=random
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=2.94 调用=2.9 耗时/题=12s
+
+# seed=44  mbpp(code)  n=4,f=1,s=0,attack=strategic_reject
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 64.0% 正确= 64.0% 错误提交=  0.0% 轮数=3.56 调用=3.6 耗时/题=13s
+
+# seed=44  mbpp(code)  n=4,f=1,s=0,attack=sybil_attack
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=2.96 调用=3.0 耗时/题=12s
+
+# seed=44  mbpp(code)  n=5,f=1,s=1,attack=random
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 64.0% 正确= 64.0% 错误提交=  0.0% 轮数=3.06 调用=3.1 耗时/题=14s
+
+# seed=44  mbpp(code)  n=5,f=2,s=0,attack=random
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 72.0% 正确= 66.0% 错误提交=  6.0% 轮数=2.98 调用=3.0 耗时/题=12s
+
+# seed=44  mbpp(code)  n=5,f=2,s=0,attack=strategic_reject
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 64.0% 正确= 54.0% 错误提交= 10.0% 轮数=4.58 调用=4.6 耗时/题=19s
+
+# seed=44  mbpp(code)  n=5,f=2,s=0,attack=collusion
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策= 74.0% 正确= 56.0% 错误提交= 18.0% 轮数=4.58 调用=4.6 耗时/题=19s
+
+# seed=44  mbpp(code)  n=6,f=2,s=0,attack=collusion
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 DeepSeek-V2-Lite] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 Qwen2.5-7B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+    [API错误 InternLM3-8B] Error code: 400 - {'error': {'message': "'max_tokens' or 'max_completion_tokens' is too large: 512. 
+  决策=   决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.32 调用=2.3 耗时/题=10s
+
+# seed=45  mbpp(code)  n=6,f=0,s=0,attack  决策=   决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.28 调用=2.3 耗时/题=12s
+
+# seed=45  mbpp(code)  n=4,f=1,s=0,attack  决策  决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.32 调用=2.3 耗时/题=10s
+
+# seed=45  mbpp(code)  n=4,f=1,s=0,attack  决策= 80.0% �  决策= 74.0% 正确= 74.0% 错误提交=  0.0% 轮数=3.48 调用=3.5 耗时/题=15s
+
+# seed=45  mbpp(code)  n=4,f=1,s=0,attack  决策= 74.0  决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.36 调用=2.4 耗时/题=10s
+
+# seed=45  mbpp(code)  n=5,f=1,s=1,attack  决策  决策= 78.0% 正确= 78.0% 错误提交=  0.0% 轮数=2.38 调用=2.4 耗时/题=11s
+
+# seed=45  mbpp(code)  n=5,f=2,s=0,attack  决策  决策= 80.0% 正确= 78.0% 错误提交=  2.0% 轮数=2.30 调用=2.3 耗时/题=10s
+
+# seed=45  mbpp(code)  n=5,f=2,s=0,attack  决策= 86.0% �  决策= 82.0% 正确= 74.0% 错误提交=  8.0% 轮数=4.60 调用=4.6 耗时/题=18s
+
+# seed=45  mbpp(code)  n=5,f=2,s=0,attack  决策= 8  决策= 78.0% 正确= 74.0% 错误提交=  4.0% 轮数=4.40 调用=4.4 耗时/题=18s
+
+# seed=45  mbpp(code)  n=6,f=2,s=0,attack  决策= 8  决策= 76.0% 正确= 76.0% 错误提交=  0.0% 轮数=4.64 调用=4.6 耗时/题=19s
+
+# seed=46  mbpp(code)  n=4,f=0,s=0,attack  决策=   决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.36 调用=2.4 耗时/题=11s
+
+# seed=46  mbpp(code)  n=6,f=0,s=0,attack  决策=   决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.36 调用=2.4 耗时/题=14s
+
+# seed=46  mbpp(code)  n=4,f=1,s=0,attack  决策  决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.36 调用=2.4 耗时/题=12s
+
+# seed=46  mbpp(code)  n=4,f=1,s=0,attack  决策= 80.0% �  决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.92 调用=2.9 耗时/题=14s
+
+# seed=46  mbpp(code)  n=4,f=1,s=0,attack  决策= 80.0  决策= 80.0% 正确= 80.0% 错误提交=  0.0% 轮数=2.40 调用=2.4 耗时/题=12s
+
+# seed=46  mbpp(code)  n=5,f=1,s=1,attack  决策  决策= 78.0% 正确= 78.0% 错误提交=  0.0% 轮数=2.48 调用=2.5 耗时/题=13s
+
+# seed=46  mbpp(code)  n=5,f=2,s=0,attack  决策  决策= 86.0% 正确= 80.0% 错误提交=  6.0% 轮数=2.34 调用=2.3 耗时/题=12s
+
+# seed=46  mbpp(code)  n=5,f=2,s=0,attack  决策= 84.0% �  决策= 82.0% 正确= 66.0% 错误提交= 16.0% 轮数=4.34 调用=4.3 耗时/题=20s
+
+# seed=46  mbpp(code)  n=5,f=2,s=0,attack  决策= 7  决策= 74.0% 正确= 68.0% 错误提交=  6.0% 轮数=4.46 调用=4.5 耗时/题=20s
+
+# seed=46  mbpp(code)  n=6,f=2,s=0,attack  决策= 7  决策= 76.0% 正确= 76.0% 错误提交=  0.0% 轮数=4.56 调用=4.6 耗时/题=20s
+
+完成: /root/autodl-tmp/results/full_bft  决策= 70.0% 正确= 70.0% 错误提交=  0.0% 轮数=4.60 调用=4.6 耗时/题=19s
+
+完成: /root/autodl-tmp/results/full_bft_sweep_mbpp.json  共 50 行
+SWEEP_DONE_MBPP

@@ -1,0 +1,156 @@
+==============================================================================
+A2A-BFT 全量真机扫描 dataset=gsm8k (seeds [42, 43, 44, 45, 46], 50 tasks x 10 configs)
+时间: 2026-09-14 10:51:01
+==============================================================================
+
+# seed=42  gsm8k(math)  n=4,f=0,s=0,attack=baseline
+  决策= 64.0% 正确= 62.0% 错误提交=  2.0% 轮数=3.02 调用=12.1 耗时/题=60s
+
+# seed=42  gsm8k(math)  n=6,f=0,s=0,attack=baseline
+  决策= 60.0% 正确= 58.0% 错误提交=  2.0% 轮数=3.22 调用=19.3 耗时/题=87s
+
+# seed=42  gsm8k(math)  n=4,f=1,s=0,attack=random
+  决策= 92.0% 正确= 80.0% 错误提交= 12.0% 轮数=1.78 调用=6.6 耗时/题=42s
+
+# seed=42  gsm8k(math)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 90.0% 正确= 64.0% 错误提交= 26.0% 轮数=3.58 调用=12.5 耗时/题=88s
+
+# seed=42  gsm8k(math)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 94.0% 正确= 78.0% 错误提交= 16.0% 轮数=1.72 调用=6.4 耗时/题=40s
+
+# seed=42  gsm8k(math)  n=5,f=1,s=1,attack=random
+  决策= 90.0% 正确= 76.0% 错误提交= 14.0% 轮数=1.88 调用=7.9 耗时/题=48s
+
+# seed=42  gsm8k(math)  n=5,f=2,s=0,attack=random
+  决策=100.0% 正确= 78.0% 错误提交= 22.0% 轮数=1.28 调用=5.1 耗时/题=34s
+
+# seed=42  gsm8k(math)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 96.0% 正确= 34.0% 错误提交= 62.0% 轮数=3.22 调用=12.3 耗时/题=86s
+
+# seed=42  gsm8k(math)  n=5,f=2,s=0,attack=collusion
+  决策= 96.0% 正确= 22.0% 错误提交= 74.0% 轮数=2.80 调用=10.9 耗时/题=75s
+
+# seed=42  gsm8k(math)  n=6,f=2,s=0,attack=collusion
+  决策= 84.0% 正确= 64.0% 错误提交= 20.0% 轮数=4.46 调用=21.1 耗时/题=150s
+
+# seed=43  gsm8k(math)  n=4,f=0,s=0,attack=baseline
+  决策= 66.0% 正确= 66.0% 错误提交=  0.0% 轮数=2.74 调用=11.0 耗时/题=59s
+
+# seed=43  gsm8k(math)  n=6,f=0,s=0,attack=baseline
+  决策= 64.0% 正确= 64.0% 错误提交=  0.0% 轮数=2.80 调用=16.8 耗时/题=79s
+
+# seed=43  gsm8k(math)  n=4,f=1,s=0,attack=random
+  决策= 92.0% 正确= 82.0% 错误提交= 10.0% 轮数=1.82 调用=6.7 耗时/题=44s
+
+# seed=43  gsm8k(math)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 80.0% 正确= 66.0% 错误提交= 14.0% 轮数=4.10 调用=14.1 耗时/题=97s
+
+# seed=43  gsm8k(math)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 92.0% 正确= 82.0% 错误提交= 10.0% 轮数=1.76 调用=6.4 耗时/题=42s
+
+# seed=43  gsm8k(math)  n=5,f=1,s=1,attack=random
+  决策= 88.0% 正确= 84.0% 错误提交=  4.0% 轮数=1.92 调用=8.1 耗时/题=50s
+
+# seed=43  gsm8k(math)  n=5,f=2,s=0,attack=random
+  决策= 94.0% 正确= 82.0% 错误提交= 12.0% 轮数=1.48 调用=5.7 耗时/题=38s
+
+# seed=43  gsm8k(math)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 94.0% 正确= 20.0% 错误提交= 74.0% 轮数=2.92 调用=11.1 耗时/题=77s
+
+# seed=43  gsm8k(math)  n=5,f=2,s=0,attack=collusion
+  决策= 94.0% 正确= 28.0% 错误提交= 66.0% 轮数=3.10 调用=11.6 耗时/题=79s
+
+# seed=43  gsm8k(math)  n=6,f=2,s=0,attack=collusion
+  决策= 76.0% 正确= 58.0% 错误提交= 18.0% 轮数=4.84 调用=22.8 耗时/题=160s
+
+# seed=44  gsm8k(math)  n=4,f=0,s=0,attack=baseline
+  决策= 68.0% 正确= 66.0% 错误提交=  2.0% 轮数=2.64 调用=10.6 耗时/题=52s
+
+# seed=44  gsm8k(math)  n=6,f=0,s=0,attack=baseline
+  决策= 60.0% 正确= 58.0% 错误提交=  2.0% 轮数=3.00 调用=18.0 耗时/题=77s
+
+# seed=44  gsm8k(math)  n=4,f=1,s=0,attack=random
+  决策= 90.0% 正确= 78.0% 错误提交= 12.0% 轮数=1.70 调用=6.2 耗时/题=40s
+
+# seed=44  gsm8k(math)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 82.0% 正确= 62.0% 错误提交= 20.0% 轮数=3.50 调用=12.2 耗时/题=82s
+
+# seed=44  gsm8k(math)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 92.0% 正确= 80.0% 错误提交= 12.0% 轮数=1.62 调用=6.0 耗时/题=39s
+
+# seed=44  gsm8k(math)  n=5,f=1,s=1,attack=random
+  决策= 90.0% 正确= 80.0% 错误提交= 10.0% 轮数=1.72 调用=7.3 耗时/题=46s
+
+# seed=44  gsm8k(math)  n=5,f=2,s=0,attack=random
+  决策= 98.0% 正确= 82.0% 错误提交= 16.0% 轮数=1.30 调用=5.1 耗时/题=31s
+
+# seed=44  gsm8k(math)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 96.0% 正确= 34.0% 错误提交= 62.0% 轮数=2.90 调用=11.0 耗时/题=72s
+
+# seed=44  gsm8k(math)  n=5,f=2,s=0,attack=collusion
+  决策= 92.0% 正确= 26.0% 错误提交= 66.0% 轮数=2.78 调用=10.5 耗时/题=71s
+
+# seed=44  gsm8k(math)  n=6,f=2,s=0,attack=collusion
+  决策= 80.0% 正确= 58.0% 错误提交= 22.0% 轮数=4.42 调用=20.8 耗时/题=141s
+
+# seed=45  gsm8k(math)  n=4,f=0,s=0,attack=baseline
+  决策= 52.0% 正确= 52.0% 错误提交=  0.0% 轮数=3.54 调用=14.2 耗时/题=69s
+
+# seed=45  gsm8k(math)  n=6,f=0,s=0,attack=baseline
+  决策= 46.0% 正确= 46.0% 错误提交=  0.0% 轮数=3.84 调用=23.0 耗时/题=106s
+
+# seed=45  gsm8k(math)  n=4,f=1,s=0,attack=random
+  决策= 88.0% 正确= 76.0% 错误提交= 12.0% 轮数=1.82 调用=6.6 耗时/题=44s
+
+# seed=45  gsm8k(math)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 82.0% 正确= 58.0% 错误提交= 24.0% 轮数=4.04 调用=14.0 耗时/题=95s
+
+# seed=45  gsm8k(math)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 88.0% 正确= 72.0% 错误提交= 16.0% 轮数=1.96 调用=7.0 耗时/题=40s
+
+# seed=45  gsm8k(math)  n=5,f=1,s=1,attack=random
+  决策= 84.0% 正确= 74.0% 错误提交= 10.0% 轮数=2.08 调用=8.8 耗时/题=47s
+
+# seed=45  gsm8k(math)  n=5,f=2,s=0,attack=random
+  决策=100.0% 正确= 74.0% 错误提交= 26.0% 轮数=1.44 调用=5.6 耗时/题=28s
+
+# seed=45  gsm8k(math)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 96.0% 正确= 18.0% 错误提交= 78.0% 轮数=2.60 调用=10.0 耗时/题=59s
+
+# seed=45  gsm8k(math)  n=5,f=2,s=0,attack=collusion  决策= 98.0% 正确= 26.0% 错误提交= 72.0% 轮数=3.02 调用=11.5 耗时/题=66s
+
+# seed=45  gsm8k(math)  n=6,f=2,s=0,attack=collusion
+  决策= 74.0% 正确= 56.0% 错误提交= 18.0% 轮数=4.80 调用=22.5 耗时/题=142s
+
+# seed=46  gsm8k(math)  n=4,f=0,s=0,attack=baseline
+  决策= 50.0% 正确= 48.0% 错误提交=  2.0% 轮数=3.58 调用=14.3 耗时/题=61s
+
+# seed=46  gsm8k(math)  n=6,f=0,s=0,attack=baseline
+  决策= 44.0% 正确= 42.0% 错误提交=  2.0% 轮数=3.84 调用=23.0 耗时/题=92s
+
+# seed=46  gsm8k(math)  n=4,f=1,s=0,attack=random
+  决策= 88.0% 正确= 74.0% 错误提交= 14.0% 轮数=1.96 调用=7.1 耗时/题=39s
+
+# seed=46  gsm8k(math)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 76.0% 正确= 46.0% 错误提交= 30.0% 轮数=4.02 调用=13.9 耗时/题=82s
+
+# seed=46  gsm8k(math)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 92.0% 正确= 76.0% 错误提交= 16.0% 轮数=1.88 调用=6.9 耗时/题=37s
+
+# seed=46  gsm8k(math)  n=5,f=1,s=1,attack=random
+  决策= 84.0% 正确= 72.0% 错误提交= 12.0% 轮数=2.08 调用=8.9 耗时/题=46s
+
+# seed=46  gsm8k(math)  n=5,f=2,s=0,attack=random
+  决策= 98.0% 正确= 70.0% 错误提交= 28.0% 轮数=1.58 调用=6.2 耗时/题=30s
+
+# seed=46  gsm8k(math)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 96.0% 正确= 22.0% 错误提交= 74.0% 轮数=2.96 调用=11.2 耗时/题=64s
+
+# seed=46  gsm8k(math)  n=5,f=2,s=0,attack=collusion
+  决策= 96.0% 正确= 26.0% 错误提交= 70.0% 轮数=2.68 调用=10.2 耗时/题=61s
+
+# seed=46  gsm8k(math)  n=6,f=2,s=0,attack=collusion
+   决策= 80.0% 正确= 54.0% 错误提交= 26.0% 轮数=4.56 调用=21.5 耗时/题=135s
+
+完成: /root/autodl-tmp/results/full_bft_sweep_gsm8k.json  共 50 行
+SWEEP_DONE_GSM8K

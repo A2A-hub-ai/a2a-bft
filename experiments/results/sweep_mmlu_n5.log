@@ -1,0 +1,23 @@
+==============================================================================
+A2A-BFT 全量真机扫描 dataset=mmlu (seeds [42, 43, 44, 45, 46], 50 tasks x 1 configs)
+时间: 2026-09-15 00:50:56
+==============================================================================
+断点续跑: 已有 50 行
+
+# seed=42  mmlu(knowledge)  n=5,f=0,s=0,attack=baseline
+  决策= 20.0% 正确= 14.0% 错误提交=  6.0% 轮数=5.30 调用=18.9 耗时/题=56s
+
+# seed=43  mmlu(knowledge)  n=5,f=0,s=0,attack=baseline
+  决策= 22.0% 正确= 16.0% 错误提交=  6.0% 轮数=5.30 调用=20.7 耗时/题=57s
+
+# seed=44  mmlu(knowledge)  n=5,f=0,s=0,attack=baseline
+  决策= 12.0% 正确=  6.0% 错误提交=  6.0% 轮数=5.54 调用=20.2 耗时/题=57s
+
+# seed=45  mmlu(knowledge)  n=5,f=0,s=0,attack=baseline
+  决策= 12.0% 正确= 12.0% 错误提交=  0.0% 轮数=5.58 调用=21.5 耗时/题=62s
+
+# seed=46  mmlu(knowledge)  n=5,f=0,s=0,attack=baseline
+  决策=  8.0% 正确=  4.0% 错误提交=  4.0% 轮数=5.78 调用=21.9 耗时/题=60s
+
+完成: /root/autodl-tmp/results/full_bft_sweep_mmlu.json  共 55 行
+SWEEP_DONE_MMLU

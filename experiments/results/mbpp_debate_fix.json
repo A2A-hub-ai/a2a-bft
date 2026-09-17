@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-09-12T11:48:42.221382",
+  "rows": [
+    {
+      "method": "LLM-Debate",
+      "n": 5,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "num_tasks": 30,
+      "decision_rate": 100.0,
+      "answer_accuracy": 73.3,
+      "accuracy_when_decided": 73.3,
+      "wrong_commit_rate": 26.7,
+      "avg_rounds": 0.0,
+      "avg_calls": 8.5,
+      "avg_time": 33.2,
+      "dataset": "mbpp"
+    },
+    {
+      "method": "LLM-Debate",
+      "n": 5,
+      "f": 1,
+      "s": 1,
+      "attack": "strategic_reject",
+      "num_tasks": 30,
+      "decision_rate": 100.0,
+      "answer_accuracy": 53.3,
+      "accuracy_when_decided": 53.3,
+      "wrong_commit_rate": 46.7,
+      "avg_rounds": 0.0,
+      "avg_calls": 8.3,
+      "avg_time": 35.9,
+      "dataset": "mbpp"
+    },
+    {
+      "method": "LLM-Debate",
+      "n": 8,
+      "f": 2,
+      "s": 1,
+      "attack": "collusion",
+      "num_tasks": 30,
+      "decision_rate": 100.0,
+      "answer_accuracy": 43.3,
+      "accuracy_when_decided": 43.3,
+      "wrong_commit_rate": 56.7,
+      "avg_rounds": 0.0,
+      "avg_calls": 12.9,
+      "avg_time": 56.6,
+      "dataset": "mbpp"
+    }
+  ]
+}

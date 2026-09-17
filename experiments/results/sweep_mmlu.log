@@ -1,0 +1,134 @@
+==============================================================================
+A2A-BFT 全量真机扫描 dataset=mmlu (seeds [42, 43, 44, 45, 46], 50 tasks x 10 configs)
+时间: 2026-09-14 10:51:05
+==============================================================================
+
+# seed=42  mmlu(knowledge)  n=4,f=0,s=0,attack=baseline
+  决策= 18.0% 正确= 14.0% 错误提交=  4.0% 轮数=5.40 调用=15.9 耗时/题=56s
+
+# seed=42  mmlu(knowledge)  n=6,f=0,s=0,attack=baseline
+  决策= 18.0% 正确= 14.0% 错误提交=  4.0% 轮数=5.36 调用=22.7 耗时/题=81s
+
+# seed=42  mmlu(knowledge)  n=4,f=1,s=0,attack=random
+  决策= 58.0% 正确= 24.0% 错误提交= 34.0% 轮数=4.44 调用=10.5 耗时/题=38s
+
+# seed=42  mmlu(knowledge)  n=4,f=1,s=0,attack=strategic_reject   决策= 74.0% 正确= 10.0% 错误提交= 64.0% 轮数=3.08 调用=9.9 耗时/题=51s
+
+# seed=42  mmlu(knowledge)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 66.0% 正确= 28.0% 错误提交= 38.0% 轮数=4.12 调用=9.4 耗时/题=37s
+
+# seed=42  mmlu(knowledge)  n=5,f=1,s=1,attack=random
+  决策= 78.0% 正确= 34.0% 错误提交= 44.0% 轮数=3.62 调用=9.4 耗时/题=41s
+
+# seed=42  mmlu(knowledge)  n=5,f=2,s=0,attack=random
+  决策= 86.0% 正确= 38.0% 错误提交= 48.0% 轮数=3.32 调用=7.6 耗时/题=33s
+
+# seed=42  mmlu(knowledge)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 90.0% 正确=  4.0% 错误提交= 86.0% 轮数=2.12 调用=7.9 耗时/题=44s
+
+# seed=42  mmlu(knowledge)  n=5,f=2,s=0,attack=collusion
+  决策= 98.0% 正确=  8.0% 错误提交= 90.0% 轮数=2.06 调用=8.0 耗时/题=44s
+
+# seed=42  mmlu(knowledge)  n=6,f=2,s=0,attack=collusion
+  决策= 82.0% 正确= 12.0% 错误提交= 70.0% 轮数=3.30 调用=15.3 耗时/题=83s
+
+# seed=43  mmlu(knowledge)  n=4,f=0,s=0,attack=baseline
+  决策= 24.0% 正确= 18.0% 错误提交=  6.0% 轮数=5.20 调用=16.4 耗时/题=55s
+
+# seed=43  mmlu(knowledge)  n=6,f=0,s=0,attack=baseline
+  决策= 20.0% 正确= 12.0% 错误提交=  8.0% 轮数=5.34 调用=24.7 耗时/题=85s
+
+# seed=43  mmlu(knowledge)  n=4,f=1,s=0,attack=random
+  决策= 76.0% 正确= 42.0% 错误提交= 34.0% 轮数=3.72 调用=9.0 耗时/题=36s
+
+# seed=43  mmlu(knowledge)  n=4,f=1,s=0,attack=strategic_reject
+  决策= 70.0% 正确= 14.0% 错误提交= 56.0% 轮数=3.46 调用=11.1 耗时/题=59s
+
+# seed=43  mmlu(knowledge)  n=4,f=1,s=0,attack=sybil_attack
+  决策= 74.0% 正确= 34.0% 错误提交= 40.0% 轮数=3.82 调用=9.4 耗时/题=38s
+
+# seed=43  mmlu(knowledge)  n=5,f=1,s=1,attack=random
+   决策= 74.0% 正确= 38.0% 错误提交= 36.0% 轮数=3.44 调用=9.5 耗时/题=42s
+
+# seed=43  mmlu(knowledge)  n=5,f=2,s=0,attack=random   决策= 92.0% 正确= 44.0% 错误提交= 48.0% 轮数=2.82 调用=6.6 耗时/题=30s
+
+# seed=43  mmlu(knowledge)  n=5,f=2,s=0,attack=strategic_reject   决策= 98.0% 正确= 24.0% 错误提交= 74.0% 轮数=2.68 调用=10.0 耗时/题=46s
+
+# seed=43  mmlu(knowledge)  n=5,f=2,s=0,attack=collusio  决策= 94.0% 正确= 10.0% 错误提交= 84.0% 轮数=2.16 调用=8.2 耗时/题=42s
+
+# seed=43  mmlu(knowledge)  n=6,f=2,s=0,attack=collusion
+  决策= 84.0% 正确=  6.0% 错误提交= 78.0% 轮数=2.74 调用=12.7 耗时/题=67s
+
+# seed=44  mmlu(knowledge)  n=4,f=0,s=0,attack=baseline
+  决策= 14.0% 正确=  6.0% 错误提交=  8.0% 轮数=5.56 调用=16.4 耗时/题=51s
+
+# seed=44  mmlu(knowledge)  n=6,f=0,s=0,attack=baseline
+    决策= 10.0% 正确=  6.0% 错误提交=  4.0% 轮数=5.72 调用=24.7 耗时/题=80s
+
+# seed=44  mmlu(knowledge)  n=4,f=1,s=0,attack=rando    决策= 64.0% 正确= 26.0% 错误提交= 38.0% 轮数=4.16 调用=9.2 耗时/题=36s
+
+# seed=44  mmlu(knowledge)  n=4,f=1,s=0,attack=strategic_rejec  决策= 70.0% 正确= 10.0% 错误提交= 60.0% 轮数=3.68 调用=11.5 耗时/题=58s
+
+# seed=44  mmlu(knowledge)  n=4,f=1,s=0,attack=sybil_attack
+    决策= 64.0% 正确= 26.0% 错误提交= 38.0% 轮数=4.02 调用=8.8 耗时/题=34s
+
+# seed=44  mmlu(knowledge)  n=5,f=1,s=1,attack=rando  决策= 72.0% 正确= 30.0% 错误提交= 42.0% 轮数=3.80 调用=9.6 耗时/题=42s
+
+# seed=44  mmlu(knowledge)  n=5,f=2,s=0,attack=random
+  决策= 84.0% 正确= 36.0% 错误提交= 48.0% 轮数=3.56 调用=7.9 耗时/题=30s
+
+# seed=44  mmlu(knowledge)  n=5,f=2,s=0,attack=strategic_reject
+  决策= 92.0% 正确=  2.0% 错误提交= 90.0% 轮数=2.08 调用=7.8 耗时/题=44s
+
+# seed=44  mmlu(knowledge)  n=5,f=2,s=0,attack=collusion
+  决策= 94.0% 正确=  8.0% 错误提交= 86.0% 轮数=2.08 调用=7.7 耗时/题=43s
+
+# seed=44  mmlu(knowledge)  n=6,f=2,s=0,attack=collusion
+  决策= 86.0% 正确=  6.0% 错误提交= 80.0% 轮数=2.62 调用=12.6 耗时/题=64s
+
+# seed=45  mmlu(knowledge)  n=4,f=0,s=0,attack=baseline
+  决策= 12.0% 正确= 12.0% 错误提交=  0.0% 轮数=5.58 调用=17.6 耗时/题=57s
+
+# seed=45  mmlu(knowledge)  n=6,f=0,s=0,attack=baseline
+  决策=  6.0% 正确=  6.0% 错误提交=  0.0% 轮数=5.82 调用=26.9 耗时/题=87s
+
+# seed=45  mmlu(knowledge)  n=4,f=1,s=0,attack=random
+  决策= 52.0% 正确= 22.0% 错误提交= 30.0% 轮数=4.30 调用=10.3 耗时/题=39s
+
+# seed=45  mmlu(knowledge)  n=4,f=1,s=0,attack=strategic_reject
+  �  决策= 64.0% 正确= 14.0% 错误提交= 50.0% 轮数=3.92 调用=12.4 耗时/题=61s
+
+# seed=45  mmlu(knowledge)  n=4,f=1,s=0,attack=sybil_atta  �  决策= 70.0% 正确= 30.0% 错误提交= 40.0% 轮数=4.28 调用=10.4 耗时/题=38s
+
+# seed=45  mmlu(knowledge)  n=5,f=1,s=1,attack=ran  �  决策= 74.0% 正确= 34.0% 错误提交= 40.0% 轮数=3.60 调用=9.9 耗时/题=44s
+
+# seed=45  mmlu(knowledge)  n=5,f=2,s=0,attack=rand  �  决策= 82.0% 正确= 30.0% 错误提交= 52.0% 轮数=2.94 调用=6.6 耗时/题=31s
+
+# seed=45  mmlu(knowledge)  n=5,f=2,s=0,attack=strategic_reje  �  决策= 92.0% 正确=  0.0% 错误提交= 92.0% 轮数=2.02 调用=7.6 耗时/题=39s
+
+# seed=45  mmlu(knowledge)  n=5,f=2,s=0,attack=collusi  �  决策= 94.0% 正确=  4.0% 错误提交= 90.0% 轮数=2.00 调用=7.6 耗时/题=42s
+
+# seed=45  mmlu(knowledge)  n=6,f=2,s=0,attack=collusi  �  决策= 84.0% 正确= 10.0% 错误提交= 74.0% 轮数=3.08 调用=14.5 耗时/题=74s
+
+# seed=46  mmlu(knowledge)  n=4,f=0,s=0,attack=baseli  �  决策= 10.0% 正确=  6.0% 错误提交=  4.0% 轮数=5.70 调用=17.6 耗时/题=55s
+
+# seed=46  mmlu(knowledge)  n=6,f=0,s=0,attack=baseli  �  决策=  6.0% 正确=  4.0% 错误提交=  2.0% 轮数=5.86 调用=26.5 耗时/题=85s
+
+# seed=46  mmlu(knowledge)  n=4,f=1,s=0,attack=rand  �  决策= 68.0% 正确= 32.0% 错误提交= 36.0% 轮数=4.68 调用=11.6 耗时/题=38s
+
+# seed=46  mmlu(knowledge)  n=4,f=1,s=0,attack=strategic_reje  �  决策= 82.0% 正确= 10.0% 错误提交= 72.0% 轮数=3.28 调用=10.6 耗时/题=54s
+
+# seed=46  mmlu(knowledge)  n=4,f=1,s=0,attack=sybil_att  �  决策= 74.0% 正确= 30.0% 错误提交= 44.0% 轮数=3.92 调用=9.3 耗时/题=34s
+
+# seed=46  mmlu(knowledge)  n=5,f=1,s=1,attack=ran  �  决策= 76.0% 正确= 30.0% 错误提交= 46.0% 轮数=3.76 调用=10.4 耗时/题=42s
+
+# seed=46  mmlu(knowledge)  n=5,f=2,s=0,attack=ra  决  决策= 94.0% 正确= 30.0% 错误提交= 64.0% 轮数=3.36 调用=8.0 耗时/题=30s
+
+# seed=46  mmlu(knowledge)  n=5,f=2,s=0,attack=strategic_re  决  决策= 96.0% 正确=  8.0% 错误提交= 88.0% 轮数=2.16 调用=8.1 耗时/题=40s
+
+# seed=46  mmlu(knowledge)  n=5,f=2,s=0,attack=collu  决  决策= 94.0% 正确=  2.0% 错误提交= 92.0% 轮数=2.02 调用=7.7 耗时/题=41s
+
+# seed=46  mmlu(knowledge)  n=6,f=2,s=0,attack=collu  决  决策= 80.0% 正确= 10.0% 错误提交= 70.0% 轮数=3.34 调用=15.9 耗时/题=75s
+
+完成: /root/autodl-tmp/results/full_bft_sweep_mmlu.json  共 50 行
+SWEEP_DONE_MMLU

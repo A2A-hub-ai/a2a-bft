@@ -1,0 +1,68 @@
+{
+  "provenance": "Values re-derived from the raw per-task log experiments/results/correctness_50x3_log.txt (run 2026-09-11T01:57). The summary JSON of this run was overwritten by a later repeat run (correctness_50t_3s.json, 2026-09-11T14:52). Do not edit by hand.",
+  "source_log": "experiments/results/correctness_50x3_log.txt",
+  "experiment_type": "correctness_eval_deepseek",
+  "model": "deepseek-chat",
+  "dataset": "gsm8k",
+  "config": {
+    "tasks_per_seed": 50,
+    "seeds": 3
+  },
+  "scenarios": [
+    {
+      "n": 8,
+      "f": 2,
+      "s": 1,
+      "attack_type": "collusion",
+      "total_tasks": 150,
+      "consensus_rate": 98.0,
+      "correctness_rate": 92.7,
+      "avg_rounds": 2.893,
+      "round_histogram": {
+        "2": 94,
+        "3": 31,
+        "4": 7,
+        "5": 7,
+        "7": 5,
+        "8": 2,
+        "9": 1,
+        "10": 3
+      }
+    },
+    {
+      "n": 8,
+      "f": 2,
+      "s": 1,
+      "attack_type": "strategic_reject",
+      "total_tasks": 150,
+      "consensus_rate": 98.0,
+      "correctness_rate": 92.0,
+      "avg_rounds": 2.92,
+      "round_histogram": {
+        "2": 85,
+        "3": 37,
+        "4": 14,
+        "5": 5,
+        "7": 3,
+        "8": 2,
+        "9": 1,
+        "10": 3
+      }
+    },
+    {
+      "n": 8,
+      "f": 0,
+      "s": 0,
+      "attack_type": null,
+      "total_tasks": 150,
+      "consensus_rate": 100.0,
+      "correctness_rate": 94.0,
+      "avg_rounds": 1.033,
+      "round_histogram": {
+        "1": 147,
+        "2": 2,
+        "4": 1
+      }
+    }
+  ]
+}

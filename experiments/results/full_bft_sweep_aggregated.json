@@ -1,0 +1,2771 @@
+{
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "tasks_per_seed": 50,
+  "rows": [
+    {
+      "dataset": "gsm8k",
+      "n": 4,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 59.2,
+      "decision_rate_std": 9.4,
+      "decision_rate_values": [
+        64.0,
+        68.0,
+        66.0,
+        48.0,
+        50.0
+      ],
+      "answer_accuracy_mean": 58.0,
+      "answer_accuracy_std": 9.4,
+      "answer_accuracy_values": [
+        62.0,
+        68.0,
+        64.0,
+        48.0,
+        48.0
+      ],
+      "wrong_commit_rate_mean": 1.2,
+      "wrong_commit_rate_std": 1.1,
+      "wrong_commit_rate_values": [
+        2.0,
+        0.0,
+        2.0,
+        0.0,
+        2.0
+      ],
+      "accuracy_when_decided_mean": 98.0,
+      "accuracy_when_decided_std": 1.9,
+      "accuracy_when_decided_values": [
+        96.9,
+        100.0,
+        97.0,
+        100.0,
+        96.0
+      ],
+      "avg_rounds_mean": 3.2,
+      "avg_rounds_std": 0.5,
+      "avg_rounds_values": [
+        3.02,
+        2.64,
+        2.74,
+        3.74,
+        3.66
+      ],
+      "avg_calls_mean": 12.7,
+      "avg_calls_std": 2.0,
+      "avg_calls_values": [
+        12.1,
+        10.6,
+        11.0,
+        15.0,
+        14.6
+      ],
+      "avg_time_mean": 61.3,
+      "avg_time_std": 6.5,
+      "avg_time_values": [
+        60.1,
+        55.7,
+        55.8,
+        71.3,
+        63.4
+      ],
+      "decision_rate_pooled": 59.2,
+      "decision_rate_wilson": [
+        53.0,
+        65.1
+      ],
+      "answer_accuracy_pooled": 58.0,
+      "answer_accuracy_wilson": [
+        51.8,
+        64.0
+      ],
+      "wrong_commit_rate_pooled": 1.2,
+      "wrong_commit_rate_wilson": [
+        0.4,
+        3.5
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 90.8,
+      "decision_rate_std": 3.0,
+      "decision_rate_values": [
+        94.0,
+        88.0,
+        94.0,
+        90.0,
+        88.0
+      ],
+      "answer_accuracy_mean": 76.8,
+      "answer_accuracy_std": 4.6,
+      "answer_accuracy_values": [
+        82.0,
+        80.0,
+        78.0,
+        72.0,
+        72.0
+      ],
+      "wrong_commit_rate_mean": 14.0,
+      "wrong_commit_rate_std": 4.0,
+      "wrong_commit_rate_values": [
+        12.0,
+        8.0,
+        16.0,
+        18.0,
+        16.0
+      ],
+      "accuracy_when_decided_mean": 84.6,
+      "accuracy_when_decided_std": 4.4,
+      "accuracy_when_decided_values": [
+        87.2,
+        90.9,
+        83.0,
+        80.0,
+        81.8
+      ],
+      "avg_rounds_mean": 1.9,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        1.8,
+        1.94,
+        1.62,
+        1.86,
+        2.04
+      ],
+      "avg_calls_mean": 6.7,
+      "avg_calls_std": 0.5,
+      "avg_calls_values": [
+        6.6,
+        7.0,
+        6.0,
+        6.8,
+        7.3
+      ],
+      "avg_time_mean": 41.8,
+      "avg_time_std": 3.3,
+      "avg_time_values": [
+        42.9,
+        44.5,
+        37.4,
+        45.0,
+        39.4
+      ],
+      "decision_rate_pooled": 90.8,
+      "decision_rate_wilson": [
+        86.6,
+        93.8
+      ],
+      "answer_accuracy_pooled": 76.8,
+      "answer_accuracy_wilson": [
+        71.2,
+        81.6
+      ],
+      "wrong_commit_rate_pooled": 14.0,
+      "wrong_commit_rate_wilson": [
+        10.2,
+        18.8
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "strategic_reject",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 80.8,
+      "decision_rate_std": 3.6,
+      "decision_rate_values": [
+        84.0,
+        78.0,
+        84.0,
+        82.0,
+        76.0
+      ],
+      "answer_accuracy_mean": 57.6,
+      "answer_accuracy_std": 7.0,
+      "answer_accuracy_values": [
+        54.0,
+        66.0,
+        62.0,
+        58.0,
+        48.0
+      ],
+      "wrong_commit_rate_mean": 23.2,
+      "wrong_commit_rate_std": 7.0,
+      "wrong_commit_rate_values": [
+        30.0,
+        12.0,
+        22.0,
+        24.0,
+        28.0
+      ],
+      "accuracy_when_decided_mean": 71.3,
+      "accuracy_when_decided_std": 8.6,
+      "accuracy_when_decided_values": [
+        64.3,
+        84.6,
+        73.8,
+        70.7,
+        63.2
+      ],
+      "avg_rounds_mean": 3.9,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        3.62,
+        4.24,
+        3.4,
+        4.04,
+        4.04
+      ],
+      "avg_calls_mean": 13.4,
+      "avg_calls_std": 1.1,
+      "avg_calls_values": [
+        12.6,
+        14.6,
+        11.9,
+        14.0,
+        14.0
+      ],
+      "avg_time_mean": 88.0,
+      "avg_time_std": 8.0,
+      "avg_time_values": [
+        87.1,
+        97.2,
+        79.6,
+        95.2,
+        81.0
+      ],
+      "decision_rate_pooled": 80.8,
+      "decision_rate_wilson": [
+        75.5,
+        85.2
+      ],
+      "answer_accuracy_pooled": 57.6,
+      "answer_accuracy_wilson": [
+        51.4,
+        63.6
+      ],
+      "wrong_commit_rate_pooled": 23.2,
+      "wrong_commit_rate_wilson": [
+        18.4,
+        28.8
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "sybil_attack",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 90.4,
+      "decision_rate_std": 3.3,
+      "decision_rate_values": [
+        96.0,
+        88.0,
+        90.0,
+        88.0,
+        90.0
+      ],
+      "answer_accuracy_mean": 77.6,
+      "answer_accuracy_std": 4.3,
+      "answer_accuracy_values": [
+        80.0,
+        80.0,
+        82.0,
+        72.0,
+        74.0
+      ],
+      "wrong_commit_rate_mean": 12.8,
+      "wrong_commit_rate_std": 4.4,
+      "wrong_commit_rate_values": [
+        16.0,
+        8.0,
+        8.0,
+        16.0,
+        16.0
+      ],
+      "accuracy_when_decided_mean": 85.9,
+      "accuracy_when_decided_std": 4.7,
+      "accuracy_when_decided_values": [
+        83.3,
+        90.9,
+        91.1,
+        81.8,
+        82.2
+      ],
+      "avg_rounds_mean": 1.9,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        1.72,
+        1.96,
+        1.68,
+        1.96,
+        2.04
+      ],
+      "avg_calls_mean": 6.8,
+      "avg_calls_std": 0.5,
+      "avg_calls_values": [
+        6.4,
+        7.1,
+        6.2,
+        7.0,
+        7.4
+      ],
+      "avg_time_mean": 40.7,
+      "avg_time_std": 2.0,
+      "avg_time_values": [
+        40.8,
+        44.1,
+        39.8,
+        39.9,
+        39.1
+      ],
+      "decision_rate_pooled": 90.4,
+      "decision_rate_wilson": [
+        86.1,
+        93.5
+      ],
+      "answer_accuracy_pooled": 77.6,
+      "answer_accuracy_wilson": [
+        72.0,
+        82.3
+      ],
+      "wrong_commit_rate_pooled": 12.8,
+      "wrong_commit_rate_wilson": [
+        9.2,
+        17.5
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "collusion",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 98.4,
+      "decision_rate_std": 1.7,
+      "decision_rate_values": [
+        96.0,
+        100.0,
+        98.0,
+        98.0,
+        100.0
+      ],
+      "answer_accuracy_mean": 26.0,
+      "answer_accuracy_std": 3.7,
+      "answer_accuracy_values": [
+        30.0,
+        24.0,
+        30.0,
+        22.0,
+        24.0
+      ],
+      "wrong_commit_rate_mean": 72.4,
+      "wrong_commit_rate_std": 5.0,
+      "wrong_commit_rate_values": [
+        66.0,
+        76.0,
+        68.0,
+        76.0,
+        76.0
+      ],
+      "accuracy_when_decided_mean": 26.4,
+      "accuracy_when_decided_std": 4.1,
+      "accuracy_when_decided_values": [
+        31.2,
+        24.0,
+        30.6,
+        22.4,
+        24.0
+      ],
+      "avg_rounds_mean": 2.9,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        3.08,
+        3.08,
+        2.86,
+        2.72,
+        2.74
+      ],
+      "avg_calls_mean": 11.0,
+      "avg_calls_std": 0.6,
+      "avg_calls_values": [
+        11.7,
+        11.7,
+        10.8,
+        10.3,
+        10.6
+      ],
+      "avg_time_mean": 72.1,
+      "avg_time_std": 9.5,
+      "avg_time_values": [
+        81.2,
+        80.8,
+        74.2,
+        62.5,
+        61.9
+      ],
+      "decision_rate_pooled": 98.4,
+      "decision_rate_wilson": [
+        96.0,
+        99.4
+      ],
+      "answer_accuracy_pooled": 26.0,
+      "answer_accuracy_wilson": [
+        21.0,
+        31.8
+      ],
+      "wrong_commit_rate_pooled": 72.4,
+      "wrong_commit_rate_wilson": [
+        66.6,
+        77.6
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 5,
+      "f": 1,
+      "s": 1,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 89.2,
+      "decision_rate_std": 3.0,
+      "decision_rate_values": [
+        90.0,
+        90.0,
+        90.0,
+        84.0,
+        92.0
+      ],
+      "answer_accuracy_mean": 77.6,
+      "answer_accuracy_std": 4.1,
+      "answer_accuracy_values": [
+        74.0,
+        84.0,
+        78.0,
+        74.0,
+        78.0
+      ],
+      "wrong_commit_rate_mean": 11.6,
+      "wrong_commit_rate_std": 3.8,
+      "wrong_commit_rate_values": [
+        16.0,
+        6.0,
+        12.0,
+        10.0,
+        14.0
+      ],
+      "accuracy_when_decided_mean": 87.0,
+      "accuracy_when_decided_std": 4.1,
+      "accuracy_when_decided_values": [
+        82.2,
+        93.3,
+        86.7,
+        88.1,
+        84.8
+      ],
+      "avg_rounds_mean": 1.9,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        1.7,
+        1.9,
+        1.7,
+        2.08,
+        1.96
+      ],
+      "avg_calls_mean": 8.0,
+      "avg_calls_std": 0.6,
+      "avg_calls_values": [
+        7.4,
+        8.1,
+        7.4,
+        8.8,
+        8.4
+      ],
+      "avg_time_mean": 47.0,
+      "avg_time_std": 0.9,
+      "avg_time_values": [
+        47.1,
+        48.1,
+        46.8,
+        47.2,
+        45.6
+      ],
+      "decision_rate_pooled": 89.2,
+      "decision_rate_wilson": [
+        84.7,
+        92.5
+      ],
+      "answer_accuracy_pooled": 77.6,
+      "answer_accuracy_wilson": [
+        72.0,
+        82.3
+      ],
+      "wrong_commit_rate_pooled": 11.6,
+      "wrong_commit_rate_wilson": [
+        8.2,
+        16.2
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 96.8,
+      "decision_rate_std": 3.6,
+      "decision_rate_values": [
+        100.0,
+        92.0,
+        98.0,
+        100.0,
+        94.0
+      ],
+      "answer_accuracy_mean": 74.8,
+      "answer_accuracy_std": 3.0,
+      "answer_accuracy_values": [
+        72.0,
+        78.0,
+        78.0,
+        74.0,
+        72.0
+      ],
+      "wrong_commit_rate_mean": 22.0,
+      "wrong_commit_rate_std": 5.5,
+      "wrong_commit_rate_values": [
+        28.0,
+        14.0,
+        20.0,
+        26.0,
+        22.0
+      ],
+      "accuracy_when_decided_mean": 77.4,
+      "accuracy_when_decided_std": 5.0,
+      "accuracy_when_decided_values": [
+        72.0,
+        84.8,
+        79.6,
+        74.0,
+        76.6
+      ],
+      "avg_rounds_mean": 1.4,
+      "avg_rounds_std": 0.1,
+      "avg_rounds_values": [
+        1.3,
+        1.5,
+        1.4,
+        1.44,
+        1.58
+      ],
+      "avg_calls_mean": 5.6,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        5.2,
+        5.8,
+        5.4,
+        5.6,
+        6.1
+      ],
+      "avg_time_mean": 32.0,
+      "avg_time_std": 3.4,
+      "avg_time_values": [
+        34.6,
+        35.5,
+        33.0,
+        27.8,
+        29.3
+      ],
+      "decision_rate_pooled": 96.8,
+      "decision_rate_wilson": [
+        93.8,
+        98.4
+      ],
+      "answer_accuracy_pooled": 74.8,
+      "answer_accuracy_wilson": [
+        69.1,
+        79.8
+      ],
+      "wrong_commit_rate_pooled": 22.0,
+      "wrong_commit_rate_wilson": [
+        17.3,
+        27.5
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "strategic_reject",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 95.2,
+      "decision_rate_std": 2.3,
+      "decision_rate_values": [
+        96.0,
+        94.0,
+        92.0,
+        96.0,
+        98.0
+      ],
+      "answer_accuracy_mean": 27.6,
+      "answer_accuracy_std": 6.2,
+      "answer_accuracy_values": [
+        32.0,
+        26.0,
+        34.0,
+        18.0,
+        28.0
+      ],
+      "wrong_commit_rate_mean": 67.6,
+      "wrong_commit_rate_std": 7.4,
+      "wrong_commit_rate_values": [
+        64.0,
+        68.0,
+        58.0,
+        78.0,
+        70.0
+      ],
+      "accuracy_when_decided_mean": 29.1,
+      "accuracy_when_decided_std": 6.9,
+      "accuracy_when_decided_values": [
+        33.3,
+        27.7,
+        37.0,
+        18.8,
+        28.6
+      ],
+      "avg_rounds_mean": 3.0,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        3.04,
+        3.18,
+        3.16,
+        2.6,
+        3.06
+      ],
+      "avg_calls_mean": 11.4,
+      "avg_calls_std": 0.8,
+      "avg_calls_values": [
+        11.5,
+        12.1,
+        11.8,
+        10.0,
+        11.7
+      ],
+      "avg_time_mean": 73.4,
+      "avg_time_std": 10.0,
+      "avg_time_values": [
+        82.3,
+        81.6,
+        76.2,
+        58.7,
+        68.1
+      ],
+      "decision_rate_pooled": 95.2,
+      "decision_rate_wilson": [
+        91.8,
+        97.2
+      ],
+      "answer_accuracy_pooled": 27.6,
+      "answer_accuracy_wilson": [
+        22.4,
+        33.4
+      ],
+      "wrong_commit_rate_pooled": 67.6,
+      "wrong_commit_rate_wilson": [
+        61.6,
+        73.1
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 6,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 55.2,
+      "decision_rate_std": 7.6,
+      "decision_rate_values": [
+        60.0,
+        62.0,
+        60.0,
+        48.0,
+        46.0
+      ],
+      "answer_accuracy_mean": 54.0,
+      "answer_accuracy_std": 7.6,
+      "answer_accuracy_values": [
+        58.0,
+        62.0,
+        58.0,
+        48.0,
+        44.0
+      ],
+      "wrong_commit_rate_mean": 1.2,
+      "wrong_commit_rate_std": 1.1,
+      "wrong_commit_rate_values": [
+        2.0,
+        0.0,
+        2.0,
+        0.0,
+        2.0
+      ],
+      "accuracy_when_decided_mean": 97.8,
+      "accuracy_when_decided_std": 2.0,
+      "accuracy_when_decided_values": [
+        96.7,
+        100.0,
+        96.7,
+        100.0,
+        95.7
+      ],
+      "avg_rounds_mean": 3.3,
+      "avg_rounds_std": 0.4,
+      "avg_rounds_values": [
+        3.22,
+        2.9,
+        3.0,
+        3.74,
+        3.82
+      ],
+      "avg_calls_mean": 20.0,
+      "avg_calls_std": 2.5,
+      "avg_calls_values": [
+        19.3,
+        17.4,
+        18.0,
+        22.4,
+        22.9
+      ],
+      "avg_time_mean": 88.4,
+      "avg_time_std": 9.5,
+      "avg_time_values": [
+        90.6,
+        80.5,
+        78.6,
+        102.3,
+        89.8
+      ],
+      "decision_rate_pooled": 55.2,
+      "decision_rate_wilson": [
+        49.0,
+        61.2
+      ],
+      "answer_accuracy_pooled": 54.0,
+      "answer_accuracy_wilson": [
+        47.8,
+        60.1
+      ],
+      "wrong_commit_rate_pooled": 1.2,
+      "wrong_commit_rate_wilson": [
+        0.4,
+        3.5
+      ]
+    },
+    {
+      "dataset": "gsm8k",
+      "n": 6,
+      "f": 2,
+      "s": 0,
+      "attack": "collusion",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 82.4,
+      "decision_rate_std": 3.3,
+      "decision_rate_values": [
+        80.0,
+        86.0,
+        80.0,
+        86.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 57.2,
+      "answer_accuracy_std": 4.6,
+      "answer_accuracy_values": [
+        56.0,
+        62.0,
+        52.0,
+        62.0,
+        54.0
+      ],
+      "wrong_commit_rate_mean": 25.2,
+      "wrong_commit_rate_std": 1.8,
+      "wrong_commit_rate_values": [
+        24.0,
+        24.0,
+        28.0,
+        24.0,
+        26.0
+      ],
+      "accuracy_when_decided_mean": 69.3,
+      "accuracy_when_decided_std": 3.1,
+      "accuracy_when_decided_values": [
+        70.0,
+        72.1,
+        65.0,
+        72.1,
+        67.5
+      ],
+      "avg_rounds_mean": 4.5,
+      "avg_rounds_std": 0.1,
+      "avg_rounds_values": [
+        4.42,
+        4.52,
+        4.58,
+        4.6,
+        4.56
+      ],
+      "avg_calls_mean": 21.4,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        20.9,
+        21.4,
+        21.5,
+        21.7,
+        21.5
+      ],
+      "avg_time_mean": 142.8,
+      "avg_time_std": 5.5,
+      "avg_time_values": [
+        146.7,
+        146.7,
+        146.7,
+        138.5,
+        135.4
+      ],
+      "decision_rate_pooled": 82.4,
+      "decision_rate_wilson": [
+        77.2,
+        86.6
+      ],
+      "answer_accuracy_pooled": 57.2,
+      "answer_accuracy_wilson": [
+        51.0,
+        63.2
+      ],
+      "wrong_commit_rate_pooled": 25.2,
+      "wrong_commit_rate_wilson": [
+        20.2,
+        30.9
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 4,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 73.2,
+      "decision_rate_std": 6.1,
+      "decision_rate_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        78.0
+      ],
+      "answer_accuracy_mean": 73.2,
+      "answer_accuracy_std": 6.1,
+      "answer_accuracy_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        78.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 2.6,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.72,
+        2.54,
+        2.94,
+        2.28,
+        2.44
+      ],
+      "avg_calls_mean": 2.6,
+      "avg_calls_std": 0.2,
+      "avg_calls_values": [
+        2.7,
+        2.5,
+        2.9,
+        2.3,
+        2.4
+      ],
+      "avg_time_mean": 11.9,
+      "avg_time_std": 1.3,
+      "avg_time_values": [
+        12.8,
+        13.3,
+        11.9,
+        9.8,
+        11.6
+      ],
+      "decision_rate_pooled": 73.2,
+      "decision_rate_wilson": [
+        67.4,
+        78.3
+      ],
+      "answer_accuracy_pooled": 73.2,
+      "answer_accuracy_wilson": [
+        67.4,
+        78.3
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 73.6,
+      "decision_rate_std": 6.5,
+      "decision_rate_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 73.6,
+      "answer_accuracy_std": 6.5,
+      "answer_accuracy_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        80.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 2.6,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.74,
+        2.56,
+        2.94,
+        2.32,
+        2.36
+      ],
+      "avg_calls_mean": 2.6,
+      "avg_calls_std": 0.2,
+      "avg_calls_values": [
+        2.7,
+        2.6,
+        2.9,
+        2.3,
+        2.4
+      ],
+      "avg_time_mean": 11.9,
+      "avg_time_std": 1.1,
+      "avg_time_values": [
+        12.6,
+        13.1,
+        11.8,
+        10.3,
+        11.6
+      ],
+      "decision_rate_pooled": 73.6,
+      "decision_rate_wilson": [
+        67.8,
+        78.7
+      ],
+      "answer_accuracy_pooled": 73.6,
+      "answer_accuracy_wilson": [
+        67.8,
+        78.7
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "strategic_reject",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 71.2,
+      "decision_rate_std": 6.4,
+      "decision_rate_values": [
+        66.0,
+        72.0,
+        64.0,
+        74.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 71.2,
+      "answer_accuracy_std": 6.4,
+      "answer_accuracy_values": [
+        66.0,
+        72.0,
+        64.0,
+        74.0,
+        80.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 3.4,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        3.56,
+        3.34,
+        3.56,
+        3.52,
+        2.9
+      ],
+      "avg_calls_mean": 3.4,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        3.6,
+        3.3,
+        3.6,
+        3.5,
+        2.9
+      ],
+      "avg_time_mean": 14.8,
+      "avg_time_std": 1.1,
+      "avg_time_values": [
+        15.4,
+        16.0,
+        13.3,
+        15.2,
+        14.1
+      ],
+      "decision_rate_pooled": 71.2,
+      "decision_rate_wilson": [
+        65.3,
+        76.5
+      ],
+      "answer_accuracy_pooled": 71.2,
+      "answer_accuracy_wilson": [
+        65.3,
+        76.5
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "sybil_attack",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 73.6,
+      "decision_rate_std": 6.5,
+      "decision_rate_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 73.6,
+      "answer_accuracy_std": 6.5,
+      "answer_accuracy_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        80.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 2.6,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.74,
+        2.58,
+        2.96,
+        2.3,
+        2.4
+      ],
+      "avg_calls_mean": 2.6,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        2.7,
+        2.6,
+        3.0,
+        2.3,
+        2.4
+      ],
+      "avg_time_mean": 11.8,
+      "avg_time_std": 1.1,
+      "avg_time_values": [
+        12.4,
+        13.2,
+        11.7,
+        10.1,
+        11.7
+      ],
+      "decision_rate_pooled": 73.6,
+      "decision_rate_wilson": [
+        67.8,
+        78.7
+      ],
+      "answer_accuracy_pooled": 73.6,
+      "answer_accuracy_wilson": [
+        67.8,
+        78.7
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "collusion",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 75.6,
+      "decision_rate_std": 4.8,
+      "decision_rate_values": [
+        72.0,
+        74.0,
+        74.0,
+        84.0,
+        74.0
+      ],
+      "answer_accuracy_mean": 66.4,
+      "answer_accuracy_std": 7.8,
+      "answer_accuracy_values": [
+        66.0,
+        66.0,
+        56.0,
+        78.0,
+        66.0
+      ],
+      "wrong_commit_rate_mean": 9.2,
+      "wrong_commit_rate_std": 5.0,
+      "wrong_commit_rate_values": [
+        6.0,
+        8.0,
+        18.0,
+        6.0,
+        8.0
+      ],
+      "accuracy_when_decided_mean": 87.7,
+      "accuracy_when_decided_std": 6.9,
+      "accuracy_when_decided_values": [
+        91.7,
+        89.2,
+        75.7,
+        92.9,
+        89.2
+      ],
+      "avg_rounds_mean": 4.5,
+      "avg_rounds_std": 0.1,
+      "avg_rounds_values": [
+        4.4,
+        4.5,
+        4.58,
+        4.46,
+        4.46
+      ],
+      "avg_calls_mean": 4.5,
+      "avg_calls_std": 0.1,
+      "avg_calls_values": [
+        4.4,
+        4.5,
+        4.6,
+        4.5,
+        4.5
+      ],
+      "avg_time_mean": 19.3,
+      "avg_time_std": 0.8,
+      "avg_time_values": [
+        19.0,
+        20.6,
+        18.7,
+        18.5,
+        19.5
+      ],
+      "decision_rate_pooled": 75.6,
+      "decision_rate_wilson": [
+        69.9,
+        80.5
+      ],
+      "answer_accuracy_pooled": 66.4,
+      "answer_accuracy_wilson": [
+        60.3,
+        72.0
+      ],
+      "wrong_commit_rate_pooled": 9.2,
+      "wrong_commit_rate_wilson": [
+        6.2,
+        13.4
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 5,
+      "f": 1,
+      "s": 1,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 73.2,
+      "decision_rate_std": 7.2,
+      "decision_rate_values": [
+        68.0,
+        74.0,
+        64.0,
+        80.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 73.2,
+      "answer_accuracy_std": 7.2,
+      "answer_accuracy_values": [
+        68.0,
+        74.0,
+        64.0,
+        80.0,
+        80.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 2.6,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.74,
+        2.62,
+        3.06,
+        2.32,
+        2.42
+      ],
+      "avg_calls_mean": 2.6,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        2.7,
+        2.6,
+        3.1,
+        2.3,
+        2.4
+      ],
+      "avg_time_mean": 13.6,
+      "avg_time_std": 1.6,
+      "avg_time_values": [
+        14.1,
+        15.5,
+        14.1,
+        11.3,
+        12.8
+      ],
+      "decision_rate_pooled": 73.2,
+      "decision_rate_wilson": [
+        67.4,
+        78.3
+      ],
+      "answer_accuracy_pooled": 73.2,
+      "answer_accuracy_wilson": [
+        67.4,
+        78.3
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 78.8,
+      "decision_rate_std": 6.1,
+      "decision_rate_values": [
+        74.0,
+        78.0,
+        72.0,
+        86.0,
+        84.0
+      ],
+      "answer_accuracy_mean": 73.2,
+      "answer_accuracy_std": 5.4,
+      "answer_accuracy_values": [
+        70.0,
+        74.0,
+        66.0,
+        80.0,
+        76.0
+      ],
+      "wrong_commit_rate_mean": 5.6,
+      "wrong_commit_rate_std": 1.7,
+      "wrong_commit_rate_values": [
+        4.0,
+        4.0,
+        6.0,
+        6.0,
+        8.0
+      ],
+      "accuracy_when_decided_mean": 92.9,
+      "accuracy_when_decided_std": 1.9,
+      "accuracy_when_decided_values": [
+        94.6,
+        94.9,
+        91.7,
+        93.0,
+        90.5
+      ],
+      "avg_rounds_mean": 2.5,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.58,
+        2.54,
+        2.98,
+        2.24,
+        2.28
+      ],
+      "avg_calls_mean": 2.5,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        2.6,
+        2.5,
+        3.0,
+        2.2,
+        2.3
+      ],
+      "avg_time_mean": 12.1,
+      "avg_time_std": 1.5,
+      "avg_time_values": [
+        12.9,
+        14.2,
+        11.8,
+        10.2,
+        11.2
+      ],
+      "decision_rate_pooled": 78.8,
+      "decision_rate_wilson": [
+        73.3,
+        83.4
+      ],
+      "answer_accuracy_pooled": 73.2,
+      "answer_accuracy_wilson": [
+        67.4,
+        78.3
+      ],
+      "wrong_commit_rate_pooled": 5.6,
+      "wrong_commit_rate_wilson": [
+        3.4,
+        9.2
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "strategic_reject",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 74.4,
+      "decision_rate_std": 6.2,
+      "decision_rate_values": [
+        74.0,
+        76.0,
+        64.0,
+        80.0,
+        78.0
+      ],
+      "answer_accuracy_mean": 64.8,
+      "answer_accuracy_std": 7.0,
+      "answer_accuracy_values": [
+        64.0,
+        64.0,
+        54.0,
+        72.0,
+        70.0
+      ],
+      "wrong_commit_rate_mean": 9.6,
+      "wrong_commit_rate_std": 1.7,
+      "wrong_commit_rate_values": [
+        10.0,
+        12.0,
+        10.0,
+        8.0,
+        8.0
+      ],
+      "accuracy_when_decided_mean": 87.0,
+      "accuracy_when_decided_std": 2.8,
+      "accuracy_when_decided_values": [
+        86.5,
+        84.2,
+        84.4,
+        90.0,
+        89.7
+      ],
+      "avg_rounds_mean": 4.5,
+      "avg_rounds_std": 0.1,
+      "avg_rounds_values": [
+        4.4,
+        4.64,
+        4.58,
+        4.36,
+        4.46
+      ],
+      "avg_calls_mean": 4.5,
+      "avg_calls_std": 0.1,
+      "avg_calls_values": [
+        4.4,
+        4.6,
+        4.6,
+        4.4,
+        4.5
+      ],
+      "avg_time_mean": 19.4,
+      "avg_time_std": 1.3,
+      "avg_time_values": [
+        19.0,
+        21.0,
+        18.9,
+        17.8,
+        20.4
+      ],
+      "decision_rate_pooled": 74.4,
+      "decision_rate_wilson": [
+        68.6,
+        79.4
+      ],
+      "answer_accuracy_pooled": 64.8,
+      "answer_accuracy_wilson": [
+        58.7,
+        70.5
+      ],
+      "wrong_commit_rate_pooled": 9.6,
+      "wrong_commit_rate_wilson": [
+        6.5,
+        13.9
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 6,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 73.6,
+      "decision_rate_std": 6.5,
+      "decision_rate_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 73.6,
+      "answer_accuracy_std": 6.5,
+      "answer_accuracy_values": [
+        68.0,
+        74.0,
+        66.0,
+        80.0,
+        80.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 2.6,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.72,
+        2.54,
+        2.94,
+        2.32,
+        2.36
+      ],
+      "avg_calls_mean": 2.6,
+      "avg_calls_std": 0.2,
+      "avg_calls_values": [
+        2.7,
+        2.5,
+        2.9,
+        2.3,
+        2.4
+      ],
+      "avg_time_mean": 15.4,
+      "avg_time_std": 2.0,
+      "avg_time_values": [
+        17.0,
+        17.1,
+        16.1,
+        12.4,
+        14.5
+      ],
+      "decision_rate_pooled": 73.6,
+      "decision_rate_wilson": [
+        67.8,
+        78.7
+      ],
+      "answer_accuracy_pooled": 73.6,
+      "answer_accuracy_wilson": [
+        67.8,
+        78.7
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mbpp",
+      "n": 6,
+      "f": 2,
+      "s": 0,
+      "attack": "collusion",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 66.4,
+      "decision_rate_std": 4.8,
+      "decision_rate_values": [
+        64.0,
+        66.0,
+        60.0,
+        72.0,
+        70.0
+      ],
+      "answer_accuracy_mean": 66.4,
+      "answer_accuracy_std": 4.8,
+      "answer_accuracy_values": [
+        64.0,
+        66.0,
+        60.0,
+        72.0,
+        70.0
+      ],
+      "wrong_commit_rate_mean": 0.0,
+      "wrong_commit_rate_std": 0.0,
+      "wrong_commit_rate_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "accuracy_when_decided_mean": 100.0,
+      "accuracy_when_decided_std": 0.0,
+      "accuracy_when_decided_values": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "avg_rounds_mean": 4.7,
+      "avg_rounds_std": 0.1,
+      "avg_rounds_values": [
+        4.68,
+        4.8,
+        4.76,
+        4.48,
+        4.6
+      ],
+      "avg_calls_mean": 4.7,
+      "avg_calls_std": 0.1,
+      "avg_calls_values": [
+        4.7,
+        4.8,
+        4.8,
+        4.5,
+        4.6
+      ],
+      "avg_time_mean": 19.8,
+      "avg_time_std": 1.2,
+      "avg_time_values": [
+        20.2,
+        21.5,
+        19.6,
+        18.4,
+        19.3
+      ],
+      "decision_rate_pooled": 66.4,
+      "decision_rate_wilson": [
+        60.3,
+        72.0
+      ],
+      "answer_accuracy_pooled": 66.4,
+      "answer_accuracy_wilson": [
+        60.3,
+        72.0
+      ],
+      "wrong_commit_rate_pooled": 0.0,
+      "wrong_commit_rate_wilson": [
+        0.0,
+        1.5
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 4,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 14.8,
+      "decision_rate_std": 5.6,
+      "decision_rate_values": [
+        16.0,
+        24.0,
+        12.0,
+        12.0,
+        10.0
+      ],
+      "answer_accuracy_mean": 11.2,
+      "answer_accuracy_std": 5.2,
+      "answer_accuracy_values": [
+        14.0,
+        18.0,
+        6.0,
+        12.0,
+        6.0
+      ],
+      "wrong_commit_rate_mean": 3.6,
+      "wrong_commit_rate_std": 2.6,
+      "wrong_commit_rate_values": [
+        2.0,
+        6.0,
+        6.0,
+        0.0,
+        4.0
+      ],
+      "accuracy_when_decided_mean": 74.5,
+      "accuracy_when_decided_std": 20.2,
+      "accuracy_when_decided_values": [
+        87.5,
+        75.0,
+        50.0,
+        100.0,
+        60.0
+      ],
+      "avg_rounds_mean": 5.5,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        5.46,
+        5.26,
+        5.62,
+        5.58,
+        5.7
+      ],
+      "avg_calls_mean": 16.9,
+      "avg_calls_std": 0.7,
+      "avg_calls_values": [
+        16.0,
+        16.6,
+        16.8,
+        17.6,
+        17.6
+      ],
+      "avg_time_mean": 54.7,
+      "avg_time_std": 1.4,
+      "avg_time_values": [
+        54.9,
+        54.2,
+        53.0,
+        56.8,
+        54.6
+      ],
+      "decision_rate_pooled": 14.8,
+      "decision_rate_wilson": [
+        10.9,
+        19.7
+      ],
+      "answer_accuracy_pooled": 11.2,
+      "answer_accuracy_wilson": [
+        7.9,
+        15.7
+      ],
+      "wrong_commit_rate_pooled": 3.6,
+      "wrong_commit_rate_wilson": [
+        1.9,
+        6.7
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 65.2,
+      "decision_rate_std": 2.7,
+      "decision_rate_values": [
+        64.0,
+        62.0,
+        64.0,
+        68.0,
+        68.0
+      ],
+      "answer_accuracy_mean": 29.6,
+      "answer_accuracy_std": 4.8,
+      "answer_accuracy_values": [
+        24.0,
+        30.0,
+        26.0,
+        36.0,
+        32.0
+      ],
+      "wrong_commit_rate_mean": 35.6,
+      "wrong_commit_rate_std": 3.6,
+      "wrong_commit_rate_values": [
+        40.0,
+        32.0,
+        38.0,
+        32.0,
+        36.0
+      ],
+      "accuracy_when_decided_mean": 45.3,
+      "accuracy_when_decided_std": 6.2,
+      "accuracy_when_decided_values": [
+        37.5,
+        48.4,
+        40.6,
+        52.9,
+        47.1
+      ],
+      "avg_rounds_mean": 4.2,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        4.02,
+        3.82,
+        4.16,
+        4.42,
+        4.68
+      ],
+      "avg_calls_mean": 10.1,
+      "avg_calls_std": 1.1,
+      "avg_calls_values": [
+        9.3,
+        9.3,
+        9.2,
+        10.9,
+        11.6
+      ],
+      "avg_time_mean": 37.4,
+      "avg_time_std": 2.3,
+      "avg_time_values": [
+        35.6,
+        36.4,
+        35.6,
+        41.0,
+        38.3
+      ],
+      "decision_rate_pooled": 65.2,
+      "decision_rate_wilson": [
+        59.1,
+        70.8
+      ],
+      "answer_accuracy_pooled": 29.6,
+      "answer_accuracy_wilson": [
+        24.3,
+        35.5
+      ],
+      "wrong_commit_rate_pooled": 35.6,
+      "wrong_commit_rate_wilson": [
+        29.9,
+        41.7
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "strategic_reject",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 73.2,
+      "decision_rate_std": 7.2,
+      "decision_rate_values": [
+        76.0,
+        68.0,
+        76.0,
+        64.0,
+        82.0
+      ],
+      "answer_accuracy_mean": 12.4,
+      "answer_accuracy_std": 2.6,
+      "answer_accuracy_values": [
+        16.0,
+        12.0,
+        10.0,
+        14.0,
+        10.0
+      ],
+      "wrong_commit_rate_mean": 60.8,
+      "wrong_commit_rate_std": 8.6,
+      "wrong_commit_rate_values": [
+        60.0,
+        56.0,
+        66.0,
+        50.0,
+        72.0
+      ],
+      "accuracy_when_decided_mean": 17.2,
+      "accuracy_when_decided_std": 4.4,
+      "accuracy_when_decided_values": [
+        21.1,
+        17.6,
+        13.2,
+        21.9,
+        12.2
+      ],
+      "avg_rounds_mean": 3.5,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        3.34,
+        3.48,
+        3.42,
+        3.92,
+        3.28
+      ],
+      "avg_calls_mean": 11.1,
+      "avg_calls_std": 0.8,
+      "avg_calls_values": [
+        10.6,
+        11.0,
+        10.8,
+        12.4,
+        10.6
+      ],
+      "avg_time_mean": 57.4,
+      "avg_time_std": 2.4,
+      "avg_time_values": [
+        56.8,
+        57.7,
+        57.1,
+        61.0,
+        54.4
+      ],
+      "decision_rate_pooled": 73.2,
+      "decision_rate_wilson": [
+        67.4,
+        78.3
+      ],
+      "answer_accuracy_pooled": 12.4,
+      "answer_accuracy_wilson": [
+        8.9,
+        17.1
+      ],
+      "wrong_commit_rate_pooled": 60.8,
+      "wrong_commit_rate_wilson": [
+        54.6,
+        66.6
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 4,
+      "f": 1,
+      "s": 0,
+      "attack": "sybil_attack",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 68.4,
+      "decision_rate_std": 6.2,
+      "decision_rate_values": [
+        74.0,
+        60.0,
+        64.0,
+        70.0,
+        74.0
+      ],
+      "answer_accuracy_mean": 28.8,
+      "answer_accuracy_std": 1.8,
+      "answer_accuracy_values": [
+        28.0,
+        30.0,
+        26.0,
+        30.0,
+        30.0
+      ],
+      "wrong_commit_rate_mean": 39.6,
+      "wrong_commit_rate_std": 6.2,
+      "wrong_commit_rate_values": [
+        46.0,
+        30.0,
+        38.0,
+        40.0,
+        44.0
+      ],
+      "accuracy_when_decided_mean": 42.4,
+      "accuracy_when_decided_std": 4.6,
+      "accuracy_when_decided_values": [
+        37.8,
+        50.0,
+        40.6,
+        42.9,
+        40.5
+      ],
+      "avg_rounds_mean": 4.1,
+      "avg_rounds_std": 0.1,
+      "avg_rounds_values": [
+        3.94,
+        4.1,
+        4.02,
+        4.28,
+        3.92
+      ],
+      "avg_calls_mean": 9.5,
+      "avg_calls_std": 0.7,
+      "avg_calls_values": [
+        9.1,
+        10.0,
+        8.8,
+        10.4,
+        9.3
+      ],
+      "avg_time_mean": 36.2,
+      "avg_time_std": 2.5,
+      "avg_time_values": [
+        35.1,
+        39.3,
+        34.0,
+        38.3,
+        34.2
+      ],
+      "decision_rate_pooled": 68.4,
+      "decision_rate_wilson": [
+        62.4,
+        73.8
+      ],
+      "answer_accuracy_pooled": 28.8,
+      "answer_accuracy_wilson": [
+        23.5,
+        34.7
+      ],
+      "wrong_commit_rate_pooled": 39.6,
+      "wrong_commit_rate_wilson": [
+        33.7,
+        45.8
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 5,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 14.8,
+      "decision_rate_std": 5.9,
+      "decision_rate_values": [
+        20.0,
+        22.0,
+        12.0,
+        12.0,
+        8.0
+      ],
+      "answer_accuracy_mean": 10.4,
+      "answer_accuracy_std": 5.2,
+      "answer_accuracy_values": [
+        14.0,
+        16.0,
+        6.0,
+        12.0,
+        4.0
+      ],
+      "wrong_commit_rate_mean": 4.4,
+      "wrong_commit_rate_std": 2.6,
+      "wrong_commit_rate_values": [
+        6.0,
+        6.0,
+        6.0,
+        0.0,
+        4.0
+      ],
+      "accuracy_when_decided_mean": 68.5,
+      "accuracy_when_decided_std": 20.6,
+      "accuracy_when_decided_values": [
+        70.0,
+        72.7,
+        50.0,
+        100.0,
+        50.0
+      ],
+      "avg_rounds_mean": 5.5,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        5.3,
+        5.3,
+        5.54,
+        5.58,
+        5.78
+      ],
+      "avg_calls_mean": 20.6,
+      "avg_calls_std": 1.2,
+      "avg_calls_values": [
+        18.9,
+        20.7,
+        20.2,
+        21.5,
+        21.9
+      ],
+      "avg_time_mean": 58.2,
+      "avg_time_std": 2.6,
+      "avg_time_values": [
+        55.5,
+        56.9,
+        57.0,
+        61.9,
+        59.7
+      ],
+      "decision_rate_pooled": 14.8,
+      "decision_rate_wilson": [
+        10.9,
+        19.7
+      ],
+      "answer_accuracy_pooled": 10.4,
+      "answer_accuracy_wilson": [
+        7.2,
+        14.8
+      ],
+      "wrong_commit_rate_pooled": 4.4,
+      "wrong_commit_rate_wilson": [
+        2.5,
+        7.7
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "collusion",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 96.0,
+      "decision_rate_std": 2.0,
+      "decision_rate_values": [
+        96.0,
+        98.0,
+        98.0,
+        94.0,
+        94.0
+      ],
+      "answer_accuracy_mean": 6.0,
+      "answer_accuracy_std": 5.1,
+      "answer_accuracy_values": [
+        2.0,
+        14.0,
+        8.0,
+        4.0,
+        2.0
+      ],
+      "wrong_commit_rate_mean": 90.0,
+      "wrong_commit_rate_std": 3.7,
+      "wrong_commit_rate_values": [
+        94.0,
+        84.0,
+        90.0,
+        90.0,
+        92.0
+      ],
+      "accuracy_when_decided_mean": 6.2,
+      "accuracy_when_decided_std": 5.2,
+      "accuracy_when_decided_values": [
+        2.1,
+        14.3,
+        8.2,
+        4.3,
+        2.1
+      ],
+      "avg_rounds_mean": 2.0,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        1.74,
+        2.24,
+        2.04,
+        2.0,
+        2.02
+      ],
+      "avg_calls_mean": 7.6,
+      "avg_calls_std": 0.6,
+      "avg_calls_values": [
+        6.7,
+        8.5,
+        7.6,
+        7.6,
+        7.7
+      ],
+      "avg_time_mean": 41.5,
+      "avg_time_std": 1.4,
+      "avg_time_values": [
+        40.5,
+        40.6,
+        43.7,
+        42.0,
+        40.8
+      ],
+      "decision_rate_pooled": 96.0,
+      "decision_rate_wilson": [
+        92.8,
+        97.8
+      ],
+      "answer_accuracy_pooled": 6.0,
+      "answer_accuracy_wilson": [
+        3.7,
+        9.7
+      ],
+      "wrong_commit_rate_pooled": 90.0,
+      "wrong_commit_rate_wilson": [
+        85.7,
+        93.1
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 5,
+      "f": 1,
+      "s": 1,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 75.2,
+      "decision_rate_std": 1.8,
+      "decision_rate_values": [
+        78.0,
+        74.0,
+        74.0,
+        74.0,
+        76.0
+      ],
+      "answer_accuracy_mean": 34.4,
+      "answer_accuracy_std": 5.7,
+      "answer_accuracy_values": [
+        42.0,
+        38.0,
+        28.0,
+        34.0,
+        30.0
+      ],
+      "wrong_commit_rate_mean": 40.8,
+      "wrong_commit_rate_std": 5.0,
+      "wrong_commit_rate_values": [
+        36.0,
+        36.0,
+        46.0,
+        40.0,
+        46.0
+      ],
+      "accuracy_when_decided_mean": 45.7,
+      "accuracy_when_decided_std": 7.1,
+      "accuracy_when_decided_values": [
+        53.8,
+        51.4,
+        37.8,
+        45.9,
+        39.5
+      ],
+      "avg_rounds_mean": 3.7,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        3.66,
+        3.44,
+        3.92,
+        3.6,
+        3.76
+      ],
+      "avg_calls_mean": 9.9,
+      "avg_calls_std": 0.3,
+      "avg_calls_values": [
+        9.7,
+        9.5,
+        10.1,
+        9.9,
+        10.4
+      ],
+      "avg_time_mean": 42.1,
+      "avg_time_std": 1.3,
+      "avg_time_values": [
+        41.5,
+        41.9,
+        40.6,
+        44.1,
+        42.3
+      ],
+      "decision_rate_pooled": 75.2,
+      "decision_rate_wilson": [
+        69.5,
+        80.1
+      ],
+      "answer_accuracy_pooled": 34.4,
+      "answer_accuracy_wilson": [
+        28.8,
+        40.5
+      ],
+      "wrong_commit_rate_pooled": 40.8,
+      "wrong_commit_rate_wilson": [
+        34.9,
+        47.0
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "random",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 88.8,
+      "decision_rate_std": 4.8,
+      "decision_rate_values": [
+        90.0,
+        92.0,
+        86.0,
+        82.0,
+        94.0
+      ],
+      "answer_accuracy_mean": 33.2,
+      "answer_accuracy_std": 6.4,
+      "answer_accuracy_values": [
+        34.0,
+        44.0,
+        28.0,
+        30.0,
+        30.0
+      ],
+      "wrong_commit_rate_mean": 55.6,
+      "wrong_commit_rate_std": 6.1,
+      "wrong_commit_rate_values": [
+        56.0,
+        48.0,
+        58.0,
+        52.0,
+        64.0
+      ],
+      "accuracy_when_decided_mean": 37.3,
+      "accuracy_when_decided_std": 6.4,
+      "accuracy_when_decided_values": [
+        37.8,
+        47.8,
+        32.6,
+        36.6,
+        31.9
+      ],
+      "avg_rounds_mean": 3.1,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        3.14,
+        2.82,
+        3.44,
+        2.94,
+        3.36
+      ],
+      "avg_calls_mean": 7.1,
+      "avg_calls_std": 0.6,
+      "avg_calls_values": [
+        7.0,
+        6.6,
+        7.5,
+        6.6,
+        8.0
+      ],
+      "avg_time_mean": 30.4,
+      "avg_time_std": 0.9,
+      "avg_time_values": [
+        31.6,
+        29.9,
+        29.6,
+        31.1,
+        30.0
+      ],
+      "decision_rate_pooled": 88.8,
+      "decision_rate_wilson": [
+        84.3,
+        92.1
+      ],
+      "answer_accuracy_pooled": 33.2,
+      "answer_accuracy_wilson": [
+        27.7,
+        39.3
+      ],
+      "wrong_commit_rate_pooled": 55.6,
+      "wrong_commit_rate_wilson": [
+        49.4,
+        61.6
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 5,
+      "f": 2,
+      "s": 0,
+      "attack": "strategic_reject",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 94.8,
+      "decision_rate_std": 2.7,
+      "decision_rate_values": [
+        96.0,
+        98.0,
+        92.0,
+        92.0,
+        96.0
+      ],
+      "answer_accuracy_mean": 9.6,
+      "answer_accuracy_std": 9.2,
+      "answer_accuracy_values": [
+        4.0,
+        24.0,
+        12.0,
+        0.0,
+        8.0
+      ],
+      "wrong_commit_rate_mean": 85.2,
+      "wrong_commit_rate_std": 7.9,
+      "wrong_commit_rate_values": [
+        92.0,
+        74.0,
+        80.0,
+        92.0,
+        88.0
+      ],
+      "accuracy_when_decided_mean": 10.0,
+      "accuracy_when_decided_std": 9.4,
+      "accuracy_when_decided_values": [
+        4.2,
+        24.5,
+        13.0,
+        0.0,
+        8.3
+      ],
+      "avg_rounds_mean": 2.3,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        2.04,
+        2.68,
+        2.48,
+        2.02,
+        2.16
+      ],
+      "avg_calls_mean": 8.5,
+      "avg_calls_std": 1.0,
+      "avg_calls_values": [
+        7.8,
+        10.0,
+        9.0,
+        7.6,
+        8.1
+      ],
+      "avg_time_mean": 42.9,
+      "avg_time_std": 3.6,
+      "avg_time_values": [
+        47.0,
+        45.9,
+        42.9,
+        38.7,
+        40.2
+      ],
+      "decision_rate_pooled": 94.8,
+      "decision_rate_wilson": [
+        91.3,
+        96.9
+      ],
+      "answer_accuracy_pooled": 9.6,
+      "answer_accuracy_wilson": [
+        6.5,
+        13.9
+      ],
+      "wrong_commit_rate_pooled": 85.2,
+      "wrong_commit_rate_wilson": [
+        80.3,
+        89.1
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 6,
+      "f": 0,
+      "s": 0,
+      "attack": "baseline",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 11.2,
+      "decision_rate_std": 5.6,
+      "decision_rate_values": [
+        18.0,
+        16.0,
+        10.0,
+        6.0,
+        6.0
+      ],
+      "answer_accuracy_mean": 8.4,
+      "answer_accuracy_std": 4.3,
+      "answer_accuracy_values": [
+        14.0,
+        12.0,
+        6.0,
+        6.0,
+        4.0
+      ],
+      "wrong_commit_rate_mean": 2.8,
+      "wrong_commit_rate_std": 1.8,
+      "wrong_commit_rate_values": [
+        4.0,
+        4.0,
+        4.0,
+        0.0,
+        2.0
+      ],
+      "accuracy_when_decided_mean": 75.9,
+      "accuracy_when_decided_std": 15.2,
+      "accuracy_when_decided_values": [
+        77.8,
+        75.0,
+        60.0,
+        100.0,
+        66.7
+      ],
+      "avg_rounds_mean": 5.7,
+      "avg_rounds_std": 0.2,
+      "avg_rounds_values": [
+        5.36,
+        5.5,
+        5.72,
+        5.82,
+        5.86
+      ],
+      "avg_calls_mean": 25.3,
+      "avg_calls_std": 1.7,
+      "avg_calls_values": [
+        22.6,
+        25.6,
+        24.7,
+        27.0,
+        26.5
+      ],
+      "avg_time_mean": 83.6,
+      "avg_time_std": 3.6,
+      "avg_time_values": [
+        80.0,
+        86.2,
+        79.5,
+        87.4,
+        84.9
+      ],
+      "decision_rate_pooled": 11.2,
+      "decision_rate_wilson": [
+        7.9,
+        15.7
+      ],
+      "answer_accuracy_pooled": 8.4,
+      "answer_accuracy_wilson": [
+        5.6,
+        12.5
+      ],
+      "wrong_commit_rate_pooled": 2.8,
+      "wrong_commit_rate_wilson": [
+        1.4,
+        5.7
+      ]
+    },
+    {
+      "dataset": "mmlu",
+      "n": 6,
+      "f": 2,
+      "s": 0,
+      "attack": "collusion",
+      "method": "A2A-BFT",
+      "num_seeds": 5,
+      "tasks_per_seed": 50,
+      "total_tasks": 250,
+      "decision_rate_mean": 85.2,
+      "decision_rate_std": 4.6,
+      "decision_rate_values": [
+        82.0,
+        90.0,
+        90.0,
+        84.0,
+        80.0
+      ],
+      "answer_accuracy_mean": 10.8,
+      "answer_accuracy_std": 3.6,
+      "answer_accuracy_values": [
+        16.0,
+        12.0,
+        6.0,
+        10.0,
+        10.0
+      ],
+      "wrong_commit_rate_mean": 74.4,
+      "wrong_commit_rate_std": 7.0,
+      "wrong_commit_rate_values": [
+        66.0,
+        78.0,
+        84.0,
+        74.0,
+        70.0
+      ],
+      "accuracy_when_decided_mean": 12.8,
+      "accuracy_when_decided_std": 4.6,
+      "accuracy_when_decided_values": [
+        19.5,
+        13.3,
+        6.7,
+        11.9,
+        12.5
+      ],
+      "avg_rounds_mean": 3.0,
+      "avg_rounds_std": 0.3,
+      "avg_rounds_values": [
+        3.02,
+        2.6,
+        2.82,
+        3.08,
+        3.34
+      ],
+      "avg_calls_mean": 14.0,
+      "avg_calls_std": 1.3,
+      "avg_calls_values": [
+        13.7,
+        12.4,
+        13.4,
+        14.5,
+        15.9
+      ],
+      "avg_time_mean": 72.7,
+      "avg_time_std": 4.6,
+      "avg_time_values": [
+        77.4,
+        65.4,
+        71.5,
+        74.3,
+        75.0
+      ],
+      "decision_rate_pooled": 85.2,
+      "decision_rate_wilson": [
+        80.3,
+        89.1
+      ],
+      "answer_accuracy_pooled": 10.8,
+      "answer_accuracy_wilson": [
+        7.5,
+        15.3
+      ],
+      "wrong_commit_rate_pooled": 74.4,
+      "wrong_commit_rate_wilson": [
+        68.6,
+        79.4
+      ]
+    }
+  ]
+}

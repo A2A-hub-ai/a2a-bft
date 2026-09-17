@@ -1,0 +1,435 @@
+{
+  "p_model": 0.7,
+  "tasks_per_seed": 200,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "rows": [
+    {
+      "semantics": "A2ABFT(strict)",
+      "n": 5,
+      "f": 2,
+      "attack": "collusion",
+      "decision_rate": 92.5,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFT(strict)",
+      "n": 5,
+      "f": 2,
+      "attack": "strategic_reject",
+      "decision_rate": 96.3,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFT(strict)",
+      "n": 5,
+      "f": 2,
+      "attack": "random",
+      "decision_rate": 100.0,
+      "wrong_commit_rate": 1.0,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0357",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 492
+        },
+        {
+          "id": "mbpp_0348",
+          "round0_votes": [
+            "ACCEPT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 78
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFT(strict)",
+      "n": 6,
+      "f": 2,
+      "attack": "collusion",
+      "decision_rate": 92.5,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFT(strict)",
+      "n": 6,
+      "f": 2,
+      "attack": "strategic_reject",
+      "decision_rate": 98.0,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFT(strict)",
+      "n": 6,
+      "f": 2,
+      "attack": "random",
+      "decision_rate": 99.7,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFTSybil",
+      "n": 5,
+      "f": 2,
+      "attack": "collusion",
+      "decision_rate": 97.7,
+      "wrong_commit_rate": 3.8,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0120",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 182
+        },
+        {
+          "id": "mbpp_0108",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 63
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFTSybil",
+      "n": 5,
+      "f": 2,
+      "attack": "strategic_reject",
+      "decision_rate": 97.7,
+      "wrong_commit_rate": 3.8,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0120",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 182
+        },
+        {
+          "id": "mbpp_0108",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 63
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFTSybil",
+      "n": 5,
+      "f": 2,
+      "attack": "random",
+      "decision_rate": 99.8,
+      "wrong_commit_rate": 0.7,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0296",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 417
+        },
+        {
+          "id": "mbpp_0357",
+          "round0_votes": [
+            "REJECT",
+            "REJECT",
+            "REJECT",
+            "REJECT"
+          ],
+          "len": 359
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFTSybil",
+      "n": 6,
+      "f": 2,
+      "attack": "collusion",
+      "decision_rate": 98.0,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFTSybil",
+      "n": 6,
+      "f": 2,
+      "attack": "strategic_reject",
+      "decision_rate": 98.0,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    },
+    {
+      "semantics": "A2ABFTSybil",
+      "n": 6,
+      "f": 2,
+      "attack": "random",
+      "decision_rate": 99.7,
+      "wrong_commit_rate": 0.3,
+      "n_tasks": 600,
+      "examples": [
+        {
+          "id": "mbpp_0112",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 313
+        },
+        {
+          "id": "mbpp_0008",
+          "round0_votes": [
+            "REJECT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT",
+            "ACCEPT"
+          ],
+          "len": 663
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "timestamp": "2026-09-06T13:00:00",
+  "experiment_type": "deepseek_real",
+  "model": "deepseek-chat",
+  "results": [
+    {
+      "config": {
+        "name": "code_baseline_n4",
+        "n": 4,
+        "f": 0,
+        "s": 0,
+        "attack_type": null,
+        "num_tasks": 20,
+        "num_seeds": 5,
+        "use_real_models": false,
+        "disabled_components": [],
+        "method": null
+      },
+      "results": {
+        "accept_count": 12,
+        "reject_count": 0,
+        "manual_count": 0,
+        "error_count": 28,
+        "total_tasks": 40,
+        "accept_rate": 30.0,
+        "reject_rate": 0.0,
+        "avg_rounds": 1.0,
+        "avg_time_ms": 38156.47,
+        "avg_tps": 0.03
+      }
+    },
+    {
+      "config": {
+        "name": "code_baseline_n5",
+        "n": 5,
+        "f": 0,
+        "s": 0,
+        "attack_type": null,
+        "num_tasks": 20,
+        "num_seeds": 5,
+        "use_real_models": false,
+        "disabled_components": [],
+        "method": null
+      },
+      "results": {
+        "accept_count": 27,
+        "reject_count": 0,
+        "manual_count": 0,
+        "error_count": 13,
+        "total_tasks": 40,
+        "accept_rate": 67.5,
+        "reject_rate": 0.0,
+        "avg_rounds": 1.0,
+        "avg_time_ms": 29205.29,
+        "avg_tps": 0.03
+      }
+    },
+    {
+      "config": {
+        "name": "code_bft_n5_f1_s1",
+        "n": 5,
+        "f": 1,
+        "s": 1,
+        "attack_type": null,
+        "num_tasks": 20,
+        "num_seeds": 5,
+        "use_real_models": false,
+        "disabled_components": [],
+        "method": null
+      },
+      "results": {
+        "accept_count": 39,
+        "reject_count": 0,
+        "manual_count": 0,
+        "error_count": 1,
+        "total_tasks": 40,
+        "accept_rate": 97.5,
+        "reject_rate": 0.0,
+        "avg_rounds": 1.0,
+        "avg_time_ms": 9010.49,
+        "avg_tps": 0.11
+      }
+    },
+    {
+      "config": {
+        "name": "code_bft_n6_f2",
+        "n": 6,
+        "f": 2,
+        "s": 0,
+        "attack_type": null,
+        "num_tasks": 20,
+        "num_seeds": 5,
+        "use_real_models": false,
+        "disabled_components": [],
+        "method": null
+      },
+      "results": {
+        "accept_count": 39,
+        "reject_count": 0,
+        "manual_count": 0,
+        "error_count": 1,
+        "total_tasks": 40,
+        "accept_rate": 97.5,
+        "reject_rate": 0.0,
+        "avg_rounds": 1.0,
+        "avg_time_ms": 10952.73,
+        "avg_tps": 0.09
+      }
+    },
+    {
+      "config": {
+        "name": "code_attack_strategic",
+        "n": 5,
+        "f": 1,
+        "s": 1,
+        "attack_type": "strategic_reject",
+        "num_tasks": 20,
+        "num_seeds": 5,
+        "use_real_models": false,
+        "disabled_components": [],
+        "method": null
+      },
+      "results": {
+        "accept_count": 39,
+        "reject_count": 0,
+        "manual_count": 0,
+        "error_count": 1,
+        "total_tasks": 40,
+        "accept_rate": 97.5,
+        "reject_rate": 0.0,
+        "avg_rounds": 1.0,
+        "avg_time_ms": 9413.73,
+        "avg_tps": 0.11
+      }
+    },
+    {
+      "config": {
+        "name": "code_attack_collusion",
+        "n": 6,
+        "f": 2,
+        "s": 0,
+        "attack_type": "collusion",
+        "num_tasks": 20,
+        "num_seeds": 5,
+        "use_real_models": false,
+        "disabled_components": [],
+        "method": null
+      },
+      "results": {
+        "accept_count": 38,
+        "reject_count": 0,
+        "manual_count": 0,
+        "error_count": 2,
+        "total_tasks": 40,
+        "accept_rate": 95.0,
+        "reject_rate": 0.0,
+        "avg_rounds": 1.0,
+        "avg_time_ms": 11042.4,
+        "avg_tps": 0.09
+      }
+    }
+  ]
+}

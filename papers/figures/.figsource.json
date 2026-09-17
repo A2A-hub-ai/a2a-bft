@@ -1,0 +1,24 @@
+{
+  "data_md5": {
+    "full_bft_sweep_aggregated.json": "86e6e955699a6c262bd6e36900543c39",
+    "multi_model_3seed_aggregated.json": "33c90fa3d5ce370b219b77201ab077c2",
+    "reputation_ablation.json": "bd3aaaf41233afd39de2fa84d198a1e9"
+  },
+  "figure_deps": {
+    "architecture.pdf": [],
+    "attack_resistance.pdf": [
+      "full_bft_sweep_aggregated.json",
+      "multi_model_3seed_aggregated.json"
+    ],
+    "consensus_flow.pdf": [],
+    "performance_comparison.pdf": [
+      "full_bft_sweep_aggregated.json",
+      "multi_model_3seed_aggregated.json"
+    ],
+    "reputation_mechanism.pdf": [
+      "reputation_ablation.json"
+    ]
+  },
+  "generator": "generate_figures.py",
+  "generator_logic_sha1": "22da1a12fa16f5a44bc0654a67aed031160488b0"
+}
