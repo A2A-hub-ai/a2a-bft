@@ -309,10 +309,15 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 
 ## 5. 一键验收
 
+> 已在两个平台实测同一结果 **15 通过 / 0 失败**（`REPRODUCE_OK`）：Windows + Python 3.13
+> 与 Linux + Python 3.12（CUDA 12.8、vLLM 0.11.0、2×A800）。注意 `verify` 需要它所用的
+> 解释器能 import `matplotlib`——机器上装了多个 Python 时用 `A2A_PY=/path/to/python` 指定；
+> 缺 matplotlib 时图指纹审计会**报失败**而不是静默跳过。
+
 ```bash
 # 1) 审计
 python experiments/verification/audit_table_numbers.py      # 期望：348 项，0 问题
-python experiments/verification/audit_figures.py            # 期望：123 项，0 问题
+python experiments/verification/audit_figures.py            # 期望：124 项，0 问题
 python experiments/verification/audit_theory_numerics.py    # 期望：全部 OK
 python experiments/verification/audit_prose_ranges.py       # 期望：无数值不一致
 python experiments/verification/audit_paths.py              # 期望：0 问题，四类计数均 > 0

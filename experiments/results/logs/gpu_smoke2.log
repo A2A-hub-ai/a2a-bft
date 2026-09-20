@@ -1,0 +1,19 @@
+
+======================================================================
+实验: n=5, f=0, s=0, attack=baseline, dataset=gsm8k
+模型分配: ['llama', 'internlm', 'deepseek', 'qwen', 'llama']
+======================================================================
+  [5/5] 共识率=40%
+  => 共识率=40.0%, 正确率=100.0%, 轮数=4.00, 耗时=81s
+     投票分布: ACCEPT=47.5% REJECT=45.0% ABSTAIN=7.5% | 视图切换=9
+RESULT ds=gsm8k n=5 f=0 s=0 atk=None consensus=40% correct=100% rounds=4.00 dist={'accept_pct': 47.5, 'reject_pct': 45.0, 'abstain_pct': 7.5} stats={'accept': 38, 'reject': 36, 'abstain': 6, 'view_changes': 9, 'commit': 2, 'rounds_used': 20, 'pending': 17, 'explicit_reject': 1} elapsed=81s
+
+======================================================================
+实验: n=5, f=1, s=1, attack=strategic_reject, dataset=gsm8k
+模型分配: ['llama', 'internlm', 'deepseek', 'qwen', 'llama']
+======================================================================
+  [5/5] 共识率=100%
+  => 共识率=100.0%, 正确率=80.0%, 轮数=3.60, 耗时=87s
+     投票分布: ACCEPT=25.0% REJECT=60.9% ABSTAIN=14.1% | 视图切换=10
+RESULT ds=gsm8k n=5 f=1 s=1 atk=strategic_reject consensus=100% correct=80% rounds=3.60 dist={'accept_pct': 25.0, 'reject_pct': 60.9, 'abstain_pct': 14.1} stats={'accept': 16, 'reject': 39, 'abstain': 9, 'view_changes': 10, 'commit': 5, 'rounds_used': 18, 'pending': 6, 'explicit_reject': 5} elapsed=87s
+QUICK_TEST_DONE

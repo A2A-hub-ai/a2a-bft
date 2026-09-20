@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """快速验证：新语义验证 + 视图切换修复是否生效（小样本）"""
-import sys, time
+import random, sys, time
 # --- 自定位项目根（原为硬编码服务器路径，换机器或换目录即失效）---
 import os
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +25,13 @@ cases = [
     ('gsm8k', 5, 1, 1, 'strategic_reject', ['llama', 'internlm', 'deepseek', 'qwen', 'llama']),
 ]
 
-for ds, n, f, s, atk, asg in cases:
+for i, (ds, n, f, s, atk, asg) in enumerate(cases):
+    # 逐用例播种：协议实现里软故障注入等策略取全局 random（v3._validate 的
+    # `random.random() < 0.3`），不播种则同一用例两次运行的投票流不同——
+    # 2026-09-20 实测：f=0,s=0 用例逐字段复现，f=1,s=1 用例 80%/75% → 100%/80%。
+    # 已发布的 sweep 驱动本身逐 seed 播种（full_bft_sweep.py:98 / multi_model_multiseed.py:75），
+    # 本入口与之一致；播种后同一用例跨运行逐字段可比。
+    random.seed(42 + i)
     t0 = time.time()
     r = m.run_experiment(ds, n, f, s, atk, num_tasks=5, model_assignment=asg)
     print(f'RESULT ds={ds} n={n} f={f} s={s} atk={atk} '

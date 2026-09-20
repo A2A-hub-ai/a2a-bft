@@ -1,0 +1,11 @@
+[1/4] Llama-3.1-8B -> GPU0
+[llama] ready (port 8000)
+[2/4] InternLM3-8B -> GPU0
+[internlm] ready (port 8001)
+[3/4] DeepSeek-V2-Lite -> GPU1
+[deepseek] ready (port 8002)
+[4/4] Qwen2.5-7B -> GPU1
+[qwen] ready (port 8003)
+ALL_4_VLLM_READY
+0, 51911 MiB
+1, 67003 MiB

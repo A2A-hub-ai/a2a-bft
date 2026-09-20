@@ -46,6 +46,16 @@ def run_audit():
     return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 
+def norm_sep(s):
+    """把两种路径分隔符都归一成 "/"，用于「期望串 vs 审计输出」的子串匹配。
+
+    期望串里写的是 Windows 反斜杠（"[sys.path] experiments\\verification\\..."），
+    而审计在 Linux 上打印正斜杠 → 直接 in 匹配必然失败，负向 1/2/3/4/6 全部假漏检
+    （5/8，2026-09-20 在评审机同款环境实测）。归一化后两侧同形，判定与平台无关。
+    """
+    return s.replace("\\", "/")
+
+
 def case(name, path, old, new, expect):
     """注入一处缺陷，要求审计输出里出现 expect；无论成败都逐字节还原。
 
@@ -62,11 +72,12 @@ def case(name, path, old, new, expect):
             f"待篡改文本不唯一({raw.count(old.encode())}): {old!r}"
         open(path, "wb").write(raw.replace(old.encode(), new.encode()))
         rc, out = run_audit()
-        hit = expect in out and rc != 0
+        out_n = norm_sep(out)
+        hit = norm_sep(expect) in out_n and rc != 0
         print(f"{name}: {'CAUGHT' if hit else 'MISSED ❌'}")
         if hit:
-            for line in out.splitlines():
-                if expect in line:
+            for line in out_n.splitlines():
+                if norm_sep(expect) in line:
                     print("      ->", line.strip())
                     break
         else:

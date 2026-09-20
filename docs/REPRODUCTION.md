@@ -391,6 +391,13 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 
 ## 5. Full acceptance run
 
+> Verified on both platforms with the identical result **15 passed / 0 failed**
+> (`REPRODUCE_OK`): Windows + Python 3.13 and Linux + Python 3.12 (CUDA 12.8,
+> vLLM 0.11.0, 2×A800). Note that `verify` needs `matplotlib` importable by the
+> interpreter it runs under — pick one with `A2A_PY=/path/to/python` if several
+> are installed; without it the figure-fingerprint audit reports a failure
+> rather than silently skipping.
+
 ```bash
 # 1) Audits
 python experiments/verification/audit_table_numbers.py      # 348 items, 0 problems

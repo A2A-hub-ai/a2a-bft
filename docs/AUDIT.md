@@ -103,7 +103,13 @@ Data sources: `full_bft_sweep_aggregated.json`,
 - **Existence** and **freshness** of the five figures (content-fingerprint basis:
   `figures/.figsource.json` records the generating script's logical fingerprint
   and the md5 of each data file; changing a comment does not falsely report
-  staleness, changing data always does)
+  staleness, changing data always does). Both hashes are **platform-neutral by
+  construction**: the data md5 is taken after CRLF→LF normalisation, and the
+  logical fingerprint uses a self-contained AST encoding instead of `ast.dump()`
+  (whose output format changed in Python 3.13). Without that, a plain
+  `git clone` on Linux reports all five figures as stale — measured 2026-09-20:
+  the recorded data md5 is the CRLF byte string, and the same generator file
+  hashes to `3489a022` under Python 3.13 but `a671116d` under 3.12
 - Sample-size disclosure in figure and table captions (e.g. n=90 must appear)
 - Point-by-point comparison of figure data points against the aggregate JSON
 

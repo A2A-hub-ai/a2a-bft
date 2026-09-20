@@ -1,0 +1,68 @@
+------------------------------------------------------------------------
+Audits + negative tests (verify) - CPU only, no GPU required
+------------------------------------------------------------------------
+paper source fingerprint (before): 42bad37758e92056958bb852396b27d5
+
+[1/2] audit scripts (run serially, 10 total)
+  table numbers                             PASS  348 items
+  figure-table consistency + fingerprints   FAIL
+      | 
+      | 已核对项数: 124
+      | 问题数: 6
+      |    [freshness] generate_figures.py 的逻辑已变（指纹 3489a022 -> a671116d），图未重出
+      |    [freshness] reputation_mechanism.pdf 所依赖的 reputation_ablation.json 内容已变（bd3aaaf4 -> 160b86a5），图未重出，可能为陈旧产物
+      |    [freshness] performance_comparison.pdf 所依赖的 full_bft_sweep_aggregated.json 内容已变（86e6e955 -> dcb0992d），图未重出，可能为陈旧产物
+      |    [freshness] performance_comparison.pdf 所依赖的 multi_model_3seed_aggregated.json 内容已变（33c90fa3 -> 2ea912af），图未重出，可能为陈旧产物
+      |    [freshness] attack_resistance.pdf 所依赖的 full_bft_sweep_aggregated.json 内容已变（86e6e955 -> dcb0992d），图未重出，可能为陈旧产物
+      |    [freshness] attack_resistance.pdf 所依赖的 multi_model_3seed_aggregated.json 内容已变（33c90fa3 -> 2ea912af），图未重出，可能为陈旧产物
+  prose ranges vs. tables                   PASS
+  theory formulas instantiated numerically  PASS
+  revision-layer algebra + text consistency PASS  52 items
+  decision neutrality                       PASS  9 items
+  reputation fidelity                       PASS
+  judge-calibration numbers vs. paper claimsPASS
+  judge FPR/FNR recomputed from vote streamsPASS
+  path resolution layer                     PASS
+
+[2/2] negative tests (run serially, 5 total)
+  note: these cases temporarily rewrite papers/iclr2027_main.tex and restore it, so they cannot run in parallel.
+  inject table defect                       PASS  5/5
+  inject figure defect                      FAIL
+      |       -> [fig:perf] vs tab:performance: gsm8k (4, 0, 0, 'baseline')/avg_time 图/数据=61.3 表=99.9
+      | 负向5 (表题注缺 n=90 披露): OK
+      |       -> [disclosure] tab:attacks 的题注未披露边界内 collusion 来自 n=90 部署
+      | 负向6 (示意图 PDF 缺失): OK
+      |       -> [freshness] 缺少 reputation_mechanism.pdf
+      | 负向7 (数据内容已变但图未重出): OK
+      |       -> [freshness] generate_figures.py 的逻辑已变（指纹 3489a022 -> a671116d），图未重出
+      | 反向8 (仅改注释不得误报陈旧): MISSED ❌
+      |       (审计输出与预期不符) 问题数: 0
+      |       rc= 1
+      | 
+      | 负向测试: 7/8 项符合预期
+  inject theory defect                      PASS  3/3
+  inject path defect                        FAIL
+      | 负向4 (审计脚本 sys.path 目标被打错): MISSED ❌
+      |       rc=1
+      |       out> [sys.path] experiments/verification/audit_theory_numerics.py:180 目标不存在 -> /root/autodl-tmp/a2a-bft/srcs
+      | 负向6 (verify_mbpp_subboundary.py 读取已删除的 MBPP 数据): MISSED ❌
+      |       rc=1
+      | 负向7 (文档命令路径失效 .md 侧): CAUGHT
+      |       -> [doccmd] experiments/datasets/DATASET_README.md:93 文档给出的命令指向不存在的脚本 -> python experiments/download_datasets.py（目录重整后未同步更新；复现者照抄即失败）
+      | 负向8 (文档命令路径失效 .sh 侧): CAUGHT
+      |       -> [doccmd] experiments/env/run_on_autodl.sh:69 文档给出的命令指向不存在的脚本 -> python experiments/real_dataset_experiment.py（目录重整后未同步更新；复现者照抄即失败）
+      | 负向5 (干净状态 + 防空转): CAUGHT ✅  计数 {'§1 文件类路径目标': 36, '§1 目录类路径目标': 119, '§2 冒烟指纹比对': 159, '§3 sys.path 插入目标': 64, '§5 读取型 open() 数据文件': 10, '§6 文档命令路径': 166} 全部 > 0，问题数 0
+      | 
+      | 负向测试: 3/8 项通过
+  inject revision-layer defect              PASS  8/8
+
+paper source fingerprint (after):  42bad37758e92056958bb852396b27d5  restored OK
+
+------------------------------------------------------------------------
+audits+negative: 12 passed / 3 failed
+failed items:
+  - figure-table consistency + fingerprints (rc=1)
+  - inject figure defect (rc=1)
+  - inject path defect (rc=1)
+REPRODUCE_FAILED
+------------------------------------------------------------------------

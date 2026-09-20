@@ -32,22 +32,49 @@ FIGSOURCE = os.path.join(FIGDIR, ".figsource.json")
 
 
 def _md5(path):
+    """数据文件的**内容**指纹：先把 CRLF 归一成 LF，再哈希。
+
+    直接对原始字节取 md5 会把检出时的换行风格算进指纹：`.figsource.json` 里记的是
+    Windows（CRLF 工作树）上算的值，而 Linux 按 .gitattributes 检出为 LF，同一份数据
+    算出两个 md5，新鲜度守卫就在评审机（Linux）上误报「数据已变、图未重出」。
+    实测 2026-09-20：full_bft_sweep_aggregated.json CRLF=86e6e955（=记录值）、
+    LF=dcb0992d；三个数据文件全部满足"记录值 = CRLF 版、LF 版不等"。
+    归一化后两端同值，判定与平台无关。audit_figures.py 通过 gf 调用本函数。
+    """
     import hashlib
     with open(path, "rb") as fp:
-        return hashlib.md5(fp.read()).hexdigest()
+        return hashlib.md5(fp.read().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def _logic_sha1(path):
-    """脚本的**逻辑**指纹：AST 化后剥掉模块/函数/类的文档串再哈希。
+    """脚本的**逻辑**指纹：AST 化后剥掉模块/函数/类的文档串，再用自建规范编码哈希。
 
     注释根本不进入 AST，因此改注释、改文档串都不会改变本值；改任何一句可执行
-    代码都一定会改变它。audit_figures.py 用同一算法做内容级新鲜度判定——之所以
-    不用 mtime，是因为「改一行注释」会把所有图误判为陈旧（2026-09-17 实测）。
-    注意：本函数与 audit_figures.py 中的同名逻辑必须保持一致。
+    代码都一定会改变它。audit_figures.py 通过 gf 调用本函数做内容级新鲜度判定——
+    之所以不用 mtime，是因为「改一行注释」会把所有图误判为陈旧（2026-09-17 实测）。
+
+    ⚠️ 2026-09-20 弃用 ast.dump()：它的输出**随 Python 版本变化**（3.13 起默认
+    show_empty=False，省略 type_params=[]、keywords=[] 等空字段），同一文件同一字节
+    在 3.13 得 3489a022、在 3.12 得 a671116d（实测 dump 长度 96834 vs 91282，首差在
+    第 671 字符）→ 守卫把「换了 Python」误报成「图陈旧」。自建编码只依赖节点类型名、
+    字段名与字段值（空值/空列表一律忽略），不经过 ast.dump，因此跨版本、跨平台稳定。
+
+    注意：本函数与 audit_figures.py 中的同名逻辑必须保持一致（后者现在直接调用本函数）。
     """
     import ast
     import hashlib
-    with open(path, encoding="utf-8") as fp:
+
+    def canon(node):
+        if isinstance(node, ast.AST):
+            parts = [f"{f}={canon(getattr(node, f, None))}"
+                     for f in node._fields
+                     if getattr(node, f, None) not in (None, [], ())]
+            return f"{type(node).__name__}({','.join(parts)})"
+        if isinstance(node, list):
+            return "[" + ",".join(canon(x) for x in node) + "]"
+        return repr(node)
+
+    with open(path, encoding="utf-8", newline="") as fp:
         tree = ast.parse(fp.read())
     for node in ast.walk(tree):
         if isinstance(node, (ast.Module, ast.FunctionDef,
@@ -57,7 +84,7 @@ def _logic_sha1(path):
                     and isinstance(body[0].value, ast.Constant)
                     and isinstance(body[0].value.value, str)):
                 body.pop(0)
-    return hashlib.sha1(ast.dump(tree).encode("utf-8")).hexdigest()
+    return hashlib.sha1(canon(tree).encode("utf-8")).hexdigest()
 
 
 # 五张论文用图各自依赖的数据文件（示意类两张只依赖脚本逻辑）
