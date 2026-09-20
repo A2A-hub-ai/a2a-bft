@@ -9,7 +9,7 @@
 >
 > ```bash
 > ./reproduce.sh doctor     # 先体检：本机能复现到哪一步
-> ./reproduce.sh verify     # 8 审计 + 5 组负向测试（纯 CPU，约 1 分钟）
+> ./reproduce.sh verify     # 10 审计 + 5 组负向测试（纯 CPU，约 1 分钟）
 > ./reproduce.sh all        # datasets + figures + verify
 > ```
 >

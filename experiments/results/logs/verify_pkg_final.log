@@ -1,0 +1,32 @@
+------------------------------------------------------------------------
+Audits + negative tests (verify) - CPU only, no GPU required
+------------------------------------------------------------------------
+paper source fingerprint (before): 42bad37758e92056958bb852396b27d5
+
+[1/2] audit scripts (run serially, 10 total)
+  table numbers                             PASS  348 items
+  figure-table consistency + fingerprints   PASS  124 items
+  prose ranges vs. tables                   PASS
+  theory formulas instantiated numerically  PASS
+  revision-layer algebra + text consistency PASS  52 items
+  decision neutrality                       PASS  9 items
+  reputation fidelity                       PASS
+  judge-calibration numbers vs. paper claimsPASS
+  judge FPR/FNR recomputed from vote streamsPASS
+  path resolution layer                     PASS
+
+[2/2] negative tests (run serially, 5 total)
+  note: these cases temporarily rewrite papers/iclr2027_main.tex and restore it, so they cannot run in parallel.
+  inject table defect                       PASS  5/5
+  inject figure defect                      PASS  8/8
+  inject theory defect                      PASS  3/3
+  inject path defect                        PASS  8/8
+  inject revision-layer defect              PASS  8/8
+
+paper source fingerprint (after):  42bad37758e92056958bb852396b27d5  restored OK
+
+------------------------------------------------------------------------
+audits+negative: 15 passed / 0 failed
+All passed: every number in the paper is independently recomputable, and the audits are proven effective.
+REPRODUCE_OK
+------------------------------------------------------------------------

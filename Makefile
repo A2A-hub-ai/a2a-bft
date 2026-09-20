@@ -18,7 +18,7 @@
 help:
 > @./reproduce.sh help
 
-# Default target: 8 audits + 5 negative-test groups (CPU only)
+# Default target: 10 audits + 5 negative-test groups (CPU only)
 verify:
 > @./reproduce.sh verify
 
