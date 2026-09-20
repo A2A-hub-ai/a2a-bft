@@ -15,6 +15,11 @@
 >
 > Verdict semantics: `REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`,
 > with exit codes 0 / 0 / 1. "Not verified" is not "passed".
+>
+> If you received the artifact as a **zip** rather than a clone, extraction may
+> drop the executable bit — Python's `zipfile.extractall()` never restores POSIX
+> modes (`unzip`/`bsdtar` do). Then use `bash reproduce.sh ...`, or restore it
+> once with `chmod +x reproduce.sh experiments/env/*.sh`.
 
 This document gives the **data source, generating script, run command, and
 expected artifact for every table and figure in the paper**. All paths are

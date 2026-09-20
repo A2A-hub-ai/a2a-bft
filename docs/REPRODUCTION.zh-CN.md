@@ -15,6 +15,11 @@
 >
 > 判定语义：`REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`，
 > 退出码 0 / 0 / 1。"未验证"不等于"通过"。
+>
+> 若拿到的是 **zip** 而非克隆，解压工具可能丢掉可执行位——Python 的
+> `zipfile.extractall()` 一律不还原 POSIX 权限（`unzip`/`bsdtar` 会还原）。
+> 此时改用 `bash reproduce.sh ...`，或执行一次
+> `chmod +x reproduce.sh experiments/env/*.sh` 补回。
 
 本文档给出**论文中每一个表格与图表的数据来源、生成脚本、运行命令与预期产物**。
 所有路径相对仓库根目录；所有命令可在仓库根直接执行（脚本自定位，无需 `cd`）。

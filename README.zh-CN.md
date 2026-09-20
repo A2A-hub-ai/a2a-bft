@@ -106,6 +106,11 @@ ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation�
 退出码为 0 / 0 / 1。**"未验证"不等于"通过"**——若某层因缺依赖跑不了，默认判失败；
 只有显式 `A2A_ALLOW_SKIP_FIGURES=1` 才降级为 `SKIP`，且会写进最终结论（`REPRODUCE_OK_PARTIAL`）。
 
+> **压缩包 vs. 克隆**：`git clone` 会保留可执行位，`./reproduce.sh ...` 可直接跑。
+> 若拿到的是 **zip**，解压工具可能丢掉该位——Python 的 `zipfile.extractall()` 一律不还原
+> POSIX 权限（`unzip`/`bsdtar` 会还原）。此时改用 `bash reproduce.sh ...`，
+> 或执行一次 `chmod +x reproduce.sh experiments/env/*.sh` 补回。
+
 > ⚠️ **不要并行执行本脚本**。负向测试会临时改写 `papers/iclr2027_main.tex` 再逐字节还原
 > （靠注入已知缺陷来证明审计真的能捕获）。并行时审计会读到注入态而报假警，
 > 两个负向脚本同时备份/还原还会互相覆盖。脚本已用锁文件 + 严格串行 + 收尾哈希比对防护。

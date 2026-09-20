@@ -107,6 +107,13 @@ read documentation to pick commands, and no need to `cd`:
 figures in order to prove the freshness check is not vacuous. Install it via
 `pip install -r requirements.txt` (or `./reproduce.sh install`).
 
+> **Archive vs. clone**: `git clone` preserves the executable bit, so
+> `./reproduce.sh ...` runs as written. If you received the artifact as a
+> **zip**, extraction may drop that bit — Python's `zipfile.extractall()`
+> never restores POSIX modes (`unzip`/`bsdtar` do). In that case run
+> `bash reproduce.sh ...`, or restore it once with
+> `chmod +x reproduce.sh experiments/env/*.sh`.
+
 Verdict semantics (important): audit scripts print
 `REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED` with exit codes
 0 / 0 / 1. **"Not verified" is not "passed"** — if a layer cannot run because a
