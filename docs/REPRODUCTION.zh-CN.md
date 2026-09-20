@@ -318,6 +318,11 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 > 与 Linux + Python 3.12（CUDA 12.8、vLLM 0.11.0、2×A800）。注意 `verify` 需要它所用的
 > 解释器能 import `matplotlib`——机器上装了多个 Python 时用 `A2A_PY=/path/to/python` 指定；
 > 缺 matplotlib 时图指纹审计会**报失败**而不是静默跳过。
+>
+> `verify` 层**不需要 GPU，也不需要 `openai` / `torch` / `vllm`**：一个只装了
+> `numpy`、`scipy`、`matplotlib` 的干净 `python -m venv`，在新克隆上即可跑完
+> 10 个审计 + 5 组负向测试并得到 `REPRODUCE_OK`（2026-09-20 实测，Python 3.12）。
+> 数据集与结果 JSON 随仓库自带，无需下载、无需联网。
 
 ```bash
 # 1) 审计

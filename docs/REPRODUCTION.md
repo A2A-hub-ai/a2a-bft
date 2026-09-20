@@ -402,6 +402,12 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 > interpreter it runs under — pick one with `A2A_PY=/path/to/python` if several
 > are installed; without it the figure-fingerprint audit reports a failure
 > rather than silently skipping.
+>
+> The `verify` layer needs **no GPU, no `openai`, no `torch`/`vllm`**: a clean
+> `python -m venv` with only `numpy`, `scipy` and `matplotlib` runs all 10 audits
+> plus 5 negative groups to `REPRODUCE_OK` on a fresh clone (measured 2026-09-20,
+> Python 3.12). The datasets and the result JSONs ship inside the repository, so
+> nothing is downloaded and no network access is required.
 
 ```bash
 # 1) Audits
