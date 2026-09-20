@@ -26,8 +26,8 @@ RES = os.path.join(_find_root(__file__), 'experiments', 'results')
 TRUE_BASELINES = {'A2A-Sim', 'LLM-Debate', 'Simple Majority', 'Weighted Majority'}
 # The paper's abstract/related-work claim "16.7-63.4%" is scoped to the
 # *unvalidated voting- and debate-based* baselines, which explicitly excludes
-# A2A-Sim (a confidence-filtering self-aggregation framework, discussed
-# separately and honestly in Section 6.5).
+# A2A-Sim (a supermajority-stop self-aggregation protocol adapted with a
+# 0.7 confidence filter in our baseline, discussed separately in Section 6.5).
 VOTING_DEBATE = {'LLM-Debate', 'Simple Majority', 'Weighted Majority'}
 ABLATION_VARIANTS = {'A2A-BFT w/o 视图切换', 'A2A-BFT w/o 语义验证', 'A2A-BFT 固定阈值'}
 FULL = 'A2A-BFT'

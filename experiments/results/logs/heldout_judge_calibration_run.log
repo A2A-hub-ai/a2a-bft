@@ -1,0 +1,25 @@
+gsm8k held-out: 150 (pool 1089)
+mmlu held-out: 124 (pool 124)
+total judge calls: 2192
+progress: 200/2192
+progress: 400/2192
+progress: 600/2192
+progress: 800/2192
+progress: 1000/2192
+progress: 1200/2192
+progress: 1400/2192
+progress: 1600/2192
+progress: 1800/2192
+progress: 2000/2192
+
+=== per (dataset, judge) ===
+('gsm8k', 'deepseek'): FPR 99/135 = 0.7333   FNR 12/139 = 0.0863   [fallback=23 unparsed=26 verdict=251]
+('gsm8k', 'internlm'): FPR 0/98 = 0.0000   FNR 8/106 = 0.0755   [fallback=8 unparsed=96 verdict=196]
+('gsm8k', 'llama'): FPR 2/142 = 0.0141   FNR 21/138 = 0.1522   [unparsed=20 verdict=280]
+('gsm8k', 'qwen'): FPR 2/141 = 0.0142   FNR 7/137 = 0.0511   [fallback=1 keyword=4 unparsed=22 verdict=273]
+('mmlu', 'deepseek'): FPR 64/98 = 0.6531   FNR 30/96 = 0.3125   [fallback=3 keyword=3 unparsed=54 verdict=188]
+('mmlu', 'internlm'): FPR 27/34 = 0.7941   FNR 1/32 = 0.0312   [fallback=3 unparsed=180 verdict=65]
+('mmlu', 'llama'): FPR 38/101 = 0.3762   FNR 33/101 = 0.3267   [fallback=4 unparsed=45 verdict=199]
+('mmlu', 'qwen'): FPR 23/94 = 0.2447   FNR 21/94 = 0.2234   [fallback=1 keyword=2 unparsed=60 verdict=185]
+
+saved: /root/calib/heldout_results.json

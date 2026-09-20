@@ -88,7 +88,7 @@ absorber for equivocation.
 read documentation to pick commands, and no need to `cd`:
 
 ```bash
-./reproduce.sh              # default = verify: 8 audits + 5 negative-test groups (CPU only)
+./reproduce.sh              # default = verify: 10 audits + 5 negative-test groups (CPU only)
 ./reproduce.sh doctor       # run this first: how far this machine can reproduce, and what is missing
 ./reproduce.sh figures      # regenerate figures from experiments/results/ and recheck figure-table consistency
 ./reproduce.sh all          # doctor + datasets + figures + verify
@@ -97,7 +97,7 @@ read documentation to pick commands, and no need to `cd`:
 | Stage | Needs GPU | Notes |
 |------|----------|------|
 | `doctor` | No | Environment check: interpreter, dependencies, data/result/figure counts, GPU count |
-| `verify` | No (needs matplotlib) | 8 audits + 5 negative-test groups; prints `REPRODUCE_OK` / `REPRODUCE_FAILED` |
+| `verify` | No (needs matplotlib) | 10 audits + 5 negative-test groups; prints `REPRODUCE_OK` / `REPRODUCE_FAILED` |
 | `figures` | No (needs matplotlib) | Regenerate the 5 figures + recheck content fingerprints |
 | `datasets` | No | Download GSM8K / MBPP / MMLU and verify record counts |
 | `install` | No | `pip install -r requirements.txt` |
@@ -178,9 +178,10 @@ The full data-generation pipeline is documented in
 Every number in this repository can be **independently recomputed** rather than
 merely "looking right". `experiments/verification/` contains two kinds of tools:
 
-- **Audit scripts (8)**: recompute every number in the paper's prose, tables, and
+- **Audit scripts (10)**: recompute every number in the paper's prose, tables, and
   figures from the raw data in `experiments/results/`. They also cover the path
-  resolution layer, the revision layer, and decision neutrality.
+  resolution layer, the revision layer, decision neutrality, and the judge
+  error-rate calibration of the appendix.
 - **Negative tests (5)**: actively inject known defects into the repository to
   confirm the audits **really do catch them** (32/32 caught).
   > For the exact item counts per script, rely on the **live output** of
@@ -191,13 +192,15 @@ merely "looking right". `experiments/verification/` contains two kinds of tools:
   that simply checks nothing.
 
 ```bash
-python experiments/verification/audit_table_numbers.py     # 349 items: table numbers
+python experiments/verification/audit_table_numbers.py     # 348 items: table numbers
 python experiments/verification/audit_figures.py           # 124 items: figures + caption disclosure + fingerprint freshness
 python experiments/verification/audit_prose_ranges.py      # prose ranges vs. tables
 python experiments/verification/audit_theory_numerics.py   # theory formulas instantiated numerically + implementation consistency
 python experiments/verification/audit_revision_layer.py    # 52 items: revision-layer algebra + textual self-consistency
 python experiments/verification/audit_decision_neutrality.py
 python experiments/verification/audit_reputation_fidelity.py
+python experiments/verification/audit_judge_calibration.py # judge FPR/FNR vs. the appendix's claims (zero LLM)
+python experiments/verification/calibrate_judge_from_streams.py  # recompute FPR/FNR from the released vote streams (zero LLM)
 python experiments/verification/audit_paths.py             # path resolution layer (incl. read-open existence, §6 document command paths)
 
 python experiments/verification/negative_test_tables.py    # 5/5
@@ -207,8 +210,23 @@ python experiments/verification/negative_test_paths.py     # 8/8
 python experiments/verification/negative_test_revision.py  # 8/8
 ```
 
-> The 13 commands above are equivalent to `./reproduce.sh verify` (one command,
+> The 15 commands above are equivalent to `./reproduce.sh verify` (one command,
 > serial, with an overall verdict).
+
+> **Judge error-rate calibration (appendix).** The safety bound of the appendix's
+> Corollary is conditional on the validation oracle's miss probability, so that
+> probability is measured rather than assumed, at two levels. **(i) On-protocol,
+> offline**: every verdict is already logged in the released vote streams, so the
+> false-accept/false-reject rates follow from `reputation_vote_stream.json` with
+> **zero LLM calls** — `calibrate_judge_from_streams.py` recomputes them and
+> `audit_judge_calibration.py` checks them against the paper. **(ii) Held-out,
+> needs 4 vLLM endpoints**: `heldout_judge_calibration.py` replays a held-out
+> sample (task indices excluded from every task set used in the paper) under the
+> protocol's judge prompts verbatim, together with its plausible-wrong condition,
+> and writes `experiments/results/heldout_judge_calibration.json`, whose per-call
+> records are released. Level (ii) is the only calibration step that needs a GPU;
+> both its numbers and its conclusion that one judge dominates the aggregate are
+> checked offline by the two auditors above.
 
 > The path layer exists because of a real incident: after a directory
 > reorganization, a script computed its data directory as
@@ -233,6 +251,8 @@ See **[docs/AUDIT.md](docs/AUDIT.md)** for details.
 | Fault-tolerance sweep (main) | 3 datasets × 10 configs × 5 seeds × 50 tasks | 7,750 consensus runs | `full_bft_sweep_aggregated.json` |
 | Ablations + baseline comparison | 2 domains × multiple methods × 3 seeds × 30 tasks | 4,320 | `multi_model_3seed_aggregated.json` |
 | Multi-domain validation (real API) | 18 configs × 40 tasks | 770 | `deepseek_{math,knowledge,code}_fixed_20.json` |
+| Judge calibration (offline, zero LLM) | released vote streams, GSM8K | 241 rounds / 700 honest votes | `reputation_vote_stream.json` |
+| Judge calibration (held-out, 4 vLLM) | 2 domains × 2 conditions (correct / plausible-wrong) × 4 judges | 2,192 judge calls | `heldout_judge_calibration.json` |
 
 **Every number comes from real LLM inference; there are no simulated workers.**
 Sampling seeds: fault-tolerance sweep `{42,43,44,45,46}`; ablations and baselines

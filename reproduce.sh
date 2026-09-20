@@ -5,7 +5,7 @@
 # Design goal: collapse "read the docs -> pick scripts one by one -> diff outputs by hand"
 #
 #   ./reproduce.sh            # default = verify (no GPU needed)
-#   ./reproduce.sh verify     # 8 audits + 5 negative-test groups (CPU only)
+#   ./reproduce.sh verify     # 10 audits + 5 negative-test groups (CPU only)
 #   ./reproduce.sh doctor     # environment check: how far you can get, and what is missing
 #   ./reproduce.sh figures    # regenerate figures from results/ and recheck consistency
 #   ./reproduce.sh datasets   # download GSM8K / MBPP / MMLU and verify record counts
@@ -233,7 +233,7 @@ stage_doctor() {
 }
 
 # ===========================================================================
-# Stage 2: verify - 8 audits + 5 negative-test groups (strictly serial)
+# Stage 2: verify - 10 audits + 5 negative-test groups (strictly serial)
 # ===========================================================================
 # Labels carry descriptions only, never counts: extract_count() reads counts from each script's
 # ACTUAL output. Earlier labels hard-coded "(349 items)" / "6 injected path defects"; whenever
@@ -247,6 +247,8 @@ AUDITS=(
   "audit_revision_layer.py|revision-layer algebra + text consistency"
   "audit_decision_neutrality.py|decision neutrality"
   "audit_reputation_fidelity.py|reputation fidelity"
+  "audit_judge_calibration.py|judge-calibration numbers vs. paper claims"
+  "calibrate_judge_from_streams.py|judge FPR/FNR recomputed from vote streams"
   "audit_paths.py|path resolution layer"
 )
 NEGATIVES=(

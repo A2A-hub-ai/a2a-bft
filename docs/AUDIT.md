@@ -76,7 +76,7 @@ concealed three scripts that could no longer run. L9 closes that blind spot.
 
 ## 3. Audit scripts
 
-### 3.1 `audit_table_numbers.py` — 349 items
+### 3.1 `audit_table_numbers.py` — 348 items
 
 | Function | Coverage |
 |------|----------|
@@ -388,6 +388,40 @@ the scope; this was amended to "in the four attacked cells".
 
 ---
 
+### 3.10 `audit_judge_calibration.py` + `calibrate_judge_from_streams.py` — the oracle's own error rate
+
+**Why a separate layer**: the appendix's Corollary states that within the safety
+boundary the wrong-commit rate is governed by the validation oracle's miss
+probability $p_{\mathit{mr}}$ — but $p_{\mathit{mr}}$ was **assumed**
+($p_h \geq 0.9$, "based on LLM accuracy"), so the bound was descriptive of a
+quantity that had never been measured. An assumption that the safety claim rests
+on and that no released artifact tests is exactly the class of gap §2's model
+exists to catch. Both auditors close it from released data only.
+
+| Item | Content | Result |
+|----|------|------|
+| **J1** (`calibrate_judge_from_streams.py`) | Recompute the on-protocol false-accept / false-reject rates from `reputation_vote_stream.json` using each round's `proposal_correct_gt` and the per-validator verdicts, honest voters only (Byzantine and soft-fault voters excluded) | $18.1\%$ ($127/700$) / $19.7\%$ ($53/269$) — matches `tab:judge_calib` |
+| **J2** | Same decomposition per attack scenario (baseline / strategic rejection / collusion) | 3/3 rows match the released table |
+| **J3** (`audit_judge_calibration.py`) | Split the same votes by the judge model that cast them, testing the claim that the aggregate is dominated by one permissive judge | DeepSeek $78.1\%$ vs. $\leq 1.9\%$ for the other three |
+| **J4** | Recompute the held-out per-judge rates and the abstention (unparsed-verdict) fractions from `heldout_judge_calibration.json` and compare against `tab:judge_heldout` | 8/8 (dataset, judge) pairs match |
+| **J5** | Bound check on the abstention claim: every non-InternLM3 judge must stay at or below the stated ceiling, so "other judges $\leq 25\%$" cannot silently become false as records are added | passes |
+
+**Why J3 matters more than the aggregate**: $18.1\%$ reads like a uniform oracle
+error, i.e. a property of the domain; J3 shows it is a **mixture** — three strict
+judges plus one permissive one. That changes the deployment conclusion (safety
+rests on the commit rule aggregating across heterogeneous judges, hence validator
+selection matters) and it is reproducible **offline, with zero LLM calls**, so a
+reviewer can check it without a GPU. J5 is the guard against the mirror-image
+failure: an abstention (unparsed verdict → ABSTAIN) must never be able to read as
+an acceptance, since that is what keeps judge weakness on the liveness side rather
+than the safety side.
+
+> The held-out half of this layer (J4) is the only calibration input that needs a
+> GPU; `heldout_judge_calibration.py` regenerates it, but the released per-call
+> records are what J4 actually reads, so the check runs in `./reproduce.sh verify`.
+
+---
+
 ## 4. Negative tests: proving the audits are not vacuous
 
 > **An audit's credibility comes from its ability to catch injected defects.** An
@@ -524,7 +558,7 @@ makes the conclusions meaningless:
 **One command (recommended)**:
 
 ```bash
-./reproduce.sh verify     # = the 13 commands below, executed serially with an overall verdict
+./reproduce.sh verify     # = the 15 commands below, executed serially with an overall verdict
 ```
 
 `./reproduce.sh` is the single entry point (`Makefile` is a thin wrapper); full
@@ -543,6 +577,8 @@ python experiments/verification/audit_paths.py            # L9
 python experiments/verification/audit_revision_layer.py   # round 13: revision layer
 python experiments/verification/audit_decision_neutrality.py  # decision neutrality (zero LLM)
 python experiments/verification/audit_reputation_fidelity.py  # reputation fidelity
+python experiments/verification/audit_judge_calibration.py    # judge error-rate calibration (§3.10, zero LLM)
+python experiments/verification/calibrate_judge_from_streams.py  # recompute judge FPR/FNR from the vote streams (§3.10, zero LLM)
 
 python experiments/verification/negative_test_tables.py
 python experiments/verification/negative_test_figures.py

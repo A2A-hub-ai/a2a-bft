@@ -66,7 +66,7 @@
 
 ## 3. 审计脚本
 
-### 3.1 `audit_table_numbers.py` —— 349 项
+### 3.1 `audit_table_numbers.py` —— 348 项
 
 | 函数 | 覆盖对象 |
 |------|----------|
@@ -317,6 +317,35 @@ consistent = all(by_dec.get(k) == v for k, v in rec_dec.items())
 
 ---
 
+### 3.10 `audit_judge_calibration.py` + `calibrate_judge_from_streams.py` —— 验证 oracle 自身的错误率
+
+**为什么单列一层**：附录 Corollary 说"界内错误提交率由验证 oracle 的漏检概率
+$p_{\mathit{mr}}$ 决定"，但 $p_{\mathit{mr}}$ 一直是**假设值**（$p_h \geq 0.9$，
+"based on LLM accuracy"），也就是说这条界描述的是一个从未被测量的量。安全主张所依赖、
+却没有任何已释放产物去检验的假设，正是 §2 那套模型要抓的一类缺口。两个审计器用
+已释放数据把它补上：
+
+| 项 | 内容 | 结果 |
+|----|------|------|
+| **J1**（`calibrate_judge_from_streams.py`） | 从 `reputation_vote_stream.json` 用每轮的 `proposal_correct_gt` 与逐验证者裁决重算在协议内的假接受/假拒绝率，只算诚实投票者（拜占庭与软故障票剔除） | $18.1\%$（$127/700$）/ $19.7\%$（$53/269$）——与 `tab:judge_calib` 一致 |
+| **J2** | 同一分解按攻击场景（baseline / 策略拒绝 / 共谋）分别复算 | 3/3 行与已释放表格一致 |
+| **J3**（`audit_judge_calibration.py`） | 把同一批票按"投出它的 judge 模型"再分解，检验"聚合值由单一宽松 judge 主导"这一论断 | DeepSeek $78.1\%$，其余三者 $\leq 1.9\%$ |
+| **J4** | 从 `heldout_judge_calibration.json` 重算留出集逐 judge 比率与弃权（不可解析裁决）比例，与 `tab:judge_heldout` 比对 | 8/8 个（数据集, judge）组合一致 |
+| **J5** | 对弃权声明的上界检查：除 InternLM3 外每个 judge 必须不高于文中给出的上限，使"其余 judge $\leq 25\%$"不会随记录增加而悄悄失真 | 通过 |
+
+**为什么 J3 比聚合值更重要**：$18.1\%$ 读起来像"均匀的 oracle 误差"，即一种领域属性；
+J3 证明它是**混合结果**——三个严格 judge 加一个宽松 judge。这会改变部署结论
+（安全性依赖 commit 规则跨异质 judge 聚合，因此验证者选择是一个部署变量），
+而且它**离线、零 LLM 调用**即可复现，审稿人无需 GPU 就能核。J5 防的是镜像式的失误：
+一次弃权（裁决不可解析 → ABSTAIN）绝不能被读成一次接受——这正是把 judge 弱点
+留在活性侧、而非安全侧的原因。
+
+> 这一层的留出集部分（J4）是唯一需要 GPU 的标定输入；`heldout_judge_calibration.py`
+> 负责重生成它，但 J4 实际读取的是已释放的逐次调用记录，所以该检查能在
+> `./reproduce.sh verify` 里跑。
+
+---
+
 ## 4. 负向测试：证明审计不是空转
 
 > **审计的可信度来自它抓得住注入的缺陷。** 一个"全绿"的审计若从未捕获过任何
@@ -431,7 +460,7 @@ CRLF 会被规范化成 LF，还原后文件已非逐字节相同——在 git �
 **一键（推荐）**：
 
 ```bash
-./reproduce.sh verify     # = 下列 13 条命令，串行执行并给出总判定
+./reproduce.sh verify     # = 下列 15 条命令，串行执行并给出总判定
 ```
 
 `./reproduce.sh` 是唯一入口（`Makefile` 为其薄封装），完整用法见 `README.md` §3.0。
@@ -448,6 +477,8 @@ python experiments/verification/audit_prose_ranges.py
 python experiments/verification/audit_paths.py            # L9
 python experiments/verification/audit_revision_layer.py   # 第 13 轮：修订层
 python experiments/verification/audit_decision_neutrality.py  # 决策中性（零 LLM）
+python experiments/verification/audit_judge_calibration.py    # judge 标定与论文对账（§3.10，零 LLM）
+python experiments/verification/calibrate_judge_from_streams.py  # 从投票流重算 judge FPR/FNR（§3.10，零 LLM）
 
 python experiments/verification/negative_test_tables.py
 python experiments/verification/negative_test_figures.py

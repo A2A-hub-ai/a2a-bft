@@ -87,7 +87,7 @@ ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation�
 仓库根目录的 `reproduce.sh` 是**唯一入口**，不需要读文档挑命令、也不需要 `cd`：
 
 ```bash
-./reproduce.sh              # 默认 = verify：8 个审计 + 5 组负向测试（纯 CPU，无需 GPU）
+./reproduce.sh              # 默认 = verify：10 个审计 + 5 组负向测试（纯 CPU，无需 GPU）
 ./reproduce.sh doctor       # 先跑这个：告诉你本机能复现到哪一步、缺什么
 ./reproduce.sh figures      # 从 experiments/results/ 重新出图并复查图-表一致性
 ./reproduce.sh all          # doctor + datasets + figures + verify
@@ -96,7 +96,7 @@ ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation�
 | 阶段 | 需要 GPU | 说明 |
 |------|----------|------|
 | `doctor` | 否 | 环境体检：解释器、依赖、数据/结果/图件计数、GPU 数量 |
-| `verify` | 否 | 8 审计 + 5 组负向测试；输出 `REPRODUCE_OK` / `REPRODUCE_FAILED` |
+| `verify` | 否 | 10 审计 + 5 组负向测试；输出 `REPRODUCE_OK` / `REPRODUCE_FAILED` |
 | `figures` | 否（需 matplotlib） | 重新生成 5 张图件 + 内容指纹复查 |
 | `datasets` | 否 | 下载 GSM8K / MBPP / MMLU 并校验条数 |
 | `install` | 否 | `pip install -r requirements.txt` |
@@ -161,21 +161,24 @@ python experiments/env/smoke_code.py                   # 少量任务的连通�
 本仓库的论文数字是**可被独立重算**的，而不是"看起来对"。`experiments/verification/`
 下有两套东西：
 
-- **审计脚本（8 个）**：把论文正文/表格/图里的每个数字，与 `experiments/results/`
-  里的原始数据重新算一遍；另含路径解析层、修订层与决策中性等专项检查。
+- **审计脚本（10 个）**：把论文正文/表格/图里的每个数字，与 `experiments/results/`
+  里的原始数据重新算一遍；另含路径解析层、修订层、决策中性，以及附录的 judge
+  错误率标定等专项检查。
 - **负向测试（5 个）**：主动向仓库注入已知缺陷，确认审计**真的能捕获**（32/32 全部捕获）。
   > 各项的具体条数以 `./reproduce.sh verify` 的**实时输出**为准（该输出由脚本实际产出，不写死）；
   > 本行与文档中的数字若与之不符，以实时输出为准。
   没有这一步，审计的"全绿"无法与"根本没检查"区分。
 
 ```bash
-python experiments/verification/audit_table_numbers.py     # 349 项：表格数值
+python experiments/verification/audit_table_numbers.py     # 348 项：表格数值
 python experiments/verification/audit_figures.py           # 124 项：图表 + 题注披露 + 内容指纹新鲜度
 python experiments/verification/audit_prose_ranges.py      # 正文区间与表格一致性
 python experiments/verification/audit_theory_numerics.py   # 理论公式数值实例化 + 实现一致性
 python experiments/verification/audit_revision_layer.py    # 52 项：修订层代数 + 文本自洽
 python experiments/verification/audit_decision_neutrality.py
 python experiments/verification/audit_reputation_fidelity.py
+python experiments/verification/audit_judge_calibration.py  # judge FPR/FNR 与附录声明对账（零 LLM 调用）
+python experiments/verification/calibrate_judge_from_streams.py  # 从已释放投票流重算 FPR/FNR（零 LLM 调用）
 python experiments/verification/audit_paths.py             # 路径解析层（含读取型 open 存在性、文档命令路径 §6）
 
 python experiments/verification/negative_test_tables.py    # 5/5
@@ -185,7 +188,18 @@ python experiments/verification/negative_test_paths.py     # 8/8
 python experiments/verification/negative_test_revision.py  # 8/8
 ```
 
-> 上面 13 条命令等价于 `./reproduce.sh verify`（一条命令、串行、带总判定）。
+> 上面 15 条命令等价于 `./reproduce.sh verify`（一条命令、串行、带总判定）。
+
+> **judge 错误率标定（附录）**：附录 Corollary 的安全界以验证 oracle 的漏检概率为条件，
+> 因此该概率是被**实测**而非假设的，分两级。**(i) 在协议内、离线**：每一票的裁决都已记录在
+> 已释放的投票流里，故假接受/假拒绝率可从 `reputation_vote_stream.json` 直接算出，
+> **零 LLM 调用**——`calibrate_judge_from_streams.py` 负责重算，
+> `audit_judge_calibration.py` 负责与论文数字对账。**(ii) 留出集、需 4 个 vLLM 端点**：
+> `heldout_judge_calibration.py` 用协议的 judge prompt 逐字复刻，在排除全部已用题号的
+> 留出样本上跑正确答案与"貌似合理的错误答案"两个条件，写出
+> `experiments/results/heldout_judge_calibration.json`，其逐次调用记录一并释放。
+> (ii) 是唯一需要 GPU 的标定步骤，其数字与"聚合错误率由单一 judge 主导"这一结论，
+> 都由上面两个审计器离线复核。
 
 > 路径层检查来自一次真实教训：目录重组后，有脚本因为把数据目录写成
 > "脚本自身位置/results"，搬家后指向了不存在的目录——**而当时的验收只看了
@@ -206,6 +220,8 @@ python experiments/verification/negative_test_revision.py  # 8/8
 | 容错扫描（主） | 3 数据集 × 10 配置 × 5 种子 × 50 任务 | 7,750 次共识 | `full_bft_sweep_aggregated.json` |
 | 消融 + 基线对比 | 2 领域 × 多方法 × 3 种子 × 30 任务 | 4,320 | `multi_model_3seed_aggregated.json` |
 | 多领域验证（真实 API） | 18 配置 × 40 任务 | 770 | `deepseek_{math,knowledge,code}_fixed_20.json` |
+| judge 标定（离线，零 LLM） | 已释放投票流，GSM8K | 241 轮 / 700 张诚实票 | `reputation_vote_stream.json` |
+| judge 标定（留出集，4 个 vLLM） | 2 领域 × 2 条件（正确 / 貌似正确但错）× 4 个 judge | 2,192 次 judge 调用 | `heldout_judge_calibration.json` |
 
 **所有数字均来自真实 LLM 推理，无模拟 worker。** 采样种子：容错扫描
 `{42,43,44,45,46}`；消融与基线 `{42,43,44}`。同一配置跨种子复用同一任务集，以支持配对比较。

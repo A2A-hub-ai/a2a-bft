@@ -154,8 +154,8 @@ def main():
     results.append(case(
         "负向5 (表题注缺 n=90 披露)",
         "tab:attacks 的题注未披露",
-        tex_edit=(r"from Table~\ref{tab:hetero_compare}, $n{=}90$ per cell)",
-                  r"from Table~\ref{tab:hetero_compare})"),
+        tex_edit=(r"plus two $n{=}90$ cells:",
+                  r"plus two cells:"),
     ))
     # 6) 删除示意类图 PDF -> 图件清单/新鲜度检查（此前只守 2 张数据图）
     results.append(case(

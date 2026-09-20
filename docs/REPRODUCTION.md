@@ -9,7 +9,7 @@
 >
 > ```bash
 > ./reproduce.sh doctor     # check first: how far this machine can reproduce
-> ./reproduce.sh verify     # 8 audits + 5 negative-test groups (CPU only, about 1 minute)
+> ./reproduce.sh verify     # 10 audits + 5 negative-test groups (CPU only, about 1 minute)
 > ./reproduce.sh all        # datasets + figures + verify
 > ```
 >
@@ -288,6 +288,54 @@ pre-check before starting, to avoid a wasted run.
 
 ---
 
+### Pipeline G — validation-oracle (judge) error-rate calibration
+
+Supports the appendix's judge-calibration tables (`tab:judge_calib`, on-protocol;
+`tab:judge_heldout`, held-out) and the measured false-accept rate cited next to
+Corollary 1 in the main text. The appendix's safety bound is **conditional on the
+oracle's miss probability**, so this pipeline measures that probability instead of
+assuming it ($p_h \geq 0.9$ in the theorem's illustration; measured
+$\approx 0.80$).
+
+**Level 1 — on-protocol, offline, zero LLM calls** (CPU only; this is what the
+acceptance run executes):
+
+```bash
+python experiments/verification/calibrate_judge_from_streams.py   # recompute FPR/FNR from the released vote streams
+python experiments/verification/audit_judge_calibration.py        # check every calibrated number against the paper
+```
+
+**Level 2 — held-out, requires the 4 vLLM endpoints** (optional: reproduces the
+held-out table from scratch; the released per-call records are already in
+`results/heldout_judge_calibration.json`):
+
+```bash
+python experiments/verification/heldout_judge_calibration.py \
+    --datasets experiments/datasets --out experiments/results/heldout_judge_calibration.json
+```
+
+| Step | Command | Artifact |
+|------|------|------|
+| 1 (offline) | `python experiments/verification/calibrate_judge_from_streams.py` | prints the on-protocol FPR/FNR (GSM8K, 241 rounds / 700 honest votes) cited in the paper's `tab:judge_calib` |
+| 2 (offline) | `python experiments/verification/audit_judge_calibration.py` | `AUDIT PASS`: on-protocol aggregate, per-judge composition, and held-out rates all match the paper |
+| 3 (GPU) | `python experiments/verification/heldout_judge_calibration.py --datasets experiments/datasets --out experiments/results/heldout_judge_calibration.json` | `results/heldout_judge_calibration.json`: 2,192 per-call records (150 GSM8K + 124 MMLU held-out tasks × {correct, plausible-wrong} × 4 judges) |
+
+> **Held-out sample definition**: task indices excluded from *every* task set used
+> in the paper (the full sweep, ablation, reputation, and multiseed samplings), so
+> the calibration sample is disjoint from every reported experiment. Proposals are
+> the ground-truth answer (measures FNR) and a deterministic plausible
+> perturbation — a numeric delta on GSM8K, a wrong choice letter on MMLU (measures
+> FPR) — presented with the protocol's judge prompts and verdict parsing **verbatim**.
+> Unparsed verdicts map to ABSTAIN and are excluded from the rates.
+>
+> **Reading the result**: the aggregate false-accept rate is not a uniform oracle
+> error — it is dominated by one permissive judge (DeepSeek-V2-Lite), while the
+> other three reject almost all wrong GSM8K answers. The on-protocol vote streams
+> decompose the same way, and the offline auditors (Steps 1–2) check that
+> decomposition, so this conclusion is reproducible without a GPU.
+
+---
+
 ## 3. Figures → how they are generated
 
 ```bash
@@ -345,7 +393,7 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 
 ```bash
 # 1) Audits
-python experiments/verification/audit_table_numbers.py      # 349 items, 0 problems
+python experiments/verification/audit_table_numbers.py      # 348 items, 0 problems
 python experiments/verification/audit_figures.py            # 124 items, 0 problems
 python experiments/verification/audit_theory_numerics.py    # all OK
 python experiments/verification/audit_prose_ranges.py       # no numeric inconsistency
@@ -357,6 +405,8 @@ python experiments/verification/audit_reputation_fidelity.py  # FIDELITY_OK, 518
 python experiments/verification/verify_mbpp_subboundary.py    # MBPP_SUBBOUNDARY_DONE
 python experiments/verification/audit_decision_neutrality.py  # DECISION_NEUTRALITY_OK, 9 items
                                                               # (recompute phi from raw votes + replay decisions + mutation test)
+python experiments/verification/audit_judge_calibration.py    # AUDIT PASS: on-protocol, per-judge, held-out rates vs. the paper
+python experiments/verification/calibrate_judge_from_streams.py  # AUDIT PASS: judge FPR/FNR recomputed from the vote streams
 
 # 2) Audit effectiveness (inject defects; they must be caught)
 python experiments/verification/negative_test_tables.py     # 5/5
@@ -374,9 +424,10 @@ rely on step 1.
 > correspond to the current test suite; the authoritative source is the **live
 > output** of `./reproduce.sh verify`, which reads the numbers from each script's
 > actual stdout. If a number here disagrees with the live output, the live output
-> wins. (Hard-coded expectations in this document had already drifted once:
-> it said 348 / 123 items and 6/6 / 5/5 negative cases while the live output said
-> 349 / 124 and 8/8 / 8/8.)
+> wins. (Hard-coded expectations in this document had already drifted once: the
+> counts here said 348 / 123 items and 6/6 / 5/5 negative cases while the live
+> output of that revision reported 349 / 124 and 8/8 / 8/8 — the table-number
+> count has since moved back to 348 as table rows were consolidated.)
 
 > **Why `audit_paths.py` must be in this list**: it checks whether the paths in
 > the delivered scripts still resolve. After the directory reorganization, three

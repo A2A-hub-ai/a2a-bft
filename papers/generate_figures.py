@@ -146,17 +146,20 @@ def _sweep_mean(rows_, key, atk, ds):
 
 def plot_attack_resistance():
     """攻击抵抗图（真机数据）：左=边界内决策率；右=边界内 vs 越界错误提交率"""
+    import matplotlib.patheffects as pe
     rows = _load_sweep()
     multi = _load_multi()
     attacks = ['random', 'strategic_reject', 'sybil_attack', 'collusion']
     labels = ['Random', 'Strategic\nReject', 'Sybil', 'Collusion']
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 4.6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.6, 4.6))
     x = np.arange(len(attacks))
     w = 0.2
 
     # 左图：边界内决策率（collusion 边界内取异构 n=8,2,1 数据）
-    for k, (ds, color, name) in enumerate([('gsm8k', COLORS['honest'], 'GSM8K (semantic)'),
-                                           ('mbpp', COLORS['accept'], 'MBPP (execution)')]):
+    label_dy = 1.2
+    panel_vals = {}
+    for k, (ds, color, name) in enumerate([('gsm8k', COLORS['honest'], 'GSM8K (sem.)'),
+                                           ('mbpp', COLORS['accept'], 'MBPP (exec.)')]):
         within, _ = _sweep_partition(rows, ds)
         vals = []
         for atk in attacks:
@@ -167,17 +170,30 @@ def plot_attack_resistance():
             # 边界内四类攻击都必须有值；缺失即数据/口径漂移，不得静默画空柱
             assert v is not None, f'within-boundary decision rate missing for {ds}/{atk}'
             vals.append(v)
+        panel_vals[k] = vals
         bars = ax1.bar(x + (k - 0.5) * w, vals, w, label=name, color=color,
                        edgecolor='black', linewidth=0.5)
-        for bar, v in zip(bars, vals):
-            ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1.2,
-                     f'{v:.0f}', ha='center', va='bottom', fontsize=8.5)
-    ax1.set_xticks(x); ax1.set_xticklabels(labels, fontsize=9)
-    ax1.set_ylabel('Decision Rate (%)', fontsize=11)
-    ax1.set_title('(a) Decision rate within boundary $n \\geq 3f{+}s{+}1$', fontsize=11)
-    ax1.set_ylim(0, 105); ax1.legend(fontsize=9); ax1.grid(axis='y', alpha=0.3)
+        for ai, (bar, v) in enumerate(zip(bars, vals)):
+            # 同组两数据集数值接近时错开标签高度，避免 "61"/"60" 粘连
+            dy = label_dy
+            if k == 1 and abs(panel_vals[0][ai] - v) < 8:
+                dy = label_dy + 6.5
+            ax1.text(bar.get_x() + bar.get_width()/2, v + dy,
+                     f'{v:.0f}', ha='center', va='bottom', fontsize=12.5,
+                     path_effects=[pe.withStroke(linewidth=2.2, foreground='white')])
+    ax1.set_xticks(x); ax1.set_xticklabels(labels, fontsize=12)
+    ax1.tick_params(axis='y', labelsize=12.5)
+    ax1.set_ylabel('Decision Rate (%)', fontsize=15)
+    ax1.set_title('(a) Decision rate within boundary', fontsize=14, pad=26)
+    ax1.set_ylim(0, 105)
+    ax1.legend(loc='lower center', bbox_to_anchor=(0.5, 1.005), ncol=2,
+               fontsize=11.5, frameon=False, columnspacing=1.0, handletextpad=0.4)
+    ax1.grid(axis='y', alpha=0.3)
 
     # 右图：错误提交率（边界内 vs 越界；实心=边界内，斜纹=越界）
+    # within 组偏左、below 组偏右，避免同 attack 内实心柱被斜纹柱遮盖
+    group_off = {'within': -0.25, 'below': +0.25}
+    panel_vals = {}
     for k, (ds, name) in enumerate([('gsm8k', 'GSM8K'), ('mbpp', 'MBPP')]):
         within, below = _sweep_partition(rows, ds)
         for group, hatch, tag in [(within, None, 'within'), (below, '//', 'below')]:
@@ -192,16 +208,29 @@ def plot_attack_resistance():
                         f'unexpected missing wrong-commit cell for {ds}/{atk}'
                     continue
                 vals.append(v)
-                positions.append(ai + (k - 0.5) * w)
+                positions.append(ai + group_off[tag] + (k - 0.5) * w)
+            panel_vals[(k, tag)] = vals
             color = COLORS['honest'] if ds == 'gsm8k' else COLORS['accept']
             ax2.bar(positions, vals, w, color=color, edgecolor='black',
                     linewidth=0.5, hatch=hatch, label=f'{name} {tag}')
-            for p, v in zip(positions, vals):
-                ax2.text(p, v + 1.2, f'{v:.0f}', ha='center', va='bottom', fontsize=8.5)
-    ax2.set_xticks(x); ax2.set_xticklabels(labels, fontsize=9)
-    ax2.set_ylabel('Wrong-Commit Rate (%)', fontsize=11)
-    ax2.set_title('(b) Wrong commits: within vs below boundary', fontsize=11)
-    ax2.set_ylim(0, 80); ax2.legend(fontsize=8, ncol=2); ax2.grid(axis='y', alpha=0.3)
+            for pi, (p, v) in enumerate(zip(positions, vals)):
+                # 同组两数据集数值接近时错开标签高度，避免相邻标签重叠
+                dy = 1.2
+                other = panel_vals.get((1 - k, tag))
+                if k == 1 and other is not None and pi < len(other) and abs(other[pi] - v) < 8:
+                    dy = 1.2 + 6.5
+                # 水平微移让标签归属更明确（gsm 左偏 / mbpp 右偏）
+                dx = -0.055 if k == 0 else 0.055
+                ax2.text(p + dx, v + dy, f'{v:.0f}', ha='center', va='bottom', fontsize=12.5,
+                         path_effects=[pe.withStroke(linewidth=2.2, foreground='white')])
+    ax2.set_xticks(x); ax2.set_xticklabels(labels, fontsize=12)
+    ax2.tick_params(axis='y', labelsize=12.5)
+    ax2.set_ylabel('Wrong-Commit Rate (%)', fontsize=15)
+    ax2.set_title('(b) Wrong commits: within vs below boundary', fontsize=14, pad=26)
+    ax2.set_ylim(0, 95); ax2.set_yticks([0, 20, 40, 60, 80])
+    ax2.legend(loc='lower center', bbox_to_anchor=(0.5, 1.005), ncol=4,
+               fontsize=11, frameon=False)
+    ax2.grid(axis='y', alpha=0.3)
 
     plt.tight_layout()
     plt.savefig(os.path.join(FIGDIR, 'attack_resistance.pdf'), dpi=300, bbox_inches='tight')
@@ -211,14 +240,18 @@ def plot_attack_resistance():
 
 
 def plot_performance_comparison():
-    """真实端到端开销图：耗时 / LLM 调用数 / 轮数（每任务）"""
+    """真实端到端开销图：耗时 / LLM 调用数 / 轮数（每任务）
+
+    x 轴使用短码 C1..C6，完整配置清单由 tex 图注给出（避免长标签重叠）。
+    """
+    import matplotlib.patheffects as pe
     rows = _load_sweep()
-    picks = [(4, 0, 0, 'baseline', 'n=4\nbase'),
-             (4, 1, 0, 'random', 'n=4,f=1\nrandom'),
-             (4, 1, 0, 'strategic_reject', 'n=4,f=1\nstrategic'),
-             (5, 1, 1, 'random', 'n=5,f=1,s=1\nrandom'),
-             (6, 0, 0, 'baseline', 'n=6\nbase'),
-             (5, 2, 0, 'collusion', 'n=5,f=2 dag\ncollusion')]
+    picks = [(4, 0, 0, 'baseline', 'C1'),
+             (4, 1, 0, 'random', 'C2'),
+             (4, 1, 0, 'strategic_reject', 'C3'),
+             (5, 1, 1, 'random', 'C4'),
+             (6, 0, 0, 'baseline', 'C5'),
+             (5, 2, 0, 'collusion', 'C6')]
 
     def get(ds, key, pick):
         n, f, s, atk, _ = pick
@@ -228,13 +261,13 @@ def plot_performance_comparison():
                 return r[key + '_mean']
         return np.nan
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.2))
+    fig, axes = plt.subplots(1, 3, figsize=(10.0, 4.0))
     x = np.arange(len(picks))
-    specs = [('avg_time', 'Time per task (s)', 'End-to-End Time per Task', COLORS['manual']),
-             ('avg_calls', 'LLM calls per task', 'LLM Calls per Task', COLORS['honest']),
-             ('avg_rounds', 'Rounds', 'Consensus Rounds', COLORS['byzantine'])]
+    specs = [('avg_time', 'Time per task (s)', 'End-to-End Time per Task', COLORS['manual'], 'upper right'),
+             ('avg_calls', 'LLM calls per task', 'LLM Calls per Task', COLORS['honest'], 'upper right'),
+             ('avg_rounds', 'Rounds', 'Consensus Rounds', COLORS['byzantine'], 'upper center')]
 
-    for ax, (key, ylab, title, color) in zip(axes, specs):
+    for ax, (key, ylab, title, color, leg_loc) in zip(axes, specs):
         for ds, name, off in [('gsm8k', 'GSM8K', -0.2), ('mbpp', 'MBPP', +0.2)]:
             vals = [get(ds, key, p) for p in picks]
             # 每个 pick 都必须命中真机扫描数据；NaN 会静默画成空柱，必须显式失败
@@ -247,12 +280,15 @@ def plot_performance_comparison():
                 if not np.isnan(v):
                     ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() * 1.01,
                             f'{v:.0f}' if key == 'avg_time' else f'{v:.1f}',
-                            ha='center', va='bottom', fontsize=7.5)
+                            ha='center', va='bottom', fontsize=12,
+                            path_effects=[pe.withStroke(linewidth=2.0, foreground='white')])
         ax.set_xticks(x)
-        ax.set_xticklabels([p[4] for p in picks], fontsize=7.5)
-        ax.set_ylabel(ylab, fontsize=10)
-        ax.set_title(title, fontsize=11)
-        ax.legend(fontsize=9)
+        ax.set_xticklabels([p[4] for p in picks], fontsize=14)
+        ax.tick_params(axis='y', labelsize=13)
+        ax.set_ylabel(ylab, fontsize=15)
+        ax.set_title(title, fontsize=14)
+        ax.margins(y=0.18)
+        ax.legend(fontsize=13, loc=leg_loc, framealpha=0.95)
         ax.grid(axis='y', alpha=0.3)
 
     plt.tight_layout()
@@ -262,14 +298,14 @@ def plot_performance_comparison():
     print("OK Saved: performance_comparison.pdf/png (real 4-model sweep)")
 def plot_system_architecture():
     """绘制系统架构图"""
-    fig, ax = plt.subplots(figsize=(14, 10))
+    fig, ax = plt.subplots(figsize=(8.2, 6.0))
 
-    # 定义层级
+    # 定义层级（Model Layer 与正文 6.1 的四模型部署逐字一致）
     layers = {
         'Application Layer': ['A2A Protocol', 'Task Distribution', 'Result Aggregation'],
         'Consensus Layer': ['Propose Phase', 'Validate Phase', 'Commit Phase'],
         'Agent Layer': ['Worker 1', 'Worker 2', 'Worker 3', 'Worker 4'],
-        'Model Layer': ['Llama-3.1-8B', 'DeepSeek-V2', 'InternLM3', 'LLaDA-8B']
+        'Model Layer': ['Llama-3.1-8B-Instruct', 'DeepSeek-V2-Lite', 'InternLM3-8B', 'Qwen2.5-7B-Instruct']
     }
 
     colors = {
@@ -286,33 +322,37 @@ def plot_system_architecture():
     for layer_name, components in layers.items():
         y = y_positions[layer_name]
         n_components = len(components)
-        x_start = 0.5 - (n_components - 1) * 0.15
+        x_start = 0.5 - (n_components - 1) * 0.135
 
         # 绘制层级背景
         ax.add_patch(plt.Rectangle((0.1, y - 0.1), 0.8, 0.18,
                                     facecolor=colors[layer_name], alpha=0.2,
                                     edgecolor=colors[layer_name], linewidth=2))
-        ax.text(0.5, y + 0.05, layer_name, ha='center', va='center',
-                fontsize=12, fontweight='bold', color=colors[layer_name])
+        # 层标题放在层带上方间隙，避免与组件框相撞
+        ax.text(0.5, y + 0.105, layer_name, ha='center', va='center',
+                fontsize=13, fontweight='bold', color=colors[layer_name])
 
         # 绘制组件
         for i, comp in enumerate(components):
-            x = x_start + i * 0.3
-            ax.add_patch(plt.Rectangle((x - 0.1, y - 0.06), 0.2, 0.12,
+            x = x_start + i * 0.27
+            ax.add_patch(plt.Rectangle((x - 0.093, y - 0.06), 0.186, 0.12,
                                         facecolor='white', edgecolor=colors[layer_name],
                                         linewidth=1.5))
-            ax.text(x, y, comp, ha='center', va='center', fontsize=9)
+            fs = 12 if len(comp) <= 14 else 8.5
+            if layer_name == 'Model Layer':
+                fs = 9.2  # 模型名较长，统一字号避免 12/8.5 视觉失衡
+            ax.text(x, y, comp, ha='center', va='center', fontsize=fs)
 
-    # 绘制连接箭头
+    # 绘制连接箭头（放在层带左缘 x=0.14，避免竖穿层标题文字）
     for i in range(3):
-        ax.annotate('', xy=(0.5, y_positions['Consensus Layer'] + 0.1),
-                    xytext=(0.5, y_positions['Application Layer'] - 0.1),
+        ax.annotate('', xy=(0.14, y_positions['Consensus Layer'] + 0.1),
+                    xytext=(0.14, y_positions['Application Layer'] - 0.1),
                     arrowprops=dict(arrowstyle='->', color='gray', lw=1.5))
-        ax.annotate('', xy=(0.5, y_positions['Agent Layer'] + 0.1),
-                    xytext=(0.5, y_positions['Consensus Layer'] - 0.1),
+        ax.annotate('', xy=(0.14, y_positions['Agent Layer'] + 0.1),
+                    xytext=(0.14, y_positions['Consensus Layer'] - 0.1),
                     arrowprops=dict(arrowstyle='->', color='gray', lw=1.5))
-        ax.annotate('', xy=(0.5, y_positions['Model Layer'] + 0.08),
-                    xytext=(0.5, y_positions['Agent Layer'] - 0.08),
+        ax.annotate('', xy=(0.14, y_positions['Model Layer'] + 0.08),
+                    xytext=(0.14, y_positions['Agent Layer'] - 0.08),
                     arrowprops=dict(arrowstyle='->', color='gray', lw=1.5))
 
     ax.set_xlim(0, 1)
@@ -329,7 +369,7 @@ def plot_system_architecture():
 def plot_consensus_flow():
     """绘制共识流程图（紧凑出版排版：三阶段面板 + 决策标签 + View Change 反馈回路）"""
     import matplotlib.transforms as mtransforms
-    fig, ax = plt.subplots(figsize=(10.5, 3.0))
+    fig, ax = plt.subplots(figsize=(7.4, 2.4))
     plt.rcParams['font.family'] = 'serif'
 
     panel_h = 0.52
@@ -345,13 +385,13 @@ def plot_consensus_flow():
         (0.35, 0.26, '#D5F5E3', '#1E8449',
          'PHASE 2: VALIDATE',
          ['Re-solve and verify $\\pi$;',
-          'deterministic tasks: error-free',
-          'check; semantic tasks: $m$-verifier']),
+          'deterministic: error-free',
+          'semantic: $m$-verifier vote']),
         (0.67, 0.26, '#FDEBD0', '#B9770E',
          'PHASE 3: COMMIT',
-         ['$\\phi(\\pi) = |\\mathrm{ACCEPT}| - 0.5|\\mathrm{REJECT}|$',
-          'ACCEPT iff $\\phi \\geq \\theta_{accept}$,',
-          '$\\theta_{accept} = n-1-2f-s$']),
+         ['$\\phi(\\pi) = |\\mathrm{ACCEPT}|$',
+          '$-\\,0.5\\,|\\mathrm{REJECT}|$;',
+          'ACCEPT iff $\\phi \\geq \\theta_{accept}$']),
     ]
 
     for x, w, fc, ec, title, lines in panels:
@@ -360,10 +400,10 @@ def plot_consensus_flow():
                              joinstyle='round')
         ax.add_patch(rect)
         ax.text(x + w/2, panel_y + panel_h - 0.085, title,
-                ha='center', va='center', fontsize=9.5, fontweight='bold', color=ec)
+                ha='center', va='center', fontsize=11.5, fontweight='bold', color=ec)
         for j, ln in enumerate(lines):
-            ax.text(x + w/2, panel_y + panel_h - 0.17 - j*0.093, ln,
-                    ha='center', va='center', fontsize=8.2, color='#1B2631')
+            ax.text(x + w/2, panel_y + panel_h - 0.175 - j*0.105, ln,
+                    ha='center', va='center', fontsize=10, color='#1B2631')
 
     # 阶段间主箭头
     for x0, x1 in [(0.29, 0.35), (0.61, 0.67)]:
@@ -377,7 +417,7 @@ def plot_consensus_flow():
                  ('REJECT', '#922B21', '#FADBD8')]
     for k, (lab, ec, fc) in enumerate(decisions):
         ax.text(0.965, 0.79 - k*0.20, lab, ha='center', va='center',
-                fontsize=8.5, fontweight='bold', color=ec,
+                fontsize=10.5, fontweight='bold', color=ec,
                 bbox=dict(boxstyle='round,pad=0.32', facecolor=fc,
                           edgecolor=ec, linewidth=1.1))
     ax.annotate('', xy=(0.935, cy), xytext=(0.93, cy),
@@ -391,14 +431,14 @@ def plot_consensus_flow():
                                 mutation_scale=14))
     ax.text(0.48, 0.02,
             'PENDING (2 rounds) or $2\\Delta$ timeout  $\\rightarrow$  '
-            'View Change ($2f{+}1$ confirmations, new round-robin primary)',
-            ha='center', va='center', fontsize=8.2, color='#7D3C98', style='italic')
+            'View Change ($2f{+}1$ confirmations, new primary)',
+            ha='center', va='center', fontsize=9.5, color='#7D3C98', style='italic')
 
     # 故障模型徽标（左上）
     ax.text(0.03, 0.965,
             'Fault model: $n \\geq 3f + s + 1$'
             '   (Byzantine $f$, soft-fault $s$; reputation affects selection only)',
-            ha='left', va='center', fontsize=8.5, color='#566573',
+            ha='left', va='center', fontsize=10, color='#566573',
             bbox=dict(boxstyle='round,pad=0.3', facecolor='#F4F6F7',
                       edgecolor='#AEB6BF', linewidth=0.8))
 
@@ -441,7 +481,11 @@ def _mean_traj(seqs, upto=None):
 
 
 def plot_reputation_measured(ax, arm_rows, traj):
-    """右图：实测 r_i 轨迹（Byzantine vs honest），按细胞分面。"""
+    """右图：实测 r_i 轨迹（Byzantine vs honest），按细胞分面。
+
+    可读性编码：角色（honest/Byzantine）= 颜色（蓝/橙，色盲安全）+ 线型（实/虚）
+    双重冗余；细胞（GSM8K/MBPP）= marker（○/□）。
+    """
     cells = [k for k in traj if traj[k].get('f', 0) > 0]
     if not cells:
         return False
@@ -450,31 +494,35 @@ def plot_reputation_measured(ax, arm_rows, traj):
     cells = cells[:2]
 
     by_cell = {r['cell']: r for r in arm_rows}
-    styles = [('-', '--')]
+    cell_markers = ['o', 's']
     for ci, key in enumerate(cells):
         t = traj[key]
         x_b, m_b, _ = _mean_traj(list(t['byz'].values()))
         x_h, m_h, _ = _mean_traj(list(t['honest'].values()))
-        ls = styles[ci % len(styles)][1] if ci else styles[0][0]
+        mk = cell_markers[ci % 2]
         lab = key.replace('gsm8k', 'GSM8K').replace('mbpp', 'MBPP')
         if x_h is not None:
-            ax.plot(x_h, m_h, color=COLORS['accept'], linestyle=ls, linewidth=1.8,
-                    alpha=0.95, label=f"honest — {lab}")
+            ax.plot(x_h, m_h, color=COLORS['honest'], linestyle='-', linewidth=1.8,
+                    marker=mk, markevery=0.12, markersize=5.5, alpha=0.95,
+                    label=f"honest — {lab}")
         if x_b is not None:
-            ax.plot(x_b, m_b, color=COLORS['reject'], linestyle=ls, linewidth=1.8,
-                    alpha=0.95, label=f"Byzantine — {lab}")
+            ax.plot(x_b, m_b, color=COLORS['manual'], linestyle='--', linewidth=1.8,
+                    marker=mk, markevery=0.12, markersize=5.5, alpha=0.95,
+                    label=f"Byzantine — {lab}")
         row = by_cell.get(key)
         if row and row.get('mispenalty_rate') is not None:
             npts = len(x_h) if x_h is not None else (len(x_b) if x_b is not None else 0)
             ax.axhline(0.7, color='gray', linestyle=':', linewidth=1.2)
-            ax.text(max(1, npts) * 0.02, 0.72,
-                    r'$\rho_i \geq 0.7$ triggers the $-0.25$ tier', fontsize=8, color='gray')
+            # 注释放到中部空白区（前 25% 更新段轨迹密集，放左侧会压线）；白底防轨迹干扰
+            ax.text(max(1, npts) * 0.42, 0.745,
+                    r'$\rho_i \geq 0.7$ triggers the $-0.25$ tier', fontsize=11, color='gray',
+                    bbox=dict(facecolor='white', alpha=0.85, edgecolor='none', pad=1.5))
 
-    ax.set_xlabel('Reputation updates (chronological, across tasks)', fontsize=11)
-    ax.set_ylabel('Reputation score $r_i$', fontsize=12)
-    ax.set_title('Measured trajectories (real 4-model deployment)', fontsize=13, fontweight='bold')
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.16), ncol=2,
-              fontsize=8, frameon=False)
+    ax.set_xlabel('Reputation updates (chronological, across tasks)', fontsize=14)
+    ax.set_ylabel('Reputation score $r_i$', fontsize=15)
+    ax.set_title('Measured trajectories (real 4-model deployment)', fontsize=14)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.18), ncol=2,
+              fontsize=12, frameon=False)
     ax.set_ylim(0, 1.12)
     ax.margins(x=0.02)
     ax.grid(alpha=0.3)
@@ -483,25 +531,25 @@ def plot_reputation_measured(ax, arm_rows, traj):
 
 def plot_reputation_mechanism():
     """声誉机制图：左 = Algorithm 1 规则；右 = 实测轨迹（缺数据时回退解析轨迹）。"""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.2, 4.4))
 
-    # 左侧：声誉更新规则（与 Algorithm 1 严格一致）
+    # 左侧：声誉更新规则（与 Algorithm 1 严格一致；floor 细节见 Algorithm 1）
     ax1.text(0.5, 0.9, 'Reputation Update Rule (Algorithm 1)', ha='center',
              fontsize=13, fontweight='bold')
 
     rules = [
-        ('Correct vote, ratio < 0.5 (reward)', '+0.1', COLORS['accept']),
-        ('Honest mistake, ratio < 0.7 (floor 0.5)', '-0.05', COLORS['manual']),
-        ('Persistent rejection, ratio >= 0.7 (floor 0.1)', '-0.25', COLORS['reject']),
-        ('Correct vote, ratio 0.5-0.7 (neutral drift)', '-0.02', COLORS['honest'])
+        ('Correct vote (ratio < 0.5)', '+0.1', COLORS['accept']),
+        ('Honest mistake (ratio < 0.7)', '-0.05', COLORS['manual']),
+        ('Persistent rejection (ratio >= 0.7)', '-0.25', COLORS['reject']),
+        ('Correct vote (ratio 0.5-0.7)', '-0.02', COLORS['honest'])
     ]
 
     y_pos = 0.7
     for label, value, color in rules:
-        ax1.add_patch(plt.Rectangle((0.08, y_pos - 0.08), 0.84, 0.12,
+        ax1.add_patch(plt.Rectangle((0.06, y_pos - 0.08), 0.88, 0.12,
                                      facecolor=color, alpha=0.2, edgecolor=color, linewidth=2))
-        ax1.text(0.14, y_pos - 0.02, label, fontsize=10)
-        ax1.text(0.88, y_pos - 0.02, value, fontsize=11, fontweight='bold', ha='right')
+        ax1.text(0.10, y_pos - 0.02, f'{label}:  {value}', fontsize=11,
+                 va='center', color='#1B2631')
         y_pos -= 0.2
 
     ax1.set_xlim(0, 1)
@@ -528,15 +576,16 @@ def plot_reputation_mechanism():
                  label='Persistent rejection (-0.25/round)')
         ax2.plot(rounds, np.maximum(0.5, 1.0 - 0.02 * rounds), color='purple', linewidth=1.5,
                  linestyle=':', label='Neutral drift (-0.02/round)')
-        ax2.set_xlabel('Consensus rounds', fontsize=12)
-        ax2.set_ylabel('Reputation score $r_i$', fontsize=12)
-        ax2.set_title('Analytic trajectories implied by the update rule', fontsize=13, fontweight='bold')
-        ax2.legend(loc='upper right', fontsize=9)
+        ax2.set_xlabel('Consensus rounds', fontsize=14)
+        ax2.set_ylabel('Reputation score $r_i$', fontsize=15)
+        ax2.set_title('Analytic trajectories implied by the update rule', fontsize=14)
+        ax2.legend(loc='upper right', fontsize=12)
         ax2.set_xlim(0, 20)
         ax2.set_ylim(0, 1.2)
         ax2.grid(alpha=0.3)
         print("  ! 未找到实测轨迹，右图回退为解析轨迹（示意图）")
 
+    ax2.tick_params(axis='both', labelsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGDIR, 'reputation_mechanism.pdf'), dpi=300, bbox_inches='tight')
     plt.savefig(os.path.join(FIGDIR, 'reputation_mechanism.png'), dpi=300, bbox_inches='tight')
