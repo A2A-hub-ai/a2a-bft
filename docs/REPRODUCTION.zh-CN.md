@@ -9,9 +9,14 @@
 >
 > ```bash
 > ./reproduce.sh doctor     # 先体检：本机能复现到哪一步
-> ./reproduce.sh verify     # 10 审计 + 5 组负向测试（纯 CPU，约 1 分钟）
+> ./reproduce.sh verify     # 审计 + 负向测试（纯 CPU，约 1 分钟）
 > ./reproduce.sh all        # datasets + figures + verify
 > ```
+>
+> **工件模式**：发布的工件（zip / 公开仓库）不含 `papers/`——论文源随正文提交。
+> 无 `papers/` 时 `verify` 完整运行 6 个纯数据审计 + 2 组不依赖论文的负向测试，
+> 自动 `SKIP` 4 个论文交叉审计 + 3 组论文注入负向测试（`REPRODUCE_OK_PARTIAL`）；
+> `papers/` 在位时 10 + 5 全部运行。
 >
 > 判定语义：`REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`，
 > 退出码 0 / 0 / 1。"未验证"不等于"通过"。
@@ -322,7 +327,8 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 > `verify` 层**不需要 GPU，也不需要 `openai` / `torch` / `vllm`**：一个只装了
 > `numpy`、`scipy`、`matplotlib` 的干净 `python -m venv`，在新克隆上即可跑完
 > 10 个审计 + 5 组负向测试并得到 `REPRODUCE_OK`（2026-09-20 实测，Python 3.12）。
-> 数据集与结果 JSON 随仓库自带，无需下载、无需联网。
+> 数据集与结果 JSON 随仓库自带，无需下载、无需联网。发布的**工件**（无 `papers/`）
+> 中论文交叉层自动 `SKIP`，其余层仍是纯数据全绿结论（2026-09-21 工件裁剪后复测）。
 
 ```bash
 # 1) 审计

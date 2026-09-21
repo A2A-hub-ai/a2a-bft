@@ -55,7 +55,9 @@ CASES = [
     # (名称, 期望字符串, [(锚点, 替换)])
     ("R13-1 §6.3 越界机制措辞回退", "[PROBLEM] B2b",
      [(r"lets two Byzantine ACCEPTs offset the honest REJECTs of a non-tampering "
-       r"primary's wrong proposal.",
+       r"primary's wrong proposal (the $n{=}6$ MBPP row stays at $0.0\%$: execution "
+       r"mechanically rejects tampered code, so its violation surfaces through text "
+       r"proposals; Appendix~\ref{app:proofs})",
        r"lets two colluders carry a tampered proposal alone.")]),
 
     ("R13-2 越界条件回退为旧式", "[PROBLEM] B1b",

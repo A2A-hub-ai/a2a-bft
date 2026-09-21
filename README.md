@@ -38,7 +38,8 @@ absorber for equivocation.
 ## 2. Repository layout
 
 ```
-.
+.                             # papers/ below exists in the full project only —
+.                             # the released artifact excludes it (see §3.0)
 ├── papers/                     Paper (submission-relevant files only)
 │   ├── iclr2027_main.tex       ★ Paper source
 │   ├── references.bib          Bibliography
@@ -88,16 +89,25 @@ absorber for equivocation.
 read documentation to pick commands, and no need to `cd`:
 
 ```bash
-./reproduce.sh              # default = verify: 10 audits + 5 negative-test groups (CPU only)
+./reproduce.sh              # default = verify: audits + negative-test groups (CPU only)
 ./reproduce.sh doctor       # run this first: how far this machine can reproduce, and what is missing
 ./reproduce.sh figures      # regenerate figures from experiments/results/ and recheck figure-table consistency
 ./reproduce.sh all          # doctor + datasets + figures + verify
 ```
 
+> **Artifact mode (paper source not included).** The released artifact
+> (supplementary-material zip / public repository) contains the experiment code,
+> datasets, results, and audit suite **only** — the paper source (`papers/`)
+> ships separately with the manuscript. In artifact mode `verify` runs the 6
+> data-only audits + 2 paper-independent negative-test groups in full and
+> auto-`SKIP`s the 4 paper cross-check audits + 3 paper-injection negative
+> tests (verdict `REPRODUCE_OK_PARTIAL`); in the full project (with `papers/`)
+> all 10 audits + 5 negative groups run.
+
 | Stage | Needs GPU | Notes |
 |------|----------|------|
-| `doctor` | No | Environment check: interpreter, dependencies, data/result/figure counts, GPU count |
-| `verify` | No (needs matplotlib) | 10 audits + 5 negative-test groups; prints `REPRODUCE_OK` / `REPRODUCE_FAILED` |
+| `doctor` | No | Environment check: interpreter, dependencies, data/result counts, GPU count |
+| `verify` | No (needs matplotlib) | 10 audits + 5 negative-test groups (6 + 2 in artifact mode); prints `REPRODUCE_OK` / `REPRODUCE_FAILED` |
 | `figures` | No (needs matplotlib) | Regenerate the 5 figures + recheck content fingerprints |
 | `datasets` | No | Download GSM8K / MBPP / MMLU and verify record counts |
 | `install` | No | `pip install -r requirements.txt` |

@@ -39,6 +39,8 @@ ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation�
 
 ```
 .
+.                             # 下述 papers/ 仅存在于完整项目——
+.                             # 发布工件不含该目录（见 §3.0 工件模式）
 ├── papers/                     论文（只放投稿相关文件）
 │   ├── iclr2027_main.tex       ★ 论文源文件
 │   ├── references.bib          参考文献
@@ -87,16 +89,22 @@ ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation�
 仓库根目录的 `reproduce.sh` 是**唯一入口**，不需要读文档挑命令、也不需要 `cd`：
 
 ```bash
-./reproduce.sh              # 默认 = verify：10 个审计 + 5 组负向测试（纯 CPU，无需 GPU）
+./reproduce.sh              # 默认 = verify：审计 + 负向测试（纯 CPU，无需 GPU）
 ./reproduce.sh doctor       # 先跑这个：告诉你本机能复现到哪一步、缺什么
 ./reproduce.sh figures      # 从 experiments/results/ 重新出图并复查图-表一致性
 ./reproduce.sh all          # doctor + datasets + figures + verify
 ```
 
+> **工件模式（不含论文源）**。发布的工件（补充材料 zip / 公开仓库）只含实验代码、
+> 数据、结果与审计套件——论文源（`papers/`）随正文单独提交。工件模式下 `verify`
+> 完整运行 6 个纯数据审计 + 2 组不依赖论文的负向测试，自动 `SKIP` 4 个论文交叉
+> 审计 + 3 组论文注入负向测试（结论 `REPRODUCE_OK_PARTIAL`）；完整项目（有
+> `papers/`）则 10 审计 + 5 组负向测试全部运行。
+
 | 阶段 | 需要 GPU | 说明 |
 |------|----------|------|
-| `doctor` | 否 | 环境体检：解释器、依赖、数据/结果/图件计数、GPU 数量 |
-| `verify` | 否 | 10 审计 + 5 组负向测试；输出 `REPRODUCE_OK` / `REPRODUCE_FAILED` |
+| `doctor` | 否 | 环境体检：解释器、依赖、数据/结果计数、GPU 数量 |
+| `verify` | 否 | 10 审计 + 5 组负向测试（工件模式下 6 + 2）；输出 `REPRODUCE_OK` / `REPRODUCE_FAILED` |
 | `figures` | 否（需 matplotlib） | 重新生成 5 张图件 + 内容指纹复查 |
 | `datasets` | 否 | 下载 GSM8K / MBPP / MMLU 并校验条数 |
 | `install` | 否 | `pip install -r requirements.txt` |

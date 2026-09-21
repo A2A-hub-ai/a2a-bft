@@ -18,7 +18,7 @@
 help:
 > @./reproduce.sh help
 
-# Default target: 10 audits + 5 negative-test groups (CPU only)
+# Default target: audits + negative-test groups (CPU only; paper layers SKIP without papers/)
 verify:
 > @./reproduce.sh verify
 

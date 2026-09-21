@@ -76,6 +76,21 @@ def _find_root(start):
 ROOT = _find_root(__file__)
 MARKER = ".a2a_project_root"
 
+# 2026-09-21：公开工件模式。补充材料包自该日起不再收录 papers/（论文源随正文
+# 经 OpenReview 提交），包内指向 papers/ 的路径常量与文档命令必然"目标不存在"。
+# 该模式下此类目标统计为 skip（豁免）而不判失败；papers/ 在位（完整项目/工作区）
+# 时 ARTIFACT_MODE=False，行为与原版完全一致——不放过任何 papers 路径回归。
+ARTIFACT_MODE = not os.path.isdir(os.path.join(ROOT, "papers"))
+
+
+def _paper_exempt(rel_target):
+    """artifact 模式下，位于 papers/ 下的目标豁免存在性检查。"""
+    if not ARTIFACT_MODE:
+        return False
+    r = rel_target.replace("\\", "/").rstrip("/")
+    return r == "papers" or r.startswith("papers/")
+
+
 DATA_DIR_NAMES = ("results", "datasets", "figures", "papers", "models", "logs")
 SKIP_DIRS = {".git", "__pycache__", ".workbuddy", "node_modules", ".openscience",
              "datasets", "site-packages", ".venv", "venv", ".tmp_d2bak"}
@@ -513,6 +528,7 @@ def main():
     fileish = dirish = smoke = smoke_hits = sp_checked = 0
     open_checked = 0
     doc_checked = doc_files = 0
+    paper_skipped = 0
     rel_diag = []
     posix_hits = []
     examples = []
@@ -601,19 +617,24 @@ def main():
             parent = os.path.dirname(val.rstrip("\\/"))
             if _looks_like_file(val):
                 fileish += 1
-                if not os.path.isdir(parent):
+                if not os.path.isdir(parent) and not _paper_exempt(os.path.relpath(val, ROOT)):
                     problems.append(
                         f"[path] {rel}:{name} 目标所在目录不存在 -> "
                         f"{os.path.relpath(val, ROOT)}"
                         f"（缺失目录: {os.path.relpath(parent, ROOT)}）")
+                elif not os.path.isdir(parent):
+                    paper_skipped += 1
                 elif len(examples) < 8:
                     examples.append(f"{rel}:{name} -> {os.path.relpath(val, ROOT)}")
             else:
                 dirish += 1
                 if parent and not os.path.isdir(parent):
-                    problems.append(
-                        f"[path] {rel}:{name} 目录的上一级不存在 -> "
-                        f"{os.path.relpath(val, ROOT)}")
+                    if _paper_exempt(os.path.relpath(val, ROOT)):
+                        paper_skipped += 1
+                    else:
+                        problems.append(
+                            f"[path] {rel}:{name} 目录的上一级不存在 -> "
+                            f"{os.path.relpath(val, ROOT)}")
 
         # ---- §5 读取型 open() 的数据文件必须存在 ----
         for lineno, fname in _open_read_literals(tree):
@@ -646,9 +667,12 @@ def main():
     for rel_doc, lineno, cmd, target in doc_cmds:
         doc_checked += 1
         if not os.path.exists(os.path.join(ROOT, target)):
-            problems.append(
-                f"[doccmd] {rel_doc}:{lineno} 文档给出的命令指向不存在的脚本 -> "
-                f"{cmd}（目录重整后未同步更新；复现者照抄即失败）")
+            if _paper_exempt(target):
+                paper_skipped += 1
+            else:
+                problems.append(
+                    f"[doccmd] {rel_doc}:{lineno} 文档给出的命令指向不存在的脚本 -> "
+                    f"{cmd}（目录重整后未同步更新；复现者照抄即失败）")
 
     # ---- 防空转：各类检查都必须真的执行过 ----
     if fileish == 0:
@@ -676,6 +700,9 @@ def main():
     print(f"  §5 读取型 open() 数据文件: {open_checked}")
     print(f"  §6 文档命令路径          : {doc_checked}"
           f"（扫描 {doc_files} 个 .md/.sh/.txt，不含 docs/reviews 历史快照）")
+    if paper_skipped:
+        print(f"  论文源豁免（artifact 模式）: {paper_skipped}（papers/ 不在本工件内，"
+              f"指向 papers/ 的目标不判失败；完整项目无此项）")
     if rel_diag:
         print(f"  §4 诊断：相对路径常量 {len(rel_diag)} 条（依赖 CWD，不判失败）")
         for d in rel_diag[:10]:

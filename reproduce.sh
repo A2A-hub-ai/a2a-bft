@@ -5,7 +5,9 @@
 # Design goal: collapse "read the docs -> pick scripts one by one -> diff outputs by hand"
 #
 #   ./reproduce.sh            # default = verify (no GPU needed)
-#   ./reproduce.sh verify     # 10 audits + 5 negative-test groups (CPU only)
+#   ./reproduce.sh verify     # 6 data-only audits + 2 negative-test groups (artifact mode,
+#                             #   no paper source); +4 paper cross-check audits and +3
+#                             #   paper-injection negative tests when papers/ is present
 #   ./reproduce.sh doctor     # environment check: how far you can get, and what is missing
 #   ./reproduce.sh figures    # regenerate figures from results/ and recheck consistency
 #   ./reproduce.sh datasets   # download GSM8K / MBPP / MMLU and verify record counts
@@ -206,7 +208,7 @@ stage_doctor() {
   echo "  data and results:"
   local d
   for d in "experiments/datasets:datasets" "experiments/results:results" \
-           "papers/figures:paper figures" "experiments/src:core library"; do
+           "experiments/src:core library"; do
     local p="${d%%:*}"; local n="${d##*:}"
     local cnt
     cnt="$(find "$A2A_ROOT/$p" -type f ! -name "*.pyc" 2>/dev/null | grep -vc "__pycache__" || echo 0)"
@@ -233,48 +235,59 @@ stage_doctor() {
 }
 
 # ===========================================================================
-# Stage 2: verify - 10 audits + 5 negative-test groups (strictly serial)
+# Stage 2: verify - audits + negative-test groups (strictly serial; paper cross-check
+#             layers auto-SKIP when papers/ is absent, e.g. in the public artifact)
 # ===========================================================================
 # Labels carry descriptions only, never counts: extract_count() reads counts from each script's
 # ACTUAL output. Earlier labels hard-coded "(349 items)" / "6 injected path defects"; whenever
 # cases were added or removed the label went stale, and because pass/fail is decided solely by
 # exit codes a stale label stayed unnoticed for a long time (the negative path cases grew from 6 to 8
 AUDITS=(
-  "audit_table_numbers.py|table numbers"
-  "audit_figures.py|figure-table consistency + fingerprints"
-  "audit_prose_ranges.py|prose ranges vs. tables"
-  "audit_theory_numerics.py|theory formulas instantiated numerically"
-  "audit_revision_layer.py|revision-layer algebra + text consistency"
-  "audit_decision_neutrality.py|decision neutrality"
-  "audit_reputation_fidelity.py|reputation fidelity"
-  "audit_judge_calibration.py|judge-calibration numbers vs. paper claims"
-  "calibrate_judge_from_streams.py|judge FPR/FNR recomputed from vote streams"
-  "audit_paths.py|path resolution layer"
+  "audit_table_numbers.py|table numbers|P"
+  "audit_figures.py|figure-table consistency + fingerprints|P"
+  "audit_prose_ranges.py|prose ranges vs. tables|P"
+  "audit_theory_numerics.py|theory formulas instantiated numerically|"
+  "audit_revision_layer.py|revision-layer algebra + text consistency|P"
+  "audit_decision_neutrality.py|decision neutrality|"
+  "audit_reputation_fidelity.py|reputation fidelity|"
+  "audit_judge_calibration.py|judge-calibration numbers vs. released records|"
+  "calibrate_judge_from_streams.py|judge FPR/FNR recomputed from vote streams|"
+  "audit_paths.py|path resolution layer|"
 )
 NEGATIVES=(
-  "negative_test_tables.py|inject table defect"
-  "negative_test_figures.py|inject figure defect"
-  "negative_test_theory.py|inject theory defect"
-  "negative_test_paths.py|inject path defect"
-  "negative_test_revision.py|inject revision-layer defect"
+  "negative_test_tables.py|inject table defect|P"
+  "negative_test_figures.py|inject figure defect|P"
+  "negative_test_theory.py|inject theory defect|"
+  "negative_test_paths.py|inject path defect|"
+  "negative_test_revision.py|inject revision-layer defect|P"
 )
 
 stage_verify() {
   acquire_lock
   hr; echo "Audits + negative tests (verify) - CPU only, no GPU required"; hr
 
+  local PAPER_MISSING=0
   if [ -f "$TEX" ]; then
     local h0; h0="$(file_hash "$TEX")"
     echo "paper source fingerprint (before): $h0"
   else
-    echo "${C_BAD}missing $TEX${C_OFF}" >&2
+    PAPER_MISSING=1
+    echo "${C_WARN}paper source (papers/iclr2027_main.tex) not present in this artifact.${C_OFF}"
+    echo "${C_DIM}  the paper-vs-data cross-check layers below will be SKIPped;${C_OFF}"
+    echo "${C_DIM}  all data-only layers still run in full.${C_OFF}"
   fi
   echo
 
   echo "[1/2] audit scripts (run serially, ${#AUDITS[@]} total)"
-  local item script label
+  local item script label needs_paper
   for item in "${AUDITS[@]}"; do
-    script="${item%%|*}"; label="${item##*|}"
+    script="$(echo "$item" | cut -d'|' -f1)"; label="$(echo "$item" | cut -d'|' -f2)"
+    needs_paper="$(echo "$item" | cut -d'|' -f3)"
+    if [ "$needs_paper" = "P" ] && [ "$PAPER_MISSING" = "1" ]; then
+      printf '  %-42s%sSKIP%s (paper source not included in this artifact)\n' "$label" "$C_WARN" "$C_OFF"
+      SKIP_N=$((SKIP_N + 1)); SKIPPED_ITEMS+=("$label -- paper cross-check layer NOT verified (no paper source)")
+      continue
+    fi
     if [ ! -f "$VERIFICATION/$script" ]; then
       printf '  %-42s%sMISSING%s\n' "$script" "$C_BAD" "$C_OFF"
       FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$script not found")
@@ -302,9 +315,19 @@ stage_verify() {
 
   echo
   echo "[2/2] negative tests (run serially, ${#NEGATIVES[@]} total)"
-  echo "${C_DIM}  note: these cases temporarily rewrite papers/iclr2027_main.tex and restore it, so they cannot run in parallel.${C_OFF}"
+  if [ "$PAPER_MISSING" = "1" ]; then
+    echo "${C_DIM}  note: paper-injection cases are SKIPped in this artifact (no paper source); the remaining cases run serially.${C_OFF}"
+  else
+    echo "${C_DIM}  note: these cases temporarily rewrite papers/iclr2027_main.tex and restore it, so they cannot run in parallel.${C_OFF}"
+  fi
   for item in "${NEGATIVES[@]}"; do
-    script="${item%%|*}"; label="${item##*|}"
+    script="$(echo "$item" | cut -d'|' -f1)"; label="$(echo "$item" | cut -d'|' -f2)"
+    needs_paper="$(echo "$item" | cut -d'|' -f3)"
+    if [ "$needs_paper" = "P" ] && [ "$PAPER_MISSING" = "1" ]; then
+      printf '  %-42s%sSKIP%s (paper source not included in this artifact)\n' "$label" "$C_WARN" "$C_OFF"
+      SKIP_N=$((SKIP_N + 1)); SKIPPED_ITEMS+=("$label -- paper-injection layer NOT verified (no paper source)")
+      continue
+    fi
     if [ ! -f "$VERIFICATION/$script" ]; then
       printf '  %-42s%sMISSING%s\n' "$script" "$C_BAD" "$C_OFF"
       FAIL_N=$((FAIL_N + 1)); FAILED_ITEMS+=("$script not found")
@@ -315,7 +338,9 @@ stage_verify() {
 
   # ---- end-of-run postcondition: the negative tests must restore the paper source byte-for-byte ----
   echo
-  if [ -f "$TEX" ]; then
+  if [ "$PAPER_MISSING" = "1" ]; then
+    printf '%snot applicable%s: no paper source in this artifact, no restore postcondition to check.\n' "$C_DIM" "$C_OFF"
+  elif [ -f "$TEX" ]; then
     local h0v="${h0:-}" h1
     h1="$(file_hash "$TEX")"
     printf 'paper source fingerprint (after):  %s  ' "$h1"
@@ -363,7 +388,10 @@ stage_verify() {
     hr
     return 0
   fi
-  echo "All passed: every number in the paper is independently recomputable, and the audits are proven effective."
+  echo "All passed: every number in the released records is independently recomputable, and the audits are proven effective."
+  if [ "$PAPER_MISSING" = "1" ]; then
+    echo "${C_DIM}note: paper-vs-data cross-check layers were skipped (paper source ships separately with the manuscript).${C_OFF}"
+  fi
   echo "REPRODUCE_OK"
   hr
   return 0
@@ -375,6 +403,11 @@ stage_verify() {
 stage_figures() {
   acquire_lock
   hr; echo "Regenerate paper figures (figures)"; hr
+  if [ ! -f "$PAPERS/generate_figures.py" ]; then
+    echo "${C_WARN}papers/generate_figures.py not present in this artifact; the figures stage needs the paper source.${C_OFF}"
+    echo "${C_DIM}figure regeneration runs in the full project; the released figure PDFs ship with the manuscript.${C_OFF}"
+    return 0
+  fi
   if ! require_py_module matplotlib; then
     echo "${C_BAD}matplotlib missing; cannot generate figures.${C_OFF}"
     echo "run this first: $PY -m pip install 'matplotlib>=3.7.0'   (or ./reproduce.sh install)"

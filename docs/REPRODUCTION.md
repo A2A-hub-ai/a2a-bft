@@ -9,9 +9,16 @@
 >
 > ```bash
 > ./reproduce.sh doctor     # check first: how far this machine can reproduce
-> ./reproduce.sh verify     # 10 audits + 5 negative-test groups (CPU only, about 1 minute)
+> ./reproduce.sh verify     # audits + negative-test groups (CPU only, about 1 minute)
 > ./reproduce.sh all        # datasets + figures + verify
 > ```
+>
+> **Artifact mode**: the released artifact (zip / public repository) excludes
+> `papers/` — the paper source ships with the manuscript. Without `papers/`,
+> `verify` runs the 6 data-only audits + 2 paper-independent negative groups in
+> full and auto-`SKIP`s the 4 paper cross-check audits + 3 paper-injection
+> negative groups (`REPRODUCE_OK_PARTIAL`). With `papers/` present, all
+> 10 + 5 run.
 >
 > Verdict semantics: `REPRODUCE_OK` / `REPRODUCE_OK_PARTIAL` / `REPRODUCE_FAILED`,
 > with exit codes 0 / 0 / 1. "Not verified" is not "passed".
@@ -407,7 +414,10 @@ pdflatex iclr2027_main && bibtex iclr2027_main && pdflatex iclr2027_main && pdfl
 > `python -m venv` with only `numpy`, `scipy` and `matplotlib` runs all 10 audits
 > plus 5 negative groups to `REPRODUCE_OK` on a fresh clone (measured 2026-09-20,
 > Python 3.12). The datasets and the result JSONs ship inside the repository, so
-> nothing is downloaded and no network access is required.
+> nothing is downloaded and no network access is required. In the released
+> **artifact** (no `papers/`) the paper cross-check layers auto-`SKIP` and the
+> remaining layers still reach an all-green data-only verdict (re-verified
+> 2026-09-21 after the artifact was reduced to experiment code + data).
 
 ```bash
 # 1) Audits
