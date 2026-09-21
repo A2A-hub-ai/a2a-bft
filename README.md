@@ -60,13 +60,6 @@ absorber for equivocation.
 │   ├── datasets/               Benchmark datasets (GSM8K / MBPP / MMLU)
 │   └── legacy/                 Archived historical experiment scripts
 │
-├── docs/
-│   ├── REPRODUCTION.md         ★ Table/figure → script → command → artifact
-│   ├── AUDIT.md                ★ Audit ledger
-│   ├── audit/                  Data-source audit, PAT triage
-│   ├── revisions/              Archived revision-period patch scripts
-│   └── cleanup/                Cleanup lists and packaging scripts
-│
 ├── reproduce.sh                ★ One-command reproduction entry point (see §3.0)
 ├── Makefile                    Thin wrapper around reproduce.sh (make verify / make doctor)
 ├── .a2a_project_root           Project-root marker (**do not delete**; scripts rely on it)
@@ -185,8 +178,10 @@ A2A_VERBOSE=1 bash -c 'source experiments/env/env.sh'   # print the resolved pat
 python experiments/env/smoke_code.py                   # connectivity check on a few tasks
 ```
 
-The full data-generation pipeline is documented in
-**[docs/REPRODUCTION.md](docs/REPRODUCTION.md)**.
+The full data-generation pipeline (multi-method / multi-seed combos, cost and
+rate-limit notes) is documented in `REPRODUCTION.md` in the full project
+repository; this public artifact keeps everything needed to run
+`./reproduce.sh` end to end.
 
 ---
 
@@ -253,7 +248,7 @@ python experiments/verification/negative_test_revision.py  # 8/8
 > After moving or renaming any script, run `audit_paths.py` and
 > `negative_test_paths.py` first.
 
-See **[docs/AUDIT.md](docs/AUDIT.md)** for details.
+The full audit ledger is kept in `AUDIT.md` in the full project repository.
 
 > Note: the submission-compliance checklist (`SUBMISSION_CHECKLIST.md`) contains
 > submission-identifying information. It is **double-blind material** and is not

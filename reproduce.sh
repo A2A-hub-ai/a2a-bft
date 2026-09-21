@@ -495,10 +495,10 @@ stage_full() {
   run_step "aggregate_full_sweep.py" "$A2A_ROOT" "$PY" "$REL_REPRODUCE/aggregate_full_sweep.py"
 
   hr; echo "Pipeline B: ablations + baseline comparison"; hr
-  echo "${C_DIM}  full commands for this pipeline: docs/REPRODUCTION.md section 3 (multi-method / multi-seed combos).${C_OFF}"
+  echo "${C_DIM}  full commands for this pipeline: REPRODUCTION.md section 3 in the full project repository (docs/ is not shipped in this artifact).${C_OFF}"
 
   hr; echo "Pipeline C: real-API multi-domain validation (needs DEEPSEEK_API_KEY)"; hr
-  echo "${C_DIM}  full commands for this pipeline: docs/REPRODUCTION.md section 4 (cost and rate-limit notes).${C_OFF}"
+  echo "${C_DIM}  full commands for this pipeline: REPRODUCTION.md section 4 in the full project repository (docs/ is not shipped in this artifact).${C_OFF}"
 
   hr; echo "Regenerate figures and recheck"; hr
   run_step "generate_figures.py" "$A2A_ROOT" "$PY" "$REL_PAPERS/generate_figures.py"

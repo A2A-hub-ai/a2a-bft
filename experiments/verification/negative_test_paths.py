@@ -128,11 +128,21 @@ def main():
         "docreadme": os.path.join(ROOT, "experiments", "datasets", "DATASET_README.md"),
         "docsh": os.path.join(ROOT, "experiments", "env", "run_on_autodl.sh"),
     }
-    for k, v in targets.items():
+    doc_missing = not os.path.isdir(os.path.join(ROOT, "docs"))
+    for k, v in list(targets.items()):
+        # 2026-09-21 起公开工件（补充材料/GitHub）不含 docs/：负向3 的注入目标
+        # docs/cleanup/build_cleanup_list.py 不在包内。该用例在工件模式下跳过
+        # （计数口径见输出），完整项目（工作区）行为不变——目标缺失仍是硬错误，
+        # 只有 docs/ 整目录缺失才豁免，防止"目标丢了"被静默吞掉。
+        if k == "clean" and doc_missing:
+            del targets["clean"]
+            print("工件模式（docs/ 不在包内）：负向3 (build_cleanup_list.py) 跳过，其余用例照常")
+            continue
         if not os.path.exists(v):
             print(f"找不到目标文件 {k}: {v}")
             sys.exit(1)
 
+    skipped_doc = "clean" not in targets
     results = [
         # 负向1：把"由脚本自身位置推导数据目录"注入回去（真实发生过的缺陷）
         case("负向1 (parse_correctness_log.py  HERE/results 回归)",
@@ -147,11 +157,8 @@ def main():
              'RESULTS = os.path.join(HERE, "results")',
              "[smoke] experiments\\reproduce\\run_pairing_mcnemar.py:RESULTS"),
         # 负向3：目录常量由脚本自身位置推导 → 上一级目录不存在
-        case("负向3 (build_cleanup_list.py 结果目录解析失效)",
-             targets["clean"],
-             "R = os.path.join(ROOT, 'experiments', 'results')",
-             "R = os.path.join(_HERE, 'experiments', 'results')",
-             "[path] docs\\cleanup\\build_cleanup_list.py:R 目录的上一级不存在"),
+        # （工件模式下 docs/ 不在包内，此用例已跳过 —— 见上方 targets 循环）
+
         # 负向4：sys.path 插入目标不存在
         case("负向4 (审计脚本 sys.path 目标被打错)",
              targets["theory"],
@@ -178,6 +185,14 @@ def main():
              "[doccmd] experiments/env/run_on_autodl.sh"),
         virgin_check(),
     ]
+    if not skipped_doc:
+        # 负向3：目录常量由脚本自身位置推导 → 上一级目录不存在
+        # （注入目标 docs/cleanup/build_cleanup_list.py 只在完整项目/工作区存在）
+        results.append(case("负向3 (build_cleanup_list.py 结果目录解析失效)",
+                            targets["clean"],
+                            "R = os.path.join(ROOT, 'experiments', 'results')",
+                            "R = os.path.join(_HERE, 'experiments', 'results')",
+                            "[path] docs\\cleanup\\build_cleanup_list.py:R 目录的上一级不存在"))
 
     ok = sum(results)
     print(f"\n负向测试: {ok}/{len(results)} 项通过")

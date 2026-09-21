@@ -84,11 +84,18 @@ ARTIFACT_MODE = not os.path.isdir(os.path.join(ROOT, "papers"))
 
 
 def _paper_exempt(rel_target):
-    """artifact 模式下，位于 papers/ 下的目标豁免存在性检查。"""
+    """artifact 模式下，位于 papers/ 或 docs/ 下的目标豁免存在性检查。
+
+    2026-09-21 起公开工件（补充材料/GitHub）同时不含 papers/ 与 docs/：
+    指向两者的路径常量与文档命令必然"目标不存在"，统计为豁免（skip）而不判失败；
+    papers/ 或 docs/ 任一在位（完整项目/工作区）时 ARTIFACT_MODE 判定依据是
+    papers/ 的存在性 —— 此时行为与原版完全一致，docs/ 目标照常检查。
+    """
     if not ARTIFACT_MODE:
         return False
     r = rel_target.replace("\\", "/").rstrip("/")
-    return r == "papers" or r.startswith("papers/")
+    return (r == "papers" or r.startswith("papers/")
+            or r == "docs" or r.startswith("docs/"))
 
 
 DATA_DIR_NAMES = ("results", "datasets", "figures", "papers", "models", "logs")
@@ -701,8 +708,8 @@ def main():
     print(f"  §6 文档命令路径          : {doc_checked}"
           f"（扫描 {doc_files} 个 .md/.sh/.txt，不含 docs/reviews 历史快照）")
     if paper_skipped:
-        print(f"  论文源豁免（artifact 模式）: {paper_skipped}（papers/ 不在本工件内，"
-              f"指向 papers/ 的目标不判失败；完整项目无此项）")
+        print(f"  工件模式豁免: {paper_skipped}（papers/ 与 docs/ 不在本工件内，"
+              f"指向两者的目标不判失败；完整项目无此项）")
     if rel_diag:
         print(f"  §4 诊断：相对路径常量 {len(rel_diag)} 条（依赖 CWD，不判失败）")
         for d in rel_diag[:10]:

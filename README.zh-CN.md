@@ -62,14 +62,6 @@ ACCEPT 与 PENDING 的分歧）。这一间隙正是等义投票（equivocation�
 │   ├── datasets/               基准数据集（GSM8K / MBPP / MMLU）
 │   └── legacy/                 历史实验脚本存档
 │
-├── docs/
-│   ├── REPRODUCTION.md         ★ 表/图 → 脚本 → 命令 → 产物
-│   ├── AUDIT.md                ★ 审计总账
-│   ├── audit/                  数据来源审计、PAT 分诊
-│   ├── reviews/                历史评审报告（R1–R18，内部材料）
-│   ├── revisions/              修订期补丁脚本存档
-│   └── cleanup/                清理清单与打包脚本
-│
 ├── reproduce.sh                ★ 一键复现入口（唯一入口，见 §3.0）
 ├── Makefile                    reproduce.sh 的薄封装（make verify / make doctor）
 ├── .a2a_project_root           项目根标记（**勿删**，脚本靠它定位）
@@ -165,7 +157,8 @@ A2A_VERBOSE=1 bash -c 'source experiments/env/env.sh'   # 看解析出的路径
 python experiments/env/smoke_code.py                   # 少量任务的连通性验证
 ```
 
-完整的数据生成流水线见 **[docs/REPRODUCTION.md](docs/REPRODUCTION.md)**。
+完整的数据生成流水线（多方法 / 多 seed 组合、成本与限流说明）见完整项目仓库中的
+`REPRODUCTION.md`；本公开工件保留了端到端跑通 `./reproduce.sh` 所需的全部内容。
 
 ---
 
@@ -219,7 +212,7 @@ python experiments/verification/negative_test_revision.py  # 8/8
 > `sys.path`，于是"全绿"掩盖了它已经跑不起来**。移动或重命名任何脚本后，
 > 请先跑 `audit_paths.py` + `negative_test_paths.py`。
 
-详见 **[docs/AUDIT.md](docs/AUDIT.md)**。
+完整的审计总账保存在完整项目仓库的 `AUDIT.md` 中。
 
 > 注：投稿合规清单（`SUBMISSION_CHECKLIST.md`）含提交身份信息，属**双盲材料**，
 > 不随本匿名仓库发布，故此处不再链接。
