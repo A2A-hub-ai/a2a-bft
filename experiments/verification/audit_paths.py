@@ -100,7 +100,12 @@ def _paper_exempt(rel_target):
 
 DATA_DIR_NAMES = ("results", "datasets", "figures", "papers", "models", "logs")
 SKIP_DIRS = {".git", "__pycache__", ".workbuddy", "node_modules", ".openscience",
-             "datasets", "site-packages", ".venv", "venv", ".tmp_d2bak"}
+             "datasets", "site-packages", ".venv", "venv", ".tmp_d2bak",
+             # 2026-09-21：supplementary_material/ 是 zip 的解包副本，不是项目源码。
+             # 留一份在项目根时（验证"下载即复现"的常见做法），其内部脚本会以副本
+             # 相对路径被扫描，指向 papers/ 的常量必然"目标不存在"→ 2 处误报，
+             # 把一次 15/15 的验收打成 13/15。副本目录一律跳过。
+             "supplementary_material"}
 
 
 def _looks_like_file(p):
