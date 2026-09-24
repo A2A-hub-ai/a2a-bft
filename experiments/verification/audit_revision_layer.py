@@ -324,16 +324,19 @@ ck("B4 Property 4 越界段声明了软故障投票行为",
    bool(re.search(r"soft[- ]fault", p4_body, re.I)),
    "未在同一段内同时出现 soft-fault 与关于其投票行为/弃权的说明")
 
-# B5: Definition 3.1 的两个限定齐备（2026-09-22 措辞更新：soft-fault 条目重写为
-# "intermittent, non-malicious ... never ACCEPTs an invalid proposal"，p_s 幽灵参数移除）
-d31 = TEX[TEX.find("\\begin{definition}[Fault Model]"):
-          TEX.find("\\end{definition}", TEX.find("\\begin{definition}[Fault Model]"))]
-ck("B5 Definition 3.1 含 'never ACCEPTs an invalid proposal'",
+# B5: Definition 3.1/3.2 的限定齐备（2026-09-22 soft fault 升为独立 Definition 3.2，
+# 提取范围 = Fault Model + Soft fault 两个连续 definition 环境）
+_d0 = TEX.find("\\begin{definition}[Fault Model]")
+_d1 = TEX.find("\\end{definition}", TEX.find("\\begin{definition}[Soft fault]"))
+d31 = TEX[_d0:_d1]
+ck("B5 Definition 3.2 含 'never ACCEPTs an invalid proposal'",
    "never ACCEPTs an invalid proposal" in d31)
-ck("B5c Definition 3.1 soft-fault 条目含故障语义（intermittent, non-malicious）",
+ck("B5c Definition 3.2 soft-fault 条目含故障语义（intermittent, non-malicious）",
    "intermittent, non-malicious" in d31)
-ck("B5d Definition 3.1 已移除幽灵参数 p_s", "$p_s$" not in d31)
-ck("B5b Definition 3.1 含 s<=f 条件", bool(re.search(r"s \\leq f", d31)))
+ck("B5d Fault Model 已移除幽灵参数 p_s", "$p_s$" not in d31)
+ck("B5e Fault Model 的 s 条目引用 Soft fault 定义",
+   "soft-fault agents (Definition~\\ref{def:softfault})" in d31)
+ck("B5b Definition 3.1/3.2 覆盖 s<=f 条件", bool(re.search(r"s \\leq f", d31)))
 
 # B6: s<=f 在阈值/引理处同步
 ck("B6 §4.3 阈值处有 s<=f 指注", bool(re.search(r"provided \$s \\leq f\$", TEX)))

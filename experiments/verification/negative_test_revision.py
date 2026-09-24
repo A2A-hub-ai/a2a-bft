@@ -79,8 +79,8 @@ CASES = [
     ("旧值残留（1,217）", "[PROBLEM] B8 旧值已清除 1{,}217",
      [("1{,}186", "1{,}217")]),
 
-    ("Definition 3.1 丢失 s<=f 条件", "[PROBLEM] B5b",
-     [(r"with $s \leq f$ when soft faults vote REJECT rather than abstaining",
+    ("Definition 3.1/3.2 丢失 s<=f 条件", "[PROBLEM] B5b",
+     [(r"$s \leq f$ is assumed when soft faults vote REJECT rather than abstaining",
        r"when soft faults vote REJECT rather than abstaining")]),
 
     ("压缩期保留关键词丢失（4,320）", "[PROBLEM] C1",
